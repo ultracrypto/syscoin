@@ -1248,8 +1248,9 @@ bool CAssetAllocationTransactionsDB::ScanAssetAllocationIndex(const int count, c
 	vector<string> contents;
 	contents.reserve(5);
 	for (auto&indexObj : boost::adaptors::reverse(AssetAllocationIndex)) {
-		if (nStartBlock > 0 && indexObj.first < nStartBlock)
-			continue;
+		if (nStartBlock > 0 && indexObj.first < nStartBlock) {
+            continue;
+        }
 		for (auto& indexItem : indexObj.second) {
 			if (bParseKey) {
 				boost::algorithm::split(contents, indexItem.first, boost::is_any_of("-"));
@@ -1266,11 +1267,13 @@ bool CAssetAllocationTransactionsDB::ScanAssetAllocationIndex(const int count, c
 			if (index <= from) {
 				continue;
 			}
-			if (assetValue.read(indexItem.second))
-				oRes.push_back(assetValue);
-			if (index >= count + from)
-				break;
+			if (assetValue.read(indexItem.second)) {
+                oRes.push_back(assetValue);
+            }
 		}
+        if (index >= count + from) {
+            break;
+        }
 	}
 	return true;
 }
@@ -1372,6 +1375,7 @@ bool CAssetAllocationDB::ScanAssetAllocations(const int count, const int from, c
 	}
 	return true;
 }
+
 UniValue listassetallocationtransactions(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
 	if (request.fHelp || 3 < params.size())
@@ -1395,12 +1399,25 @@ UniValue listassetallocationtransactions(const JSONRPCRequest& request) {
 	UniValue options;
 	int count = 10;
 	int from = 0;
-	if (params.size() > 0)
-		count = params[0].get_int();
-	if (params.size() > 1)
-		from = params[1].get_int();
-	if (params.size() > 2)
-		options = params[2];
+
+    if (params.size() > 0) {
+        count = params[0].get_int();
+        if (count == 0) {
+            count = INT_MAX;
+        } else
+        if (count < 0) {
+            throw runtime_error("SYSCOIN_ASSET_ALLOCATION_RPC_ERROR: ERRCODE: 1510 - " + _("'count' must be 0 or greater"));
+        }
+    }
+    if (params.size() > 1) {
+        from = params[1].get_int();
+        if (from < 0) {
+            throw runtime_error("SYSCOIN_ASSET_ALLOCATION_RPC_ERROR: ERRCODE: 1510 - " + _("'from' must be 0 or greater"));
+        }
+    }
+    if (params.size() > 2) {
+        options = params[2];
+    }
 
 	UniValue oRes(UniValue::VARR);
 	if (!passetallocationtransactionsdb->ScanAssetAllocationIndex(count, from, options, oRes))
