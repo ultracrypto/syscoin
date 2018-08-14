@@ -7,7 +7,7 @@
 #include "net.h"
 #include "netbase.h"
 #include "serialize.h"
-#include "init.h"
+#include "validation.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "chainparams.h"
