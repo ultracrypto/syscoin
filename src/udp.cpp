@@ -10,7 +10,7 @@
 #include "init.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-
+#include "chainparams.h"
 using namespace std;
 using namespace boost;
 
@@ -134,7 +134,7 @@ void ThreadUDPServer2()
     {
       boost::asio::io_service io_service;
   
-      server s(g_connman, io_service, GetListenPort());
+      server s(&g_connman, io_service, GetListenPort());
 
       cur_server = &s;
   
