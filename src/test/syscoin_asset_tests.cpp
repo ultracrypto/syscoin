@@ -281,6 +281,7 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_subtract2)
 
 BOOST_AUTO_TEST_CASE(generate_big_assetdata)
 {
+	StartNodes();
 	ECC_Start();
 	GenerateSpendableCoins();
 	printf("Running generate_big_assetdata...\n");
@@ -320,7 +321,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	receiver.push_back("node3");
 	BOOST_CHECK(receiver.size() == 1);
 
-	int numberOfTransactionToSend = 2500;
+	int numberOfTransactionToSend = 100;
 	// create 1000 addresses and assets for each asset	
 	printf("creating sender addresses/assets...\n");
 	for (int i = 0; i < numberOfTransactionToSend; i++) {
