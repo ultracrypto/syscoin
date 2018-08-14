@@ -2375,7 +2375,7 @@ bool CConnman::Start(CScheduler& scheduler, std::string& strNodeError, Options c
     // Dump network addresses
     scheduler.scheduleEvery(boost::bind(&CConnman::DumpData, this), DUMP_ADDRESSES_INTERVAL);
 	// SYSCOIN UDP thread handler for INV messages
-	threadUDPSocketHandler = std::thread(&TraceThread<std::function<void()> >, "msghandudp", std::function<void()>(std::bind(&ThreadUDPServer, this)));
+	threadUDPSocketHandler = std::thread(&TraceThread<std::function<void()> >, "msghandudp", std::function<void()>(std::bind(&ThreadUDPServer)));
 
     return true;
 }

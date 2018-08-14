@@ -3383,7 +3383,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                         }
                     }
                     if (vInv.size() == MAX_INV_SZ) {
-                        PushMessage(pto, "inv", vInv);
+						SendUDPMessage(pto, "inv", vInv);
                         vInv.clear();
                     }
                     pto->filterInventoryKnown.insert(hash);
@@ -3394,14 +3394,14 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             for (const auto& inv : pto->vInventoryOtherToSend) {
                 vInv.push_back(inv);
                 if (vInv.size() == MAX_INV_SZ) {
-                    PushMessage(pto, "inv", vInv);
+					SendUDPMessage(pto, "inv", vInv);
                     vInv.clear();
                 }
             }
             pto->vInventoryOtherToSend.clear();
         }
         if (!vInv.empty())
-            PushMessage(pto, "inv", vInv);
+			SendUDPMessage(pto, "inv", vInv);
 
         // Detect whether we're stalling
         nNow = GetTimeMicros();
