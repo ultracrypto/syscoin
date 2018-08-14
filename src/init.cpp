@@ -161,7 +161,7 @@ static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 // fRequestShutdown getting set, and then does the normal Qt
 // shutdown thing.
 //
-
+std::atomic<bool> fRequestShutdown(false);
 std::atomic<bool> fRequestRestart(false);
 std::atomic<bool> fDumpMempoolLater(false);
 
