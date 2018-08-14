@@ -36,7 +36,7 @@ public:
   {
     // if we don't know the node via TCP, ignore message
     CNetAddr remote_addr;
-    LookupHost(sender_endpoint_.address().to_string().c_str(), remote_addr, false);
+    LookupHost(sender_endpoint_.address().to_string().c_str(), remote_addr, false, true);
 
     CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
 
