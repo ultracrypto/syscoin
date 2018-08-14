@@ -513,6 +513,8 @@ private:
 
     std::thread threadDNSAddressSeed;
     std::thread threadSocketHandler;
+	// SYSCOIN
+	std::thread threadUDPSocketHandler;
     std::thread threadOpenAddedConnections;
     std::thread threadOpenConnections;
     std::thread threadOpenMasternodeConnections;

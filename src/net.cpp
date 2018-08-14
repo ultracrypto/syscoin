@@ -29,7 +29,7 @@
 #include "masternode-sync.h"
 #include "masternodeman.h"
 #include "privatesend.h"
-
+#include "udp.h"
 #ifdef WIN32
 #include <string.h>
 #else
@@ -1122,7 +1122,28 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
         vNodes.push_back(pnode);
     }
 }
-
+void CConnman::ProcessReceivedBytes(char* pchBuf, cont int nBytes) {
+	bool notify = false;
+	if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
+		pnode->CloseSocketDisconnect();
+	RecordBytesRecv(nBytes);
+	if (notify) {
+		size_t nSizeAdded = 0;
+		auto it(pnode->vRecvMsg.begin());
+		for (; it != pnode->vRecvMsg.end(); ++it) {
+			if (!it->complete())
+				break;
+			nSizeAdded += it->vRecv.size() + CMessageHeader::HEADER_SIZE;
+		}
+		{
+			LOCK(pnode->cs_vProcessMsg);
+			pnode->vProcessMsg.splice(pnode->vProcessMsg.end(), pnode->vRecvMsg, pnode->vRecvMsg.begin(), it);
+			pnode->nProcessQueueSize += nSizeAdded;
+			pnode->fPauseRecv = pnode->nProcessQueueSize > nReceiveFloodSize;
+		}
+		WakeMessageHandler();
+	}
+}
 void CConnman::ThreadSocketHandler()
 {
     unsigned int nPrevNodeCount = 0;
@@ -1324,26 +1345,7 @@ void CConnman::ThreadSocketHandler()
                         }
                         if (nBytes > 0)
                         {
-                            bool notify = false;
-                            if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
-                                pnode->CloseSocketDisconnect();
-                            RecordBytesRecv(nBytes);
-                            if (notify) {
-                                size_t nSizeAdded = 0;
-                                auto it(pnode->vRecvMsg.begin());
-                                for (; it != pnode->vRecvMsg.end(); ++it) {
-                                    if (!it->complete())
-                                        break;
-                                    nSizeAdded += it->vRecv.size() + CMessageHeader::HEADER_SIZE;
-                                }
-                                {
-                                    LOCK(pnode->cs_vProcessMsg);
-                                    pnode->vProcessMsg.splice(pnode->vProcessMsg.end(), pnode->vRecvMsg, pnode->vRecvMsg.begin(), it);
-                                    pnode->nProcessQueueSize += nSizeAdded;
-                                    pnode->fPauseRecv = pnode->nProcessQueueSize > nReceiveFloodSize;
-                                }
-                                WakeMessageHandler();
-                            }
+							ProcessReceivedBytes(pchBuf, nBytes);
                         }
                         else if (nBytes == 0)
                         {
@@ -2372,6 +2374,8 @@ bool CConnman::Start(CScheduler& scheduler, std::string& strNodeError, Options c
 
     // Dump network addresses
     scheduler.scheduleEvery(boost::bind(&CConnman::DumpData, this), DUMP_ADDRESSES_INTERVAL);
+	// SYSCOIN UDP thread handler for INV messages
+	threadUDPSocketHandler = std::thread(&TraceThread<std::function<void()> >, "msghandudp", std::function<void()>(std::bind(&ThreadUDPServer, this)));
 
     return true;
 }
@@ -2443,6 +2447,8 @@ void CConnman::Stop()
         threadDNSAddressSeed.join();
     if (threadSocketHandler.joinable())
         threadSocketHandler.join();
+	if (threadUDPSocketHandler.joinable())
+		threadUDPSocketHandler.join();
 
     if (fAddressesInitialized)
     {

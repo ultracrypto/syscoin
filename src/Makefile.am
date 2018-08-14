@@ -193,6 +193,7 @@ SYSCOIN_CORE_H = \
   txdb.h \
   txmempool.h \
   ui_interface.h \
+  udp.h \
   undo.h \
   util.h \
   utilmoneystr.h \
@@ -286,6 +287,7 @@ libsyscoin_server_a_SOURCES = \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
+  udp.cpp \
   ui_interface.cpp \
   validation.cpp \
   validationinterface.cpp \
