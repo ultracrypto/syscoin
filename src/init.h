@@ -8,6 +8,7 @@
 #define SYSCOIN_INIT_H
 
 #include <string>
+#include <atomic>
 class CScheduler;
 class CWallet;
 
@@ -15,6 +16,7 @@ namespace boost
 {
 class thread_group;
 } // namespace boost
+std::atomic<bool> fRequestShutdown(false);
 void StartShutdown();
 void StartRestart();
 bool ShutdownRequested();
