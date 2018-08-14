@@ -73,10 +73,10 @@ public:
               boost::asio::placeholders::bytes_transferred));
   }
 
-  void sendmsg(std::string ipAddr, std::string strPort,
+  void sendmsg(std::string ipAddr, unsigned int port,
                char *data, unsigned int data_len)
   {
-      udp::endpoint receiver_endpoint(ipAddr, strPort);
+      udp::endpoint receiver_endpoint(ipAddr, port);
       sendmsg(receiver_endpoint, data, data_len);
   }
 
@@ -111,7 +111,7 @@ bool SendUDPMessage(CNode *pfrom, string strCommand, vector<CInv> &vInv)
     memcpy((char*)&vSend[nHeaderStart] + CMessageHeader::CHECKSUM_OFFSET, &nChecksum, sizeof(nChecksum));
 
     if (cur_server) {
-        cur_server->sendmsg(pfrom->addr.ToString(), pfrom->addr.ToStringPort(),
+        cur_server->sendmsg(pfrom->addr.ToString(), pfrom->addr.GetPort(),
                             &vSend[0], (unsigned int) vSend.size());
         
         return true;
