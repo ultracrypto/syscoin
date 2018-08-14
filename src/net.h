@@ -162,7 +162,8 @@ public:
     bool OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false, bool fFeeler = false, bool fAddnode = false, bool fConnectToMasternode = false);
     bool OpenMasternodeConnection(const CAddress& addrConnect);
     bool CheckIncomingNonce(uint64_t nonce);
-
+	// SYSCOIN
+	void ProcessReceivedBytes(CNode* pnode, char* pchBuf, const int nBytes);
     struct CFullyConnectedOnly {
         bool operator() (const CNode* pnode) const {
             return NodeFullyConnected(pnode);

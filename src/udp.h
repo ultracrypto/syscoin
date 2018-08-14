@@ -10,6 +10,6 @@
 
 void ThreadUDPServer();
 
-bool SendUDPMessage(CNode *pfrom, string strCommand, vector<CInv> &vInv);
+bool SendUDPMessage(CNode *pfrom, stdLLstring strCommand, std::vector<CInv> &vInv);
 
 #endif // BITCOIN_UDP_H

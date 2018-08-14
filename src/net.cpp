@@ -1122,7 +1122,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
         vNodes.push_back(pnode);
     }
 }
-void CConnman::ProcessReceivedBytes(char* pchBuf, cont int nBytes) {
+void CConnman::ProcessReceivedBytes(CNode* pnode, char* pchBuf, const int nBytes) {
 	bool notify = false;
 	if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
 		pnode->CloseSocketDisconnect();
@@ -1345,7 +1345,7 @@ void CConnman::ThreadSocketHandler()
                         }
                         if (nBytes > 0)
                         {
-							ProcessReceivedBytes(pchBuf, nBytes);
+							ProcessReceivedBytes(pnode, pchBuf, nBytes);
                         }
                         else if (nBytes == 0)
                         {
