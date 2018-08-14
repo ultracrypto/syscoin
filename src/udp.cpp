@@ -76,7 +76,7 @@ public:
   void sendmsg(std::string ipAddr, unsigned int port,
                char *data, unsigned int data_len)
   {
-      udp::endpoint receiver_endpoint(ipAddr, port);
+      udp::endpoint receiver_endpoint(udp::v4(), ipAddr, port);
       sendmsg(receiver_endpoint, data, data_len);
   }
 
