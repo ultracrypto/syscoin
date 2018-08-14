@@ -34,7 +34,7 @@ public:
   void handle_receive_from(const boost::system::error_code& error,
       size_t bytes_recvd)
   {
-	  printf("handle_receive_from %s\n", sender_endpoint_.address().to_string().c_str())
+	  printf("handle_receive_from %s\n", sender_endpoint_.address().to_string().c_str());
     // if we don't know the node via TCP, ignore message
     CNode *pfrom = g_connman->FindNode(sender_endpoint_.address().to_string());   // FIXME need ref?
 	  printf("pfrom? %d\n", pfrom? 1: 0)
