@@ -5,6 +5,7 @@
 #include "protocol.h"
 #include "udp.h"
 #include "net.h"
+#include "netbase.h"
 #include "serialize.h"
 #include "init.h"
 #include <boost/bind.hpp>
@@ -36,7 +37,9 @@ public:
       size_t bytes_recvd)
   {
     // if we don't know the node via TCP, ignore message
-    CNetAddr remote_addr(ResolveIP(sender_endpoint_.address().to_string()));
+    CNetAddr remote_addr;
+    LookupHost(sender_endpoint_.address().to_string(), remote_addr, false);
+
     CNode *pfrom = connman->FindNode(remote_addr);   // FIXME need ref?
 
     if (pfrom && !error && bytes_recvd > 0)
@@ -97,7 +100,7 @@ bool SendUDPMessage(CNode *pfrom, string strCommand, vector<CInv> &vInv)
 {
     CDataStream vSend(SER_NETWORK, PROTOCOL_VERSION);
     unsigned int nHeaderStart = vSend.size();
-    vSend << CMessageHeader(strCommand.c_str());
+    vSend << CMessageHeader(Params().MessageStart(), strCommand.c_str(), 0);
     unsigned int nMessageStart = vSend.size();
 
     vSend << vInv;
