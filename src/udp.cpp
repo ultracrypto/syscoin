@@ -19,11 +19,9 @@ using boost::asio::ip::udp;
 
 class server
 {
-private:
-	CConnman* connman;
 public:
-  server(CConnman* connmanIn, boost::asio::io_service& io_service, short port)
-    : connman(connmanIn),io_service_(io_service),
+  server(boost::asio::io_service& io_service, short port)
+    : io_service_(io_service),
       socket_(io_service, udp::endpoint(udp::v4(), port))
   {
     socket_.async_receive_from(
@@ -38,13 +36,13 @@ public:
   {
     // if we don't know the node via TCP, ignore message
     CNetAddr remote_addr;
-    LookupHost(sender_endpoint_.address().to_string(), remote_addr, false);
+    LookupHost(sender_endpoint_.address().to_string().c_str(), remote_addr, false);
 
-    CNode *pfrom = connman->FindNode(remote_addr);   // FIXME need ref?
+    CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
 
     if (pfrom && !error && bytes_recvd > 0)
     {
-		connman->ProcessReceivedBytes(pfrom, data_, bytes_recvd);
+		g_connman->ProcessReceivedBytes(pfrom, data_, bytes_recvd);
     }
 
     // fall through:
@@ -134,7 +132,7 @@ void ThreadUDPServer2()
     {
       boost::asio::io_service io_service;
   
-      server s(&g_connman, io_service, GetListenPort());
+      server s(io_service, GetListenPort());
 
       cur_server = &s;
   
