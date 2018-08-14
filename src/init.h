@@ -16,7 +16,7 @@ namespace boost
 {
 class thread_group;
 } // namespace boost
-
+std::atomic<bool> fRequestShutdown(false);
 void StartShutdown();
 void StartRestart();
 bool ShutdownRequested();

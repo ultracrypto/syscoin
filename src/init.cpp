@@ -162,7 +162,6 @@ static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 // shutdown thing.
 //
 
-std::atomic<bool> fRequestShutdown(false);
 std::atomic<bool> fRequestRestart(false);
 std::atomic<bool> fDumpMempoolLater(false);
 

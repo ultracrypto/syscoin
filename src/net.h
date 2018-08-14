@@ -396,6 +396,7 @@ public:
     unsigned int GetReceiveFloodSize() const;
 
     void WakeMessageHandler();
+	CNode* FindNode(const CNetAddr& ip);
 private:
     struct ListenSocket {
         SOCKET socket;
@@ -415,7 +416,7 @@ private:
 
     uint64_t CalculateKeyedNetGroup(const CAddress& ad) const;
 
-    CNode* FindNode(const CNetAddr& ip);
+   
     CNode* FindNode(const CSubNet& subNet);
     CNode* FindNode(const std::string& addrName);
     CNode* FindNode(const CService& addr);

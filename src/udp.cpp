@@ -6,7 +6,7 @@
 #include "udp.h"
 #include "net.h"
 #include "serialize.h"
-
+#include "init.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
@@ -21,8 +21,8 @@ class server
 private:
 	CConnman* connman;
 public:
-  server(boost::asio::io_service& io_service, short port)
-    : io_service_(io_service),
+  server(CConnman* connmanIn, boost::asio::io_service& io_service, short port)
+    : connman(connmanIn),io_service_(io_service),
       socket_(io_service, udp::endpoint(udp::v4(), port))
   {
     socket_.async_receive_from(
@@ -36,8 +36,8 @@ public:
       size_t bytes_recvd)
   {
     // if we don't know the node via TCP, ignore message
-    CNetAddr remote_addr(sender_endpoint_.address().to_string());
-    CNode *pfrom = FindNode(remote_addr);   // FIXME need ref?
+    CNetAddr remote_addr(ResolveIP(sender_endpoint_.address().to_string()));
+    CNode *pfrom = connman->FindNode(remote_addr);   // FIXME need ref?
 
     if (pfrom && !error && bytes_recvd > 0)
     {
@@ -97,7 +97,7 @@ bool SendUDPMessage(CNode *pfrom, string strCommand, vector<CInv> &vInv)
 {
     CDataStream vSend(SER_NETWORK, PROTOCOL_VERSION);
     unsigned int nHeaderStart = vSend.size();
-    vSend << CMessageHeader(strCommand.c_str(), 0);
+    vSend << CMessageHeader(strCommand.c_str());
     unsigned int nMessageStart = vSend.size();
 
     vSend << vInv;
@@ -131,7 +131,7 @@ void ThreadUDPServer2()
     {
       boost::asio::io_service io_service;
   
-      server s(io_service, GetListenPort());
+      server s(g_connman, io_service, GetListenPort());
 
       cur_server = &s;
   
@@ -143,7 +143,8 @@ void ThreadUDPServer2()
     }
     catch (std::exception& e)
     {
-        PrintException(&e, "ThreadUDPServer2()");
+		LogPrintf("ThreadUDPServer2 %s\n", e.what());
+		printf("ThreadUDPServer2 %s\n", e.what());
     }
 
 }
@@ -158,8 +159,9 @@ void ThreadUDPServer()
         ThreadUDPServer2();
     }
     catch (std::exception& e) {
-        PrintException(&e, "ThreadUDPServer()");
+        LogPrintf("ThreadUDPServer %s\n", e.what());
+		printf("ThreadUDPServer %s\n", e.what());
     }
-    printf("ThreadUDPServer exited\n");
+	printf("ThreadUDPServer exited\n");
 }
 
