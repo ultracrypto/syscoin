@@ -7,7 +7,7 @@
 #include "net.h"
 #include "netbase.h"
 #include "serialize.h"
-#include "validation.h"
+#include "init.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "chainparams.h"
@@ -136,7 +136,7 @@ void ThreadUDPServer2()
 
       cur_server = &s;
   
-      while (!fRequestShutdown)
+      while (!ShutdownRequested())
           io_service.run_one();
 
       cur_server = NULL;
