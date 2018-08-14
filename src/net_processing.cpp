@@ -3325,7 +3325,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     vInv.push_back(inv);
                     if (vInv.size() == MAX_INV_SZ) {
                         LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInv.size(), pto->id);
-                        SendUDPMessage(pto, "inv", vInv));
+                        SendUDPMessage(pto, "inv", vInv);
                         vInv.clear();
                     }
                 }
