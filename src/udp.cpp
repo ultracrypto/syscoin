@@ -77,7 +77,10 @@ public:
   void sendmsg(const std::string &ipAddr, const unsigned int &port,
                const char *data, const unsigned int &data_len)
   {
-      sendmsg(udp::endpoint(boost::asio::ip::address::from_string(ipAddr), port), data, data_len);
+	  boost::system::error_code myError;
+	  const boost::asio::ip::address_v4 &targetIP = boost::asio::ip::address_v4::from_string(ipAddr, myError);
+	  udp::endpoint receiver_endpoint(targetIP, port);
+      sendmsg(receiver_endpoint, data, data_len);
   }
 
 private:
