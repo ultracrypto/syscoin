@@ -79,7 +79,7 @@ public:
                const char *data, const unsigned int &data_len)
   {
 	  udp::resolver resolver(io_service_);
-	  const udp::endpoint &endpoint = *resolver.resolve({ udp::v4(), ipAddr, boost::lexical_cast<string>(port) });
+	  const udp::endpoint &endpoint = *resolver.resolve({ udp::v4(), ipAddr, boost::lexical_cast<string>(port), boost::asio::ip::resolver_query_base::numeric_service });
       sendmsg(endpoint, data, data_len);
   }
 
