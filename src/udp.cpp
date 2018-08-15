@@ -36,7 +36,8 @@ public:
   {
 	  printf("handle_receive_from %s\n", sender_endpoint_.address().to_string().c_str());
     // if we don't know the node via TCP, ignore message
-	  CNetAddr remote_addr(sender_endpoint_.address().to_string());
+	  CNetAddr remote_addr;
+	  g_connman->LookupHost(sender_endpoint_.address().to_string(), remote_addr, false);
 	  CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
 	printf("pfrom? %d\n", pfrom ? 1 : 0);
     if (pfrom && !error && bytes_recvd > 0)
