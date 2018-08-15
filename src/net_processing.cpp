@@ -1248,7 +1248,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         }
                     }
                     if(topush) {
-                        LogPrint("net", "ProcessGetData -- pushing: inv = %s\n", inv.ToString());
+                        LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT_VOTE pushing: inv = %s\n", inv.ToString());
                         connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::MNGOVERNANCEOBJECTVOTE, ss));
                         push = true;
                     }

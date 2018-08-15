@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "chainparams.h"
+#include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
 
@@ -36,7 +37,8 @@ public:
   {
     // if we don't know the node via TCP, ignore message
 	CNetAddr remote_addr;
-	LookupHost(sender_endpoint_.address().to_string().c_str(), remote_addr, false);
+	const string &endpoint = sender_endpoint_.address().to_string() + ":" + boost::lexical_cast<string>(sender_endpoint_.port());
+	LookupHost(endpoint.c_str(), remote_addr, false);
 	CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
     if (pfrom && !error && bytes_recvd > 0)
     {
