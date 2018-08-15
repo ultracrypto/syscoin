@@ -37,8 +37,8 @@ public:
   {
     // if we don't know the node via TCP, ignore message
 	CNetAddr remote_addr;
-	const string &endpoint = sender_endpoint_.address().to_string() + ":" + boost::lexical_cast<string>(sender_endpoint_.port());
-	LookupHost(endpoint.c_str(), remote_addr, false);
+	const string &endpoint = sender_endpoint_.address().to_string();
+	Lookup(endpoint.c_str(), remote_addr, sender_endpoint_.port(), false);
 	CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
     if (pfrom && !error && bytes_recvd > 0)
     {
