@@ -36,7 +36,7 @@ public:
       const size_t &bytes_recvd)
   {
     // if we don't know the node via TCP, ignore message
-	CNetAddr remote_addr;
+	CService remote_addr;
 	const string &endpoint = sender_endpoint_.address().to_string();
 	Lookup(endpoint.c_str(), remote_addr, sender_endpoint_.port(), false);
 	CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
