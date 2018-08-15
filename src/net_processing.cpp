@@ -2929,9 +2929,12 @@ bool ProcessMessages(CNode* pfrom, CConnman& connman, const std::atomic<bool>& i
         // Scan for message start
         if (memcmp(msg.hdr.pchMessageStart, chainparams.MessageStart(), CMessageHeader::MESSAGE_START_SIZE) != 0) {
             LogPrintf("PROCESSMESSAGE: INVALID MESSAGESTART %s peer=%d\n", SanitizeString(msg.hdr.GetCommand()), pfrom->id);
-			if(strCommand != NetMsgType::INV)
+			// SYSCOIN UDP processing of INV may cause this to enter, we dont want to disconnect for INV's
+			if (strCommand != NetMsgType::INV) {
 				pfrom->fDisconnect = true;
-            return false;
+				return false;
+			}
+			return fMoreWork;
         }
 
         // Read header
