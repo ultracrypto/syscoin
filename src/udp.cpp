@@ -77,8 +77,8 @@ public:
                char *data, unsigned int data_len)
   {
 	  udp::endpoint receiver_endpoint;
-	  endpoint.address(ipAddr);
-	  endpoint.port(port);
+	  receiver_endpoint.address(ipAddr);
+	  receiver_endpoint.port(port);
       sendmsg(receiver_endpoint, data, data_len);
   }
 
