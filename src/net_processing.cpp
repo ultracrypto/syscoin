@@ -2924,10 +2924,13 @@ bool ProcessMessages(CNode* pfrom, CConnman& connman, const std::atomic<bool>& i
         CNetMessage& msg(msgs.front());
 
         msg.SetVersion(pfrom->GetRecvVersion());
+		std::string strCommand = msg.hdr.GetCommand();
+
         // Scan for message start
         if (memcmp(msg.hdr.pchMessageStart, chainparams.MessageStart(), CMessageHeader::MESSAGE_START_SIZE) != 0) {
             LogPrintf("PROCESSMESSAGE: INVALID MESSAGESTART %s peer=%d\n", SanitizeString(msg.hdr.GetCommand()), pfrom->id);
-            pfrom->fDisconnect = true;
+			if(strCommand != NetMsgType::INV)
+				pfrom->fDisconnect = true;
             return false;
         }
 
@@ -2938,7 +2941,7 @@ bool ProcessMessages(CNode* pfrom, CConnman& connman, const std::atomic<bool>& i
             LogPrintf("PROCESSMESSAGE: ERRORS IN HEADER %s peer=%d\n", SanitizeString(hdr.GetCommand()), pfrom->id);
             return fMoreWork;
         }
-        std::string strCommand = hdr.GetCommand();
+        
 
         // Message size
         unsigned int nMessageSize = hdr.nMessageSize;
