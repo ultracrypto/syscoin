@@ -77,7 +77,7 @@ public:
   void sendmsg(const std::string &ipAddr, const unsigned int &port,
                const char *data, const unsigned int &data_len)
   {
-      sendmsg(udp::endpoint(ip::address::from_string(ipAddr), port), data, data_len);
+      sendmsg(udp::endpoint(boost::asio::ip::address::from_string(ipAddr), port), data, data_len);
   }
 
 private:
