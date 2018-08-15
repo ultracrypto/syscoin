@@ -20,7 +20,7 @@ using boost::asio::ip::udp;
 class server
 {
 public:
-  server(boost::asio::io_service& io_service, short port)
+  server(boost::asio::io_service& io_service, const short &port)
     : io_service_(io_service),
       socket_(io_service, udp::endpoint(udp::v4(), port))
   {
@@ -32,7 +32,7 @@ public:
   }
 
   void handle_receive_from(const boost::system::error_code& error,
-      size_t bytes_recvd)
+      const size_t &bytes_recvd)
   {
 	  printf("handle_receive_from %s\n", sender_endpoint_.address().to_string().c_str());
     // if we don't know the node via TCP, ignore message
@@ -53,7 +53,7 @@ public:
   }
 
   void handle_send_to(const boost::system::error_code& /*error*/,
-      size_t /*bytes_sent*/)
+      const size_t &bytes_sent)
   {
     // wait for next UDP message
     socket_.async_receive_from(
@@ -63,8 +63,8 @@ public:
           boost::asio::placeholders::bytes_transferred));
   }
 
-  void sendmsg(udp::endpoint &remote_endpoint,
-               const char *data, unsigned int data_len)
+  void sendmsg(const udp::endpoint &remote_endpoint,
+               const char *data, const unsigned int &data_len)
   {
         socket_.async_send_to(
             boost::asio::buffer(data, data_len), remote_endpoint,
@@ -73,11 +73,13 @@ public:
               boost::asio::placeholders::bytes_transferred));
   }
 
-  void sendmsg(std::string ipAddr, unsigned int port,
-               char *data, unsigned int data_len)
+  void sendmsg(const std::string &ipAddr, const unsigned int &port,
+               const char *data, const unsigned int &data_len)
   {
+	  boost::system::error_code myError;
+	  const boost::asio::ip::address_v4 &targetIP = boost::asio::ip::address_v4::from_string(ipAddr, myError);
 	  udp::endpoint receiver_endpoint;
-	  receiver_endpoint.address(boost::asio::ip::address_v4::from_string(ipAddr));
+	  receiver_endpoint.address(targetIP);
 	  receiver_endpoint.port(port);
       sendmsg(receiver_endpoint, data, data_len);
   }
@@ -92,7 +94,7 @@ private:
 
 static class server *cur_server = NULL;
 
-bool SendUDPMessage(CNode *pfrom, string strCommand, vector<CInv> &vInv)
+bool SendUDPMessage(const CNode *pfrom, const string &strCommand, const vector<CInv> &vInv)
 {
     CDataStream vSend(SER_NETWORK, PROTOCOL_VERSION);
     unsigned int nHeaderStart = vSend.size();
