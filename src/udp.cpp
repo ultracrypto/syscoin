@@ -79,8 +79,7 @@ public:
   {
 	  boost::system::error_code myError;
 	  const boost::asio::ip::address_v4 &targetIP = boost::asio::ip::address_v4::from_string(ipAddr, myError);
-	  udp::endpoint receiver_endpoint(targetIP, port);
-      sendmsg(receiver_endpoint, data, data_len);
+      sendmsg(udp::endpoint(targetIP, port), data, data_len);
   }
 
 private:
