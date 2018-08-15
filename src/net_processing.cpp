@@ -1122,7 +1122,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         // wait for other stuff first.
                         std::vector<CInv> vInv;
                         vInv.push_back(CInv(MSG_BLOCK, chainActive.Tip()->GetBlockHash()));
-						connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::INV, vInv));
+                        SendUDPMessage(pfrom,"inv", vInv);
                         pfrom->hashContinue.SetNull();
                     }
                 }
@@ -3291,7 +3291,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
                 vInv.push_back(CInv(MSG_BLOCK, hash));
                 if (vInv.size() == MAX_INV_SZ) {
-					connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
+                    SendUDPMessage(pto, "inv", vInv);
                     vInv.clear();
                 }
             }
