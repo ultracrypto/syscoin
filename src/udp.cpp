@@ -77,7 +77,7 @@ public:
                char *data, unsigned int data_len)
   {
 	  udp::endpoint receiver_endpoint;
-	  receiver_endpoint.address(boost::asio::ip::address::from_string(ipAddr));
+	  receiver_endpoint.address(boost::asio::ip::address_v4::from_string(ipAddr));
 	  receiver_endpoint.port(port);
       sendmsg(receiver_endpoint, data, data_len);
   }
