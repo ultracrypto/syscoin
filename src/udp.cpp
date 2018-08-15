@@ -11,7 +11,6 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "chainparams.h"
-#include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
 
@@ -78,9 +77,12 @@ public:
   void sendmsg(const std::string &ipAddr, const unsigned int &port,
                const char *data, const unsigned int &data_len)
   {
-	  udp::resolver resolver(io_service_);
-	  const udp::endpoint &endpoint = *resolver.resolve({ udp::v4(), ipAddr, boost::lexical_cast<string>(port), boost::asio::ip::resolver_query_base::flags(0) });
-      sendmsg(endpoint, data, data_len);
+	  boost::system::error_code myError;
+	  const boost::asio::ip::address_v4 &targetIP = boost::asio::ip::address_v4::from_string(ipAddr, myError);
+	  udp::endpoint receiver_endpoint;
+	  receiver_endpoint.address(targetIP);
+	  receiver_endpoint.port(port);
+      sendmsg(receiver_endpoint, data, data_len);
   }
 
 private:
