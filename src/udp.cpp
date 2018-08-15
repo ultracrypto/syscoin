@@ -11,7 +11,6 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "chainparams.h"
-#include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
 
@@ -35,11 +34,11 @@ public:
   void handle_receive_from(const boost::system::error_code& error,
       const size_t &bytes_recvd)
   {
+
     // if we don't know the node via TCP, ignore message
-	CService remote_addr;
-	const string &endpoint = sender_endpoint_.address().to_string();
-	Lookup(endpoint.c_str(), remote_addr, sender_endpoint_.port(), false);
-	CNode *pfrom = g_connman->FindNode(remote_addr);   // FIXME need ref?
+	CNetAddr remote_addr;
+	LookupHost(sender_endpoint_.address().to_string().c_str(), remote_addr, false);
+	CNode *pfrom = g_connman->FindNode(CService(remote_addr, sender_endpoint_.port()));   // FIXME need ref?
     if (pfrom && !error && bytes_recvd > 0)
     {
 		g_connman->ProcessReceivedBytes(pfrom, data_, bytes_recvd);
