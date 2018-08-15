@@ -77,8 +77,9 @@ public:
   void sendmsg(const std::string &ipAddr, const unsigned int &port,
                const char *data, const unsigned int &data_len)
   {
-	  udp::resolver resolver(io_service);
-      sendmsg(*resolver.resolve({ udp::v4(), ipAddr, port }), data, data_len);
+	  udp::resolver resolver(io_service_);
+	  const udp::endpoint &endpoint = *resolver.resolve({ udp::v4(), ipAddr, port });
+      sendmsg(endpoint, data, data_len);
   }
 
 private:
