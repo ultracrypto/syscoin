@@ -9,6 +9,6 @@
 #include "serialize.h"
 
 void ThreadUDPServer();
-bool SendUDPMessage(const CNode *pfrom, const string &strCommand, const vector<CInv> &vInv);
+bool SendUDPMessage(const CNode *pfrom, const std::string &strCommand, const std::vector<CInv> &vInv);
 
 #endif // SYSCOIN_UDP_H
