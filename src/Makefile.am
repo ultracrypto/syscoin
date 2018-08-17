@@ -5,9 +5,10 @@
 
 DIST_SUBDIRS = secp256k1 univalue
 
-AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
-AM_CXXFLAGS = $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS)
-AM_CPPFLAGS = $(HARDENED_CPPFLAGS)
+AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
+AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
+AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(HARDENED_CPPFLAGS)
+AM_LIBTOOLFLAGS = --preserve-dup-deps
 EXTRA_LIBRARIES =
 
 if EMBEDDED_UNIVALUE
@@ -19,8 +20,7 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
-SYSCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-SYSCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
+SYSCOIN_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
 SYSCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 SYSCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
@@ -30,7 +30,7 @@ LIBSYSCOIN_COMMON=libsyscoin_common.a
 LIBSYSCOIN_CONSENSUS=libsyscoin_consensus.a
 LIBSYSCOIN_CLI=libsyscoin_cli.a
 LIBSYSCOIN_UTIL=libsyscoin_util.a
-LIBSYSCOIN_CRYPTO=crypto/libsyscoin_crypto.a
+LIBSYSCOIN_CRYPTO_BASE=crypto/libsyscoin_crypto_base.a
 LIBSYSCOINQT=qt/libsyscoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -44,7 +44,21 @@ if ENABLE_WALLET
 LIBSYSCOIN_WALLET=libsyscoin_wallet.a
 endif
 
-$(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
+LIBSYSCOIN_CRYPTO= $(LIBSYSCOIN_CRYPTO_BASE)
+if ENABLE_SSE41
+LIBSYSCOIN_CRYPTO_SSE41 = crypto/libsyscoin_crypto_sse41.a
+LIBSYSCOIN_CRYPTO += $(LIBSYSCOIN_CRYPTO_SSE41)
+endif
+if ENABLE_AVX2
+LIBSYSCOIN_CRYPTO_AVX2 = crypto/libsyscoin_crypto_avx2.a
+LIBSYSCOIN_CRYPTO += $(LIBSYSCOIN_CRYPTO_AVX2)
+endif
+if ENABLE_SHANI
+LIBSYSCOIN_CRYPTO_SHANI = crypto/libsyscoin_crypto_shani.a
+LIBSYSCOIN_CRYPTO += $(LIBSYSCOIN_CRYPTO_SHANI)
+endif
+
+$(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
@@ -62,6 +76,7 @@ EXTRA_LIBRARIES += \
 lib_LTLIBRARIES = $(LIBSYSCOINCONSENSUS)
 
 bin_PROGRAMS =
+noinst_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
@@ -320,11 +335,13 @@ libsyscoin_wallet_a_SOURCES = \
   $(SYSCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libsyscoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_CONFIG_INCLUDES) $(PIC_FLAGS)
-crypto_libsyscoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
-crypto_libsyscoin_crypto_a_SOURCES = \
+crypto_libsyscoin_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libsyscoin_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libsyscoin_crypto_base_a_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
+  crypto/chacha20.h \
+  crypto/chacha20.cpp \
   crypto/common.h \
   crypto/hmac_sha256.cpp \
   crypto/hmac_sha256.h \
@@ -340,8 +357,26 @@ crypto_libsyscoin_crypto_a_SOURCES = \
   crypto/sha512.h
 
 if USE_ASM
-crypto_libsyscoin_crypto_a_SOURCES += crypto/sha256_sse4.cpp
+crypto_libsyscoin_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
 endif
+
+crypto_libsyscoin_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libsyscoin_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libsyscoin_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
+crypto_libsyscoin_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
+crypto_libsyscoin_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
+
+crypto_libsyscoin_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libsyscoin_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libsyscoin_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
+crypto_libsyscoin_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
+crypto_libsyscoin_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
+
+crypto_libsyscoin_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libsyscoin_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libsyscoin_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
+crypto_libsyscoin_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
+crypto_libsyscoin_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libsyscoin_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES)
@@ -429,6 +464,7 @@ libsyscoin_util_a_SOURCES = \
 
 if GLIBC_BACK_COMPAT
 libsyscoin_util_a_SOURCES += compat/glibc_compat.cpp
+AM_LDFLAGS += $(COMPAT_LDFLAGS)
 endif
 
 # cli: shared between syscoin-cli and syscoin-qt
@@ -453,10 +489,10 @@ endif
 
 syscoind_LDADD = \
   $(LIBSYSCOIN_SERVER) \
+  $(LIBSYSCOIN_WALLET) \
   $(LIBSYSCOIN_COMMON) \
   $(LIBUNIVALUE) \
   $(LIBSYSCOIN_UTIL) \
-  $(LIBSYSCOIN_WALLET) \
   $(LIBSYSCOIN_ZMQ) \
   $(LIBSYSCOIN_CONSENSUS) \
   $(LIBSYSCOIN_CRYPTO) \
@@ -482,6 +518,7 @@ syscoin_cli_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBSYSCOIN_UTIL) \
   $(LIBSYSCOIN_CRYPTO)
+
 syscoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
@@ -509,7 +546,7 @@ syscoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 # syscoinconsensus library #
 if BUILD_SYSCOIN_LIBS
 include_HEADERS = script/syscoinconsensus.h
-libsyscoinconsensus_la_SOURCES = $(crypto_libsyscoin_crypto_a_SOURCES) $(libsyscoin_consensus_a_SOURCES)
+libsyscoinconsensus_la_SOURCES = $(crypto_libsyscoin_crypto_base_a_SOURCES) $(libsyscoin_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libsyscoinconsensus_la_SOURCES += compat/glibc_compat.cpp
@@ -543,8 +580,7 @@ CLEANFILES += univalue/*.gcda univalue/*.gcno
 CLEANFILES += wallet/*.gcda wallet/*.gcno
 CLEANFILES += wallet/test/*.gcda wallet/test/*.gcno
 CLEANFILES += zmq/*.gcda zmq/*.gcno
-
-DISTCLEANFILES = obj/build.h
+CLEANFILES += obj/build.h
 
 EXTRA_DIST = $(CTAES_DIST)
 
