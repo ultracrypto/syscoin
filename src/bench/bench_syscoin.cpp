@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "bench.h"
-
+#include <random.h>
 #include "key.h"
 #include "validation.h"
 #include "util.h"
@@ -14,7 +14,7 @@ int
 main(int argc, char** argv)
 {
 	SHA256AutoDetect();
-    ECC_Start();
+	RandomInit();
     SetupEnvironment();
     fPrintToDebugLog = false; // don't want to write to debug.log file
 
