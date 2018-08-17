@@ -100,9 +100,6 @@ public:
             return ret;
         }
     }
-	uint32_t operator()() {
-		return rand32();
-	}
     /** Generate a random integer in the range [0..range). */
     uint64_t randrange(uint64_t range)
     {
@@ -131,6 +128,12 @@ public:
     static constexpr uint64_t min() { return 0; }
     static constexpr uint64_t max() { return std::numeric_limits<uint64_t>::max(); }
     inline uint64_t operator()() { return rand64(); }
+	inline uint32_t rand32(uint32_t nMax) {
+		return rand32() % nMax;
+	}
+	inline uint32_t operator()(uint32_t nMax) {
+		return rand32(nMax);
+	}
 };
 
 /* Number of random bytes returned by GetOSRand.
