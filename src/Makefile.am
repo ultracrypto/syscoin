@@ -232,7 +232,8 @@ obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
 	  "$(abs_top_srcdir)"
-libsyscoin_util_a-clientversion.$(OBJEXT): obj/build.h
+
+libsyscoin_util_a-clientversion.$(OBJEXT): src/obj/build.h
 
 # server: shared between syscoind and syscoin-qt
 libsyscoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
