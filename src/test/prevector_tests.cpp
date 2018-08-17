@@ -5,7 +5,6 @@
 #include <vector>
 #include <prevector.h>
 
-#include <reverse_iterator.h>
 #include <serialize.h>
 #include <streams.h>
 
@@ -57,13 +56,13 @@ class prevector_tester {
 		for (const T& v : pre_vector) {
 			local_check(v == real_vector[pos++]);
 		}
-		for (const T& v : reverse_iterate(pre_vector)) {
+		BOOST_REVERSE_FOREACH(const T& v : pre_vector) {
 			local_check(v == real_vector[--pos]);
 		}
 		for (const T& v : const_pre_vector) {
 			local_check(v == real_vector[pos++]);
 		}
-		for (const T& v : reverse_iterate(const_pre_vector)) {
+		BOOST_REVERSE_FOREACH(const T& v : const_pre_vector) {
 			local_check(v == real_vector[--pos]);
 		}
 		CDataStream ss1(SER_DISK, 0);
