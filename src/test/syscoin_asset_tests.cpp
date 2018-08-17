@@ -281,6 +281,7 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_subtract2)
 
 BOOST_AUTO_TEST_CASE(generate_big_assetdata)
 {
+	RandomInit();
 	ECC_Start();
 	StartNodes();
 	GenerateSpendableCoins();
