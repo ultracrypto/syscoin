@@ -41,7 +41,19 @@
        known ways of changing the transactions without affecting the merkle
        root.
 */
-
+uint256 ComputeMerkleRootFromBranch(const uint256& leaf, const std::vector<uint256>& vMerkleBranch, uint32_t nIndex) {
+	uint256 hash = leaf;
+	for (std::vector<uint256>::const_iterator it = vMerkleBranch.begin(); it != vMerkleBranch.end(); ++it) {
+		if (nIndex & 1) {
+			hash = Hash(BEGIN(*it), END(*it), BEGIN(hash), END(hash));
+		}
+		else {
+			hash = Hash(BEGIN(hash), END(hash), BEGIN(*it), END(*it));
+		}
+		nIndex >>= 1;
+	}
+	return hash;
+}
 /* This implements a constant-space merkle root/path calculator, limited to 2^32 leaves. */
 static void MerkleComputation(const std::vector<uint256>& leaves, uint256* proot, bool* pmutated, uint32_t branchpos, std::vector<uint256>* pbranch) {
     if (pbranch) pbranch->clear();
