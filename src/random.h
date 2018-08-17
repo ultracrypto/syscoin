@@ -100,8 +100,8 @@ public:
             return ret;
         }
     }
-	uint32_t operator()(uint32_t nMax) {
-		return rand32(nMax);
+	uint32_t operator()() {
+		return rand32();
 	}
     /** Generate a random integer in the range [0..range). */
     uint64_t randrange(uint64_t range)
