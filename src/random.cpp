@@ -12,7 +12,7 @@
 #include <compat.h> // for Windows API
 #include <wincrypt.h>
 #endif
-#include <logging.h>  // for LogPrint()
+#include <util.h>  // for LogPrint()
 #include <utiltime.h> // for GetTime()
 
 #include <stdlib.h>
