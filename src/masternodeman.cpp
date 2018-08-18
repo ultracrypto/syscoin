@@ -600,7 +600,7 @@ masternode_info_t CMasternodeMan::FindRandomNotInVec(const std::vector<COutPoint
 
     FastRandomContext insecure_rand;
     // shuffle pointers
-    std::random_shuffle(vpMasternodesShuffled.begin(), vpMasternodesShuffled.end(), insecure_rand);
+    std::shuffle(vpMasternodesShuffled.begin(), vpMasternodesShuffled.end(), insecure_rand);
     bool fExclude;
 
     // loop through
