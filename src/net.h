@@ -904,9 +904,9 @@ public:
                 setInventoryTxToSend.insert(inv.hash);
 				// SYSCOIN randomize tx inv's to send out every 100 txs for optimal network propogation in the face of network latency to well connected to nodes
 				if (setInventoryTxToSend.size() % 100) {
-					printf("random shuffling size of %d\n", setInventoryTxToSend.size());
-					FastRandomContext insecure_rand;
-					std::random_shuffle(setInventoryTxToSend.begin(), setInventoryTxToSend.end(), insecure_rand);
+					printf("random shuffling size of %d, first hash %s\n", setInventoryTxToSend.size(), setInventoryTxToSend[0].GetHex().c_str());
+					std::random_shuffle(setInventoryTxToSend.begin(), setInventoryTxToSend.end(), GetRandInt);
+					printf("random shuffling after size of %d, first hash %s\n", setInventoryTxToSend.size(), setInventoryTxToSend[0].GetHex().c_str());
 				}
             } else {
                 LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);
