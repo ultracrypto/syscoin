@@ -48,9 +48,10 @@ class CTxMemPool;
 class CValidationInterface;
 class CValidationState;
 struct ChainTxData;
-
+class CInv;
 struct LockPoints;
 // SYSCOIN
+extern std::vector<CInv> vInvToSend;
 extern bool fLoaded;
 /** Default for accepting alerts from the P2P network. */
 static const bool DEFAULT_ALERTS = true;

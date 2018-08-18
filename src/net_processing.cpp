@@ -3276,20 +3276,19 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         //
         // Message: inventory
         //
-        std::vector<CInv> vInv;
-        {
+        
+		{
             LOCK(pto->cs_inventory);
-            vInv.reserve(MAX_INV_SZ);
 
             // Add blocks
-            BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
-                vInv.emplace_back(CInv(MSG_BLOCK, hash));
-                if (vInv.size() == MAX_INV_SZ) {
-                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
-                    vInv.clear();
+            BOOST_FOREACH(const uint256& hash, pto->vInvToSendentoryBlockToSend) {
+                vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
+                if (vInvToSend.size() == MAX_INV_SZ) {
+                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+                    vInvToSend.clear();
                 }
             }
-            pto->vInventoryBlockToSend.clear();
+            pto->vInvToSendentoryBlockToSend.clear();
 
             // Check whether periodic sends should happen
             bool fSendTrickle = true;
@@ -3319,11 +3318,11 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     }
                     pto->filterInventoryKnown.insert(hash);
 
-                    vInv.emplace_back(CInv(MSG_TX, hash));
-                    if (vInv.size() == MAX_INV_SZ) {
-                        LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInv.size(), pto->id);
-                        connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
-                        vInv.clear();
+                    vInvToSend.emplace_back(CInv(MSG_TX, hash));
+                    if (vInvToSend.size() == MAX_INV_SZ) {
+                        LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInvToSend.size(), pto->id);
+                        connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+                        vInvToSend.clear();
                     }
                 }
 				pto->setInventoryTxToSend.clear();
@@ -3333,15 +3332,15 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             // Determine transactions to relay
             if (fSendTrickle) {
                 // Produce a vector with all candidates for sending
-               /* std::vector<std::set<uint256>::iterator> vInvTx;
-                vInvTx.reserve(pto->setInventoryTxToSend.size());
+               /* std::vector<std::set<uint256>::iterator> vInvToSendTx;
+                vInvToSendTx.reserve(pto->setInventoryTxToSend.size());
                 for (std::set<uint256>::iterator it = pto->setInventoryTxToSend.begin(); it != pto->setInventoryTxToSend.end(); it++) {
-                    vInvTx.push_back(it);
+                    vInvToSendTx.push_back(it);
                 }
                 // Topologically and fee-rate sort the inventory we send for privacy and priority reasons.
                 // A heap is used so that not all items need sorting if only a few are being sent.
                 CompareInvMempoolOrder compareInvMempoolOrder(&mempool);
-                std::make_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);*/
+                std::make_heap(vInvToSendTx.begin(), vInvToSendTx.end(), compareInvMempoolOrder);*/
                 // No reason to drain out at many times the network's capacity,
                 // especially since we have many peers and some will draw much shorter delays.
 				//unsigned int nRelayedTransactions = 0;
@@ -3349,8 +3348,8 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 				for (std::set<uint256>::iterator it = pto->setInventoryTxToSend.begin(); it != pto->setInventoryTxToSend.end(); it++) {
                
                     // Fetch the top element from the heap
-                    //std::pop_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);
-                   // std::set<uint256>::iterator it = vInvTx.back();
+                    //std::pop_heap(vInvToSendTx.begin(), vInvToSendTx.end(), compareInvMempoolOrder);
+                   // std::set<uint256>::iterator it = vInvToSendTx.back();
                     
                     const uint256 &hash = *it;
                     // Remove it from the to-be-sent set
@@ -3367,7 +3366,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     }
                     if (pto->pfilter && !pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     // Send
-                    vInv.emplace_back(CInv(MSG_TX, hash));
+                    vInvToSend.emplace_back(CInv(MSG_TX, hash));
                    // nRelayedTransactions++;
                     {
                         // Expire old relay messages
@@ -3382,9 +3381,9 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                             vRelayExpiration.emplace_back(nNow + 15 * 60 * 1000000, ret.first);
                         }
                     }
-                    if (vInv.size() == MAX_INV_SZ) {
-                        connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
-                        vInv.clear();
+                    if (vInvToSend.size() == MAX_INV_SZ) {
+                        connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+                        vInvToSend.clear();
                     }
                     pto->filterInventoryKnown.insert(hash);
                 }
@@ -3392,17 +3391,18 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 			pto->setInventoryTxToSend.clear();
 
             // Send non-tx/non-block inventory items
-            for (const auto& inv : pto->vInventoryOtherToSend) {
-                vInv.push_back(inv);
-                if (vInv.size() == MAX_INV_SZ) {
-                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
-                    vInv.clear();
+            for (const auto& inv : pto->vInvToSendentoryOtherToSend) {
+                vInvToSend.push_back(inv);
+                if (vInvToSend.size() == MAX_INV_SZ) {
+                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+                    vInvToSend.clear();
                 }
             }
-            pto->vInventoryOtherToSend.clear();
+            pto->vInvToSendentoryOtherToSend.clear();
         }
-        if (!vInv.empty())
-            connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
+        if (!vInvToSend.empty())
+            connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+		vInvToSend.clear();
 
         // Detect whether we're stalling
         nNow = GetTimeMicros();

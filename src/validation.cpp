@@ -4620,7 +4620,7 @@ bool InitBlockIndex(const CChainParams& chainparams)
     // Check whether we're already initialized
     if (chainActive.Genesis() != NULL)
         return true;
-
+	vInvToSend.reserve(MAX_INV_SZ);
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
     pblocktree->WriteFlag("txindex", fTxIndex);
