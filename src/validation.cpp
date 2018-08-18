@@ -86,6 +86,7 @@ CConditionVariable cvBlockChange;
 int nScriptCheckThreads = 0;
 // SYSCOIN
 int64_t nLastMultithreadMempoolFailure = 0;
+std::vector<CInv> vInvToSend;
 bool fLoaded = false;
 bool fLogThreadpool = false;
 tp::ThreadPool *threadpool = NULL;
