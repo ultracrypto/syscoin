@@ -3281,15 +3281,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 		{
             LOCK(pto->cs_inventory);
 			vInvToSend.clear();
-            // Add blocks
-            BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
-                vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
-                if (vInvToSend.size() == MAX_INV_SZ) {
-                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-                    vInvToSend.clear();
-                }
-            }
-            pto->vInventoryBlockToSend.clear();
 
             // Check whether periodic sends should happen
             bool fSendTrickle = true;
@@ -3302,7 +3293,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             // Time to send but the peer has requested we not relay transactions.
             if (fSendTrickle) {
                 LOCK(pto->cs_filter);
-                if (!pto->fRelayTxes) pto->setInventoryTxToSend.clear();
+                if (!pto->fRelayTxes) pto->vInventoryTxToSend.clear();
             }
 
             // Respond to BIP35 mempool requests
@@ -3326,7 +3317,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                         vInvToSend.clear();
                     }
                 }
-				pto->setInventoryTxToSend.clear();
+				pto->vInventoryTxToSend.clear();
                 pto->timeLastMempoolReq = GetTime();
             }
 
@@ -3389,7 +3380,17 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     pto->filterInventoryKnown.insert(hash);
                 }
             }
-			pto->setInventoryTxToSend.clear();
+			pto->vInventoryTxToSend.clear();
+
+			// Add blocks
+			BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
+				vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
+				if (vInvToSend.size() == MAX_INV_SZ) {
+					connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+					vInvToSend.clear();
+				}
+			}
+			pto->vInventoryBlockToSend.clear();
 
             // Send non-tx/non-block inventory items
             for (const auto& inv : pto->vInventoryOtherToSend) {

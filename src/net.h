@@ -761,8 +761,8 @@ public:
     // inventory based relay
     CRollingBloomFilter filterInventoryKnown;
     // Set of transaction ids we still have to announce.
-    // They are sorted by the mempool before relay, so the order is not important.
-    std::set<uint256> setInventoryTxToSend;
+    // They are randomized
+    std::vector<uint256> vInventoryTxToSend;
     // List of block ids we still have announce.
     // There is no final sorting before sending, as they are always sent immediately
     // and in the order requested.
@@ -901,12 +901,13 @@ public:
         if (inv.type == MSG_TX) {
             if (!filterInventoryKnown.contains(inv.hash)) {
                 LogPrint("net", "PushInventory --  inv: %s peer=%d\n", inv.ToString(), id);
-                setInventoryTxToSend.insert(inv.hash);
+				vInventoryTxToSend.push_back(inv.hash);
 				// SYSCOIN randomize tx inv's to send out every 100 txs for optimal network propogation in the face of network latency to well connected to nodes
-				if (setInventoryTxToSend.size() % 100) {
-					printf("random shuffling size of %d, first hash %s\n", setInventoryTxToSend.size(), setInventoryTxToSend[0].GetHex().c_str());
-					std::random_shuffle(setInventoryTxToSend.begin(), setInventoryTxToSend.end(), GetRandInt);
-					printf("random shuffling after size of %d, first hash %s\n", setInventoryTxToSend.size(), setInventoryTxToSend[0].GetHex().c_str());
+				if (vInventoryTxToSend.size() % 100) {
+					printf("random shuffling size of %d, first hash %s\n", vInventoryTxToSend.size(), vInventoryTxToSend[0].GetHex().c_str());
+					FastRandomContext insecure_rand;
+					std::random_shuffle(vInventoryTxToSend.begin(), vInventoryTxToSend.end(), insecure_rand);
+					printf("random shuffling after size of %d, first hash %s\n", vInventoryTxToSend.size(), vInventoryTxToSend[0].GetHex().c_str());
 				}
             } else {
                 LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);
