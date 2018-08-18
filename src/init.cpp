@@ -856,6 +856,7 @@ bool InitSanityCheck(void)
 	// SYSCOIN
 	std::string sha256_algo = SHA256AutoDetect();
 	LogPrintf("Using the '%s' SHA256 implementation\n", sha256_algo);
+	RandomInit();
     if(!ECC_InitSanityCheck()) {
         InitError("Elliptic curve cryptography sanity check failure. Aborting.");
         return false;

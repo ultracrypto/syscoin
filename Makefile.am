@@ -53,9 +53,6 @@ distcheck-hook:
 	cp -rf $(top_srcdir)/src/leveldb/* $(top_distdir)/_build/src/leveldb/
 	-$(MAKE) -C $(top_distdir)/_build/src/leveldb clean
 
-distcleancheck:
-	@:
-
 $(SYSCOIN_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(SYSCOIND_BIN) $(top_builddir)/release
@@ -202,14 +199,6 @@ total.coverage/.dirstamp: total_coverage.info
 
 cov: test_syscoin.coverage/.dirstamp total.coverage/.dirstamp
 
-endif
-
-# Syscoin: disable the test until upstream switches from convoluted comparison tool
-# Ref https://github.com/syscoin/syscoin/issues/4545
-if USE_COMPARISON_TOOL
-check-local:
-	## $(MKDIR_P) qa/tmp
-	## @qa/pull-tester/run-syscoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
 endif
 
 dist_noinst_SCRIPTS = autogen.sh
