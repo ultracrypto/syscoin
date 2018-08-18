@@ -3279,7 +3279,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         
 		{
             LOCK(pto->cs_inventory);
-
+			vInvToSend.clear();
             // Add blocks
             BOOST_FOREACH(const uint256& hash, pto->vInvToSendentoryBlockToSend) {
                 vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
@@ -3402,7 +3402,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         }
         if (!vInvToSend.empty())
             connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-		vInvToSend.clear();
+		
 
         // Detect whether we're stalling
         nNow = GetTimeMicros();
