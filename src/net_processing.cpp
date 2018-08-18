@@ -31,6 +31,7 @@
 #include "utilmoneystr.h"
 #include "utilstrencodings.h"
 #include "validationinterface.h"
+#include "validation.h"
 
 #include "spork.h"
 #include "governance.h"
