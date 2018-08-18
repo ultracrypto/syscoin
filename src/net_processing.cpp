@@ -3281,14 +3281,14 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             LOCK(pto->cs_inventory);
 			vInvToSend.clear();
             // Add blocks
-            BOOST_FOREACH(const uint256& hash, pto->vInvToSendentoryBlockToSend) {
+            BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
                 vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
                 if (vInvToSend.size() == MAX_INV_SZ) {
                     connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
                     vInvToSend.clear();
                 }
             }
-            pto->vInvToSendentoryBlockToSend.clear();
+            pto->vInventoryBlockToSend.clear();
 
             // Check whether periodic sends should happen
             bool fSendTrickle = true;
@@ -3391,14 +3391,14 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 			pto->setInventoryTxToSend.clear();
 
             // Send non-tx/non-block inventory items
-            for (const auto& inv : pto->vInvToSendentoryOtherToSend) {
+            for (const auto& inv : pto->vInventoryOtherToSend) {
                 vInvToSend.push_back(inv);
                 if (vInvToSend.size() == MAX_INV_SZ) {
                     connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
                     vInvToSend.clear();
                 }
             }
-            pto->vInvToSendentoryOtherToSend.clear();
+            pto->vInventoryOtherToSend.clear();
         }
         if (!vInvToSend.empty())
             connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
