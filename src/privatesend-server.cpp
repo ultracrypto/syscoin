@@ -428,7 +428,7 @@ void CPrivateSendServer::ChargeFees(CConnman& connman)
     if((int)vecOffendersCollaterals.size() >= Params().PoolMaxTransactions()) return;
 
     //charge one of the offenders randomly
-    std::shuffle(vecOffendersCollaterals.begin(), vecOffendersCollaterals.end());
+    std::random_shuffle(vecOffendersCollaterals.begin(), vecOffendersCollaterals.end());
 
     if(nState == POOL_STATE_ACCEPTING_ENTRIES || nState == POOL_STATE_SIGNING) {
         LogPrintf("CPrivateSendServer::ChargeFees -- found uncooperative node (didn't %s transaction), charging fees: %s\n",

@@ -906,7 +906,7 @@ public:
 				if (setInventoryTxToSend.size() % 100) {
 					printf("random shuffling size of %d\n", setInventoryTxToSend.size());
 					FastRandomContext insecure_rand;
-					std::shuffle(setInventoryTxToSend.begin(), setInventoryTxToSend.end(), insecure_rand);
+					std::random_shuffle(setInventoryTxToSend.begin(), setInventoryTxToSend.end(), insecure_rand);
 				}
             } else {
                 LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);

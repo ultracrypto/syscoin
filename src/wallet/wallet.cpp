@@ -3027,7 +3027,7 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, CAmount nValueMin, CAmount 
 	// SYSCOIN include syscoin alias balances
     AvailableCoins(vCoins, true, NULL, false, ONLY_DENOMINATED, false, true);
 
-    std::shuffle(vCoins.rbegin(), vCoins.rend(), GetRandInt);
+    std::random_shuffle(vCoins.rbegin(), vCoins.rend(), GetRandInt);
 
     // ( bit on if present )
     // bit 0 - 100SYS+1
