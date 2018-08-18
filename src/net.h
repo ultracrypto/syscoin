@@ -89,8 +89,9 @@ static const uint64_t MAX_UPLOAD_TIMEFRAME = 60 * 60 * 24;
 static const bool DEFAULT_BLOCKSONLY = false;
 
 static const bool DEFAULT_FORCEDNSSEED = false;
-static const size_t DEFAULT_MAXRECEIVEBUFFER = 5 * 1000;
-static const size_t DEFAULT_MAXSENDBUFFER    = 1 * 1000;
+// SYSCOIN
+static const size_t DEFAULT_MAXRECEIVEBUFFER = 500 * 1000;
+static const size_t DEFAULT_MAXSENDBUFFER    = 100 * 1000;
 
 static const ServiceFlags REQUIRED_SERVICES = NODE_NETWORK;
 

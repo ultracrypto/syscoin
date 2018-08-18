@@ -3279,11 +3279,11 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         std::vector<CInv> vInv;
         {
             LOCK(pto->cs_inventory);
-            vInv.reserve(std::max<size_t>(pto->vInventoryBlockToSend.size(), INVENTORY_BROADCAST_MAX));
+            vInv.reserve(MAX_INV_SZ);
 
             // Add blocks
             BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
-                vInv.push_back(CInv(MSG_BLOCK, hash));
+                vInv.emplace_back(CInv(MSG_BLOCK, hash));
                 if (vInv.size() == MAX_INV_SZ) {
                     connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                     vInv.clear();
@@ -3314,28 +3314,26 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 
                 for (const auto& txinfo : vtxinfo) {
                     const uint256& hash = txinfo.tx->GetHash();
-                    CInv inv(MSG_TX, hash);
-                    pto->setInventoryTxToSend.erase(hash);
                     if (pto->pfilter) {
                         if (!pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     }
                     pto->filterInventoryKnown.insert(hash);
 
-                    LogPrint("net", "SendMessages -- queued inv: %s  index=%d peer=%d\n", inv.ToString(), vInv.size(), pto->id);
-                    vInv.push_back(inv);
+                    vInv.emplace_back(CInv(MSG_TX, hash));
                     if (vInv.size() == MAX_INV_SZ) {
                         LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInv.size(), pto->id);
                         connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                         vInv.clear();
                     }
                 }
+				pto->setInventoryTxToSend.clear();
                 pto->timeLastMempoolReq = GetTime();
             }
 
             // Determine transactions to relay
             if (fSendTrickle) {
                 // Produce a vector with all candidates for sending
-                std::vector<std::set<uint256>::iterator> vInvTx;
+               /* std::vector<std::set<uint256>::iterator> vInvTx;
                 vInvTx.reserve(pto->setInventoryTxToSend.size());
                 for (std::set<uint256>::iterator it = pto->setInventoryTxToSend.begin(); it != pto->setInventoryTxToSend.end(); it++) {
                     vInvTx.push_back(it);
@@ -3343,19 +3341,21 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                 // Topologically and fee-rate sort the inventory we send for privacy and priority reasons.
                 // A heap is used so that not all items need sorting if only a few are being sent.
                 CompareInvMempoolOrder compareInvMempoolOrder(&mempool);
-                std::make_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);
+                std::make_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);*/
                 // No reason to drain out at many times the network's capacity,
                 // especially since we have many peers and some will draw much shorter delays.
-                unsigned int nRelayedTransactions = 0;
+				//unsigned int nRelayedTransactions = 0;
                 LOCK(pto->cs_filter);
-                while (!vInvTx.empty() && nRelayedTransactions < INVENTORY_BROADCAST_MAX) {
+				for (std::set<uint256>::iterator it = pto->setInventoryTxToSend.begin(); it != pto->setInventoryTxToSend.end(); it++) {
+               
                     // Fetch the top element from the heap
-                    std::pop_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);
-                    std::set<uint256>::iterator it = vInvTx.back();
-                    vInvTx.pop_back();
-                    uint256 hash = *it;
+                    //std::pop_heap(vInvTx.begin(), vInvTx.end(), compareInvMempoolOrder);
+                   // std::set<uint256>::iterator it = vInvTx.back();
+                    
+                    const uint256 &hash = *it;
                     // Remove it from the to-be-sent set
-                    pto->setInventoryTxToSend.erase(it);
+                   // pto->setInventoryTxToSend.erase(it);
+
                     // Check if not in the filter already
                     if (pto->filterInventoryKnown.contains(hash)) {
                         continue;
@@ -3367,8 +3367,8 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     }
                     if (pto->pfilter && !pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     // Send
-                    vInv.push_back(CInv(MSG_TX, hash));
-                    nRelayedTransactions++;
+                    vInv.emplace_back(CInv(MSG_TX, hash));
+                   // nRelayedTransactions++;
                     {
                         // Expire old relay messages
                         while (!vRelayExpiration.empty() && vRelayExpiration.front().first < nNow)
@@ -3377,9 +3377,9 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                             vRelayExpiration.pop_front();
                         }
 
-                        auto ret = mapRelay.insert(std::make_pair(hash, std::move(txinfo.tx)));
+                        auto ret = mapRelay.emplace(hash, std::move(txinfo.tx));
                         if (ret.second) {
-                            vRelayExpiration.push_back(std::make_pair(nNow + 15 * 60 * 1000000, ret.first));
+                            vRelayExpiration.emplace_back(nNow + 15 * 60 * 1000000, ret.first);
                         }
                     }
                     if (vInv.size() == MAX_INV_SZ) {
@@ -3389,6 +3389,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     pto->filterInventoryKnown.insert(hash);
                 }
             }
+			pto->setInventoryTxToSend.clear();
 
             // Send non-tx/non-block inventory items
             for (const auto& inv : pto->vInventoryOtherToSend) {
