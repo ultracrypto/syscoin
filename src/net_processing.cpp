@@ -3337,7 +3337,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                 // especially since we have many peers and some will draw much shorter delays.
 				//unsigned int nRelayedTransactions = 0;
                 LOCK(pto->cs_filter);
-				for (auto& hash:pto->vInventoryBlockToSend) {
+				for (auto& hash:pto->vInventoryTxToSend) {
                
                     // Fetch the top element from the heap
                     //std::pop_heap(vInvToSendTx.begin(), vInvToSendTx.end(), compareInvMempoolOrder);
