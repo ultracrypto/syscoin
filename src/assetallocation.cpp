@@ -842,7 +842,7 @@ UniValue tpstestadd(const JSONRPCRequest& request) {
 				while (nTPSTestingStartTime <= 0 || GetTimeMicros() < nTPSTestingStartTime) {
 					MilliSleep(0);
 				}
-				nTPSTestingSendRawStartTime = GetTimeMicros();
+				nTPSTestingSendRawStartTime = nTPSTestingStartTime;
 
 				for (auto &txReq : vecTPSRawTransactions) {
 					sendrawtransaction(txReq);
