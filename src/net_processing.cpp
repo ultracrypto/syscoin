@@ -3337,14 +3337,13 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                 // especially since we have many peers and some will draw much shorter delays.
 				//unsigned int nRelayedTransactions = 0;
                 LOCK(pto->cs_filter);
-				for (std::set<uint256>::iterator it = pto->vInventoryBlockToSend.begin(); it != pto->vInventoryBlockToSend.end(); it++) {
+				for (auto& hash:pto->vInventoryBlockToSend) {
                
                     // Fetch the top element from the heap
                     //std::pop_heap(vInvToSendTx.begin(), vInvToSendTx.end(), compareInvMempoolOrder);
                    // std::set<uint256>::iterator it = vInvToSendTx.back();
                     
-                    const uint256 &hash = *it;
-                    // Remove it from the to-be-sent set
+                      // Remove it from the to-be-sent set
                    // pto->setInventoryTxToSend.erase(it);
 
                     // Check if not in the filter already
