@@ -421,8 +421,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	UniValue tpsresponsereceivers = find_value(tpsresponse, "receivers").get_array();
 
 	// average out the elapsed time to push raw txs and add it to the start time to account for the time to send to network (this shouldn't be part of the throughput metric because tx needs to be on the wire for it to simulate real world transaction event)
-	sendrawelapsedtime /= tpsresponsereceivers.size();
-	tpstarttime += sendrawelapsedtime;
+	tpstarttime += sendrawelapsedtime/ tpsresponsereceivers.size();
 	float totalTime = 0;
 	for (int i = 0; i < tpsresponsereceivers.size(); i++) {
 		const UniValue &responseObj = tpsresponsereceivers[i].get_obj();
