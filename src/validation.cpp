@@ -73,6 +73,8 @@
 #endif
 std::vector<std::pair<uint256, int64_t> > vecTPSTestReceivedTimesMempool;
 int64_t nTPSTestingStartTime = 0;
+int64_t nTPSTestingSendRawElapsedTime = 0;
+int64_t nTPSTestingSendRawStartTime = 0;
 /**
  * Global state
  */

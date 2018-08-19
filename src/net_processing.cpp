@@ -3401,8 +3401,12 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             }
             pto->vInventoryOtherToSend.clear();
         }
-        if (!vInvToSend.empty())
-            connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+		if (!vInvToSend.empty()) {
+			connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
+			if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
+				nTPSTestingSendRawElapsedTime = GetTimeMicros() - nTPSTestingSendRawStartTime;
+			}
+		}
 		
 
         // Detect whether we're stalling

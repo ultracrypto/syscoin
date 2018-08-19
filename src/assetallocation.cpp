@@ -29,7 +29,6 @@
 using namespace std;
 vector<pair<uint256, int64_t> > vecTPSTestReceivedTimes;
 vector<JSONRPCRequest> vecTPSRawTransactions;
-int64_t nTPSTestingSendRawElapsedTime = 0;
 AssetAllocationIndexItemMap AssetAllocationIndex;
 bool IsAssetAllocationOp(int op) {
 	return op == OP_ASSET_ALLOCATION_SEND || op == OP_ASSET_COLLECT_INTEREST;
@@ -843,12 +842,11 @@ UniValue tpstestadd(const JSONRPCRequest& request) {
 				while (nTPSTestingStartTime <= 0 || GetTimeMicros() < nTPSTestingStartTime) {
 					MilliSleep(0);
 				}
-				const int64_t &nStart = GetTimeMicros();
+				nTPSTestingSendRawStartTime = GetTimeMicros();
 
 				for (auto &txReq : vecTPSRawTransactions) {
 					sendrawtransaction(txReq);
 				}
-				nTPSTestingSendRawElapsedTime = GetTimeMicros() - nStart;
 			});
 			bool isThreadPosted = false;
 			for (int numTries = 1; numTries <= 50; numTries++)
