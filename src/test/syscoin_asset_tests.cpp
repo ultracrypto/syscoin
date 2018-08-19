@@ -409,10 +409,10 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	MilliSleep(11000);
 
 	// get the elapsed time of each node on how long it took to push the vector of signed txs to the network
-	int64_t sendrawelapsedtime = 0;
+	int64_t sendrawtime = 0;
 	for (auto &sender : senders) {
 		BOOST_CHECK_NO_THROW(r = CallExtRPC(sender, "tpstestinfo"));
-		sendrawelapsedtime += find_value(r.get_obj(), "sendrawelapsedtime").get_int64();
+		sendrawtime = find_value(r.get_obj(), "sendrawtime").get_int64();
 	}
 
 	// gather received transfers on the receiver, you can query any receiver node here, in general they all should see the same state after the elapsed time.
@@ -420,8 +420,6 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	UniValue tpsresponse = r.get_obj();
 	UniValue tpsresponsereceivers = find_value(tpsresponse, "receivers").get_array();
 
-	// average out the elapsed time to push raw txs and add it to the start time to account for the time to send to network (this shouldn't be part of the throughput metric because tx needs to be on the wire for it to simulate real world transaction event)
-	tpstarttime += sendrawelapsedtime/ tpsresponsereceivers.size();
 	float totalTime = 0;
 	for (int i = 0; i < tpsresponsereceivers.size(); i++) {
 		const UniValue &responseObj = tpsresponsereceivers[i].get_obj();
@@ -440,7 +438,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	// average the start time - received time by the number of responses received (usually number of responses should match number of transactions sent beginning of test)
 	totalTimeMempool /= tpsresponsereceiversmempool.size();
 
-	printf("tpstarttime %lld sendrawelapsedtime %lld totaltime %.2f, totaltime mempool %.2f num responses %d\n", tpstarttime, sendrawelapsedtime, totalTime, totalTimeMempool, tpsresponsereceivers.size());
+	printf("tpstarttime %lld sendrawtime %lld totaltime %.2f, totaltime mempool %.2f num responses %d\n", tpstarttime, sendrawtime, totalTime, totalTimeMempool, tpsresponsereceivers.size());
 	for (auto &sender : senders)
 		BOOST_CHECK_NO_THROW(CallExtRPC(sender, "tpstestsetenabled", "false"));
 	for (auto &receiver : receivers)

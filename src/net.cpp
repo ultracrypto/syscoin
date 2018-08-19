@@ -861,6 +861,9 @@ size_t CConnman::SocketSendData(CNode *pnode) const
                 pnode->nSendSize -= data.size();
                 pnode->fPauseSend = pnode->nSendSize > nSendBufferMaxSize;
                 it++;
+				if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
+					nTPSTestingSendRawElapsedTime += GetTimeMicros();
+				}
             } else {
                 // could not send full message; stop sending more
                 break;
