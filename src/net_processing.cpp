@@ -3404,7 +3404,7 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 		if (!vInvToSend.empty()) {
 			connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
 			if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
-				int64_t &now = GetTimeMicros();
+				int64_t now = GetTimeMicros();
 				nTPSTestingSendRawElapsedTime += now - nTPSTestingSendRawStartTime;
 				nTPSTestingSendRawStartTime = now;
 			}
