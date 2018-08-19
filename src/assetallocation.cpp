@@ -760,7 +760,7 @@ UniValue tpstestinfo(const JSONRPCRequest& request) {
 		throw runtime_error("SYSCOIN_ASSET_ALLOCATION_RPC_ERROR: ERRCODE: 1501 - " + _("This function requires tpstest configuration to be set upon startup. Please shutdown and enable it by adding it to your syscoin.conf file and then call 'tpstestsetenabled true'."));
 	
 	const int64_t &avgTPSSendRawTime = nTPSTestingSendRawElapsedTime / vecTPSTestReceivedTimes.size();
-	nTPSTestingStartTime += avgTPSSendRawTime;
+	nTPSTestingStartTime = avgTPSSendRawTime;
 
 	UniValue oTPSTestResults(UniValue::VOBJ);
 	UniValue oTPSTestReceivers(UniValue::VARR);
