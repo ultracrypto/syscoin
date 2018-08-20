@@ -50,6 +50,7 @@ class CValidationState;
 struct ChainTxData;
 class CInv;
 struct LockPoints;
+class JSONRPCRequest;
 // SYSCOIN
 extern std::vector<CInv> vInvToSend;
 extern bool fLoaded;
