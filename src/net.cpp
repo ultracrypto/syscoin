@@ -862,6 +862,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
                 pnode->fPauseSend = pnode->nSendSize > nSendBufferMaxSize;
                 it++;
 				if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
+					count++;
 					nTPSTestingSendRawEndTime += GetTimeMicros();
 					if (count >= vecTPSRawTransactions.size()) {
 						nTPSTestingSendRawEndTime /= count;
