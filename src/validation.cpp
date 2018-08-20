@@ -73,7 +73,7 @@
 #endif
 std::vector<std::pair<uint256, int64_t> > vecTPSTestReceivedTimesMempool;
 int64_t nTPSTestingStartTime = 0;
-int64_t nTPSTestingSendRawEndTime = 0;
+double nTPSTestingSendRawEndTime = 0;
 int64_t nTPSTestingSendRawStartTime = 0;
 std::vector<JSONRPCRequest> vecTPSRawTransactions;
 /**
