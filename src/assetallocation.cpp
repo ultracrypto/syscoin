@@ -28,7 +28,6 @@
 #include <future>
 using namespace std;
 vector<pair<uint256, int64_t> > vecTPSTestReceivedTimes;
-vector<JSONRPCRequest> vecTPSRawTransactions;
 AssetAllocationIndexItemMap AssetAllocationIndex;
 bool IsAssetAllocationOp(int op) {
 	return op == OP_ASSET_ALLOCATION_SEND || op == OP_ASSET_COLLECT_INTEREST;

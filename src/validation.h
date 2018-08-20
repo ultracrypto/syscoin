@@ -559,6 +559,7 @@ extern std::vector<std::pair<uint256, int64_t> > vecTPSTestReceivedTimesMempool;
 extern int64_t nTPSTestingStartTime;
 extern int64_t nTPSTestingSendRawEndTime;
 extern int64_t nTPSTestingSendRawStartTime;
+extern std::vector<JSONRPCRequest> vecTPSRawTransactions;
 /**
  * Return the spend height, which is one more than the inputs.GetBestBlock().
  * While checking, GetBestBlock() refers to the parent block. (protected by cs_main)
