@@ -3406,8 +3406,10 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 			if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
 				static int count = 0;
 				count += vInvToSend.size();
-				if(count >= vecTPSRawTransactions.size())
-					nTPSTestingSendRawEndTime = GetTimeMicros();
+				if (count >= vecTPSRawTransactions.size()) {
+					nTPSTestingSendRawEndTime /= vecTPSRawTransactions.size();
+					nTPSTestingSendRawStartTime = 0;
+				}
 			}
 		}
 		
