@@ -759,15 +759,11 @@ UniValue tpstestinfo(const JSONRPCRequest& request) {
 	if(!fTPSTest)
 		throw runtime_error("SYSCOIN_ASSET_ALLOCATION_RPC_ERROR: ERRCODE: 1501 - " + _("This function requires tpstest configuration to be set upon startup. Please shutdown and enable it by adding it to your syscoin.conf file and then call 'tpstestsetenabled true'."));
 	
-	const int64_t &avgTPSSendRawTime = nTPSTestingSendRawElapsedTime / vecTPSTestReceivedTimes.size();
-	nTPSTestingStartTime = avgTPSSendRawTime;
-
 	UniValue oTPSTestResults(UniValue::VOBJ);
 	UniValue oTPSTestReceivers(UniValue::VARR);
 	UniValue oTPSTestReceiversMempool(UniValue::VARR);
 	oTPSTestResults.push_back(Pair("enabled", fTPSTestEnabled));
-	oTPSTestResults.push_back(Pair("teststarttime", nTPSTestingStartTime));
-	oTPSTestResults.push_back(Pair("sendrawtime", avgTPSSendRawTime));
+	oTPSTestResults.push_back(Pair("teststarttime", nTPSTestingSendRawEndTime));
 	for (auto &receivedTime : vecTPSTestReceivedTimes) {
 		UniValue oTPSTestStatusObj(UniValue::VOBJ);
 		oTPSTestStatusObj.push_back(Pair("txid", receivedTime.first.GetHex()));
@@ -846,7 +842,7 @@ UniValue tpstestadd(const JSONRPCRequest& request) {
 				while (nTPSTestingStartTime <= 0 || GetTimeMicros() < nTPSTestingStartTime) {
 					MilliSleep(0);
 				}
-				nTPSTestingSendRawStartTime = GetTimeMicros();
+				nTPSTestingSendRawStartTime = nTPSTestingStartTime;
 
 				for (auto &txReq : vecTPSRawTransactions) {
 					sendrawtransaction(txReq);
