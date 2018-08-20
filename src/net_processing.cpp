@@ -3307,7 +3307,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                         if (!pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     }
                     pto->filterInventoryKnown.insert(hash);
-					count++;
                     vInvToSend.emplace_back(CInv(MSG_TX, hash));
                     if (vInvToSend.size() == MAX_INV_SZ) {
                         LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInvToSend.size(), pto->id);
