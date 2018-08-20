@@ -3277,11 +3277,10 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         //
         // Message: inventory
         //
-        
+		static int count = 0;
 		{
             LOCK(pto->cs_inventory);
 			vInvToSend.clear();
-			static int count = 0;
             // Check whether periodic sends should happen
             bool fSendTrickle = true;
            /* if (pto->nNextInvSend < nNow) {
