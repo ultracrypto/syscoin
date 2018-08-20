@@ -1345,7 +1345,7 @@ bool BuildAssetAllocationIndexerJson(const CAssetAllocation& assetallocation, co
 }
 void AssetAllocationTxToJSON(const int op, const std::vector<unsigned char> &vchData, const std::vector<unsigned char> &vchHash, UniValue &entry)
 {
-	string opName = assetFromOp(op);
+	string opName = assetAllocationFromOp(op);
 	CAssetAllocation assetallocation;
 	if(!assetallocation.UnserializeFromData(vchData, vchHash))
 		return;
