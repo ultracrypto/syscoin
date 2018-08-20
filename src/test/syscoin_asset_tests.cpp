@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	float totalTimeMempool = 0;
 	for (int i = 0; i < tpsresponsereceiversmempool.size(); i++) {
 		const UniValue &responseObj = tpsresponsereceiversmempool[i].get_obj();
-		totalTimeMempool += find_value(responseObj, "time").get_int64() - tpstarttime;
+		totalTimeMempool += find_value(responseObj, "time").get_int64() - avgteststarttime;
 	}
 	// average the start time - received time by the number of responses received (usually number of responses should match number of transactions sent beginning of test)
 	totalTimeMempool /= tpsresponsereceiversmempool.size();
