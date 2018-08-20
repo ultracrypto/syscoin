@@ -3400,12 +3400,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         }
 		if (!vInvToSend.empty()) {
 			connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-			if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
-				if (vInvToSend.size() >= vecTPSRawTransactions.size()) {
-					nTPSTestingSendRawEndTime /= vInvToSend.size();
-					nTPSTestingSendRawStartTime = 0;
-				}
-			}
 		}
 		
 

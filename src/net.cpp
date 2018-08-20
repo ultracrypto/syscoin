@@ -840,7 +840,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
 {
     auto it = pnode->vSendMsg.begin();
     size_t nSentSize = 0;
-
+	static int count = 0;
     while (it != pnode->vSendMsg.end()) {
         const auto &data = *it;
         assert(data.size() > pnode->nSendOffset);
@@ -863,6 +863,10 @@ size_t CConnman::SocketSendData(CNode *pnode) const
                 it++;
 				if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
 					nTPSTestingSendRawEndTime += GetTimeMicros();
+					if (count >= vecTPSRawTransactions.size()) {
+						nTPSTestingSendRawEndTime /= count;
+						nTPSTestingSendRawStartTime = 0;
+					}
 				}
             } else {
                 // could not send full message; stop sending more
