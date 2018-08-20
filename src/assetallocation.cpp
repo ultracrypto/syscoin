@@ -762,7 +762,7 @@ UniValue tpstestinfo(const JSONRPCRequest& request) {
 	UniValue oTPSTestReceivers(UniValue::VARR);
 	UniValue oTPSTestReceiversMempool(UniValue::VARR);
 	oTPSTestResults.push_back(Pair("enabled", fTPSTestEnabled));
-	oTPSTestResults.push_back(Pair("teststarttime", nTPSTestingSendRawEndTime));
+	oTPSTestResults.push_back(Pair("teststarttime", (int64_t)nTPSTestingSendRawEndTime));
 	for (auto &receivedTime : vecTPSTestReceivedTimes) {
 		UniValue oTPSTestStatusObj(UniValue::VOBJ);
 		oTPSTestStatusObj.push_back(Pair("txid", receivedTime.first.GetHex()));
