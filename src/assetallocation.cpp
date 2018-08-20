@@ -795,7 +795,7 @@ UniValue tpstestsetenabled(const JSONRPCRequest& request) {
 	if (!fTPSTestEnabled) {
 		vecTPSTestReceivedTimes.clear();
 		vecTPSTestReceivedTimesMempool.clear();
-		nTPSTestingSendRawElapsedTime = 0;
+		nTPSTestingSendRawEndTime = 0;
 		nTPSTestingStartTime = 0;
 	}
 	UniValue result(UniValue::VOBJ);
