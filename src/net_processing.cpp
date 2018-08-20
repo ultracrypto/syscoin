@@ -32,7 +32,7 @@
 #include "utilstrencodings.h"
 #include "validationinterface.h"
 #include "validation.h"
-#include "rpc/server.h"
+
 #include "spork.h"
 #include "governance.h"
 #include "instantx.h"

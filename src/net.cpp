@@ -29,7 +29,7 @@
 #include "masternode-sync.h"
 #include "masternodeman.h"
 #include "privatesend.h"
-
+#include "rpc/server.h"
 #ifdef WIN32
 #include <string.h>
 #else
