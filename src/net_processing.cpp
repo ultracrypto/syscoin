@@ -3277,8 +3277,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
         //
         // Message: inventory
         //
-		static int count = 0;
-		static int avgcount = 0;
 		{
             LOCK(pto->cs_inventory);
 			vInvToSend.clear();
@@ -3314,14 +3312,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     if (vInvToSend.size() == MAX_INV_SZ) {
                         LogPrint("net", "SendMessages -- pushing inv's: count=%d peer=%d\n", vInvToSend.size(), pto->id);
                         connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-						
-						if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
-							avgcount += vInvToSend.size();
-							if (count >= vecTPSRawTransactions.size()) {
-								nTPSTestingSendRawEndTime /= avgcount;
-								nTPSTestingSendRawStartTime = 0;
-							}
-						}
 						vInvToSend.clear();
                     }
                 }
@@ -3366,7 +3356,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     if (pto->pfilter && !pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     // Send
                     vInvToSend.emplace_back(CInv(MSG_TX, hash));
-					count++;
                    // nRelayedTransactions++;
                     {
                         // Expire old relay messages
@@ -3383,14 +3372,6 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
                     }
                     if (vInvToSend.size() == MAX_INV_SZ) {
                         connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-
-						if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
-							avgcount += vInvToSend.size();
-							if (count >= vecTPSRawTransactions.size()) {
-								nTPSTestingSendRawEndTime /= avgcount;
-								nTPSTestingSendRawStartTime = 0;
-							}
-						}
 						vInvToSend.clear();
                     }
                     pto->filterInventoryKnown.insert(hash);
@@ -3401,10 +3382,8 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 			// Add blocks
 			BOOST_FOREACH(const uint256& hash, pto->vInventoryBlockToSend) {
 				vInvToSend.emplace_back(CInv(MSG_BLOCK, hash));
-				count--;
 				if (vInvToSend.size() == MAX_INV_SZ) {
 					connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-					avgcount += vInvToSend.size();
 					vInvToSend.clear();
 				}
 			}
@@ -3413,10 +3392,8 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
             // Send non-tx/non-block inventory items
             for (const auto& inv : pto->vInventoryOtherToSend) {
                 vInvToSend.push_back(inv);
-				count--;
                 if (vInvToSend.size() == MAX_INV_SZ) {
                     connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
-					avgcount += vInvToSend.size();
                     vInvToSend.clear();
                 }
             }
@@ -3425,9 +3402,8 @@ bool SendMessages(CNode* pto, CConnman& connman, const std::atomic<bool>& interr
 		if (!vInvToSend.empty()) {
 			connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInvToSend));
 			if (fTPSTest && nTPSTestingSendRawStartTime > 0) {
-				avgcount += vInvToSend.size();
-				if (count >= vecTPSRawTransactions.size()) {
-					nTPSTestingSendRawEndTime /= avgcount;
+				if (vInvToSend.size() >= vecTPSRawTransactions.size()) {
+					nTPSTestingSendRawEndTime /= vInvToSend.size();
 					nTPSTestingSendRawStartTime = 0;
 				}
 			}
