@@ -1493,7 +1493,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 							for (auto& amountTuple : assetallocation.listSendingAllocationAmounts) {
 								UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
 								// update to owner
-								oAssetAllocationReceiversObj.push_back(Pair("aliasto", stringFromVch(amountTuple.first)));
+								oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(amountTuple.first)));
 								oAssetAllocationReceiversObj.push_back(Pair("amount", ValueFromAssetAmount(amountTuple.second, dbAsset.nPrecision, dbAsset.bUseInputRanges)));
 								oAssetAllocationReceiversArray.push_back(oAssetAllocationReceiversObj);
 							}
@@ -1503,7 +1503,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 							for (auto& inputTuple : assetallocation.listSendingAllocationInputs) {
 								UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
 								UniValue oAssetAllocationInputsArray(UniValue::VARR);
-								oAssetAllocationReceiversObj.push_back(Pair("aliasto", stringFromVch(inputTuple.first)));
+								oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(inputTuple.first)));
 								for (auto& inputRange : inputTuple.second) {
 									UniValue oInput(UniValue::VOBJ);
 									oInput.push_back(Pair("start", (int)inputRange.start));
@@ -1593,7 +1593,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 								for (auto& amountTuple : assetallocation.listSendingAllocationAmounts) {
 									UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
 									// update to owner
-									oAssetAllocationReceiversObj.push_back(Pair("aliasto", stringFromVch(amountTuple.first)));
+									oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(amountTuple.first)));
 									oAssetAllocationReceiversObj.push_back(Pair("amount", ValueFromAssetAmount(amountTuple.second, dbAsset.nPrecision, dbAsset.bUseInputRanges)));
 									oAssetAllocationReceiversArray.push_back(oAssetAllocationReceiversObj);
 								}
@@ -1603,7 +1603,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 								for (auto& inputTuple : assetallocation.listSendingAllocationInputs) {
 									UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
 									UniValue oAssetAllocationInputsArray(UniValue::VARR);
-									oAssetAllocationReceiversObj.push_back(Pair("aliasto", stringFromVch(inputTuple.first)));
+									oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(inputTuple.first)));
 									for (auto& inputRange : inputTuple.second) {
 										UniValue oInput(UniValue::VOBJ);
 										oInput.push_back(Pair("start", (int)inputRange.start));

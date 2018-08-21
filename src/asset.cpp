@@ -1179,7 +1179,7 @@ bool BuildAssetJson(const CAsset& asset, const bool bGetInputs, UniValue& oAsset
 	oAsset.push_back(Pair("time", nTime));
 	oAsset.push_back(Pair("publicvalue", stringFromVch(asset.vchPubData)));
 	oAsset.push_back(Pair("category", stringFromVch(asset.sCategory)));
-	oAsset.push_back(Pair("alias", stringFromVch(asset.vchAliasOrAddress)));
+	oAsset.push_back(Pair("owner", stringFromVch(asset.vchAliasOrAddress)));
 	oAsset.push_back(Pair("balance", ValueFromAssetAmount(asset.nBalance, asset.nPrecision, asset.bUseInputRanges)));
 	oAsset.push_back(Pair("total_supply", ValueFromAssetAmount(asset.nTotalSupply, asset.nPrecision, asset.bUseInputRanges)));
 	oAsset.push_back(Pair("max_supply", ValueFromAssetAmount(asset.nMaxSupply, asset.nPrecision, asset.bUseInputRanges)));
@@ -1215,7 +1215,7 @@ bool BuildAssetIndexerHistoryJson(const CAsset& asset, UniValue& oAsset)
 	oAsset.push_back(Pair("time", nTime));
 	oAsset.push_back(Pair("publicvalue", stringFromVch(asset.vchPubData)));
 	oAsset.push_back(Pair("category", stringFromVch(asset.sCategory)));
-	oAsset.push_back(Pair("alias", stringFromVch(asset.vchAliasOrAddress)));
+	oAsset.push_back(Pair("owner", stringFromVch(asset.vchAliasOrAddress)));
 	oAsset.push_back(Pair("balance", ValueFromAssetAmount(asset.nBalance, asset.nPrecision, asset.bUseInputRanges)));
 	oAsset.push_back(Pair("total_supply", ValueFromAssetAmount(asset.nTotalSupply, asset.nPrecision, asset.bUseInputRanges)));
 	oAsset.push_back(Pair("interest_rate", asset.fInterestRate));
@@ -1227,7 +1227,7 @@ bool BuildAssetIndexerJson(const CAsset& asset, UniValue& oAsset)
 	oAsset.push_back(Pair("symbol", stringFromVch(asset.vchSymbol)));
 	oAsset.push_back(Pair("height", (int)asset.nHeight));
 	oAsset.push_back(Pair("category", stringFromVch(asset.sCategory)));
-	oAsset.push_back(Pair("alias", stringFromVch(asset.vchAliasOrAddress)));
+	oAsset.push_back(Pair("owner", stringFromVch(asset.vchAliasOrAddress)));
 	oAsset.push_back(Pair("use_input_ranges", asset.bUseInputRanges));
 	oAsset.push_back(Pair("balance", ValueFromAssetAmount(asset.nBalance, asset.nPrecision, asset.bUseInputRanges)));
 	oAsset.push_back(Pair("total_supply", ValueFromAssetAmount(asset.nTotalSupply, asset.nPrecision, asset.bUseInputRanges)));
@@ -1272,7 +1272,7 @@ void AssetTxToJSON(const int op, const std::vector<unsigned char> &vchData, cons
 		if (!assetallocation.listSendingAllocationAmounts.empty()) {
 			for (auto& amountTuple : assetallocation.listSendingAllocationAmounts) {
 				UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
-				oAssetAllocationReceiversObj.push_back(Pair("owner", stringFromVch(amountTuple.first)));
+				oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(amountTuple.first)));
 				oAssetAllocationReceiversObj.push_back(Pair("amount", ValueFromAssetAmount(amountTuple.second, dbAsset.nPrecision, dbAsset.bUseInputRanges)));
 				oAssetAllocationReceiversArray.push_back(oAssetAllocationReceiversObj);
 			}
@@ -1282,7 +1282,7 @@ void AssetTxToJSON(const int op, const std::vector<unsigned char> &vchData, cons
 			for (auto& inputTuple : assetallocation.listSendingAllocationInputs) {
 				UniValue oAssetAllocationReceiversObj(UniValue::VOBJ);
 				UniValue oAssetAllocationInputsArray(UniValue::VARR);
-				oAssetAllocationReceiversObj.push_back(Pair("aliasto", stringFromVch(inputTuple.first)));
+				oAssetAllocationReceiversObj.push_back(Pair("ownerto", stringFromVch(inputTuple.first)));
 				for (auto& inputRange : inputTuple.second) {
 					UniValue oInput(UniValue::VOBJ);
 					oInput.push_back(Pair("start", (int)inputRange.start));
