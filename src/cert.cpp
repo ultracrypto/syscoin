@@ -98,16 +98,6 @@ void CCertDB::WriteCertIndex(const CCert& cert, const int& op) {
 			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "certrecord");
 		}
 	}
-	WriteCertIndexHistory(cert, op);
-}
-void CCertDB::WriteCertIndexHistory(const CCert& cert, const int &op) {
-	if (IsArgSet("-zmqpubcerthistory")) {
-		UniValue oName(UniValue::VOBJ);
-		if (BuildCertIndexerHistoryJson(cert, oName)) {
-			oName.push_back(Pair("op", certFromOp(op)));
-			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "certhistory");
-		}
-	}
 }
 	
 bool CCertDB::CleanupDatabase(int &servicesCleaned)
@@ -811,26 +801,6 @@ bool BuildCertJson(const CCert& cert, UniValue& oCert)
 
 	oCert.push_back(Pair("expires_on", expired_time));
 	oCert.push_back(Pair("expired", expired));
-	return true;
-}
-bool BuildCertIndexerHistoryJson(const CCert& cert, UniValue& oCert)
-{
-	oCert.push_back(Pair("_id", cert.txHash.GetHex()));
-	oCert.push_back(Pair("cert", stringFromVch(cert.vchCert)));
-	oCert.push_back(Pair("height", (int)cert.nHeight));
-	int64_t nTime = 0;
-	if (chainActive.Height() >= cert.nHeight-1) {
-		CBlockIndex *pindex = chainActive[cert.nHeight-1];
-		if (pindex) {
-			nTime = pindex->GetMedianTimePast();
-		}
-	}
-	oCert.push_back(Pair("time", nTime));
-	oCert.push_back(Pair("title", stringFromVch(cert.vchTitle)));
-	oCert.push_back(Pair("publicvalue", stringFromVch(cert.vchPubData)));
-	oCert.push_back(Pair("category", stringFromVch(cert.sCategory)));
-	oCert.push_back(Pair("alias", stringFromVch(cert.vchAlias)));
-	oCert.push_back(Pair("access_flags", cert.nAccessFlags));
 	return true;
 }
 bool BuildCertIndexerJson(const CCert& cert, UniValue& oCert)

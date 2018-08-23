@@ -256,13 +256,11 @@ public:
 	}
 	bool CleanupDatabase(int &servicesCleaned);
 	void WriteOfferIndex(const COffer& offer, const int &op);
-	void WriteOfferIndexHistory(const COffer& offer, const int &op);
 	bool ScanOffers(const int count, const int from, const UniValue& oOptions, UniValue& oRes);
 
 };
 bool GetOffer(const std::vector<unsigned char> &vchOffer, COffer& txPos);
 bool BuildOfferJson(const COffer& theOffer, UniValue& oOffer);
 bool BuildOfferIndexerJson(const COffer& theOffer, UniValue& oOffer);
-bool BuildOfferIndexerHistoryJson(const COffer& theOffer, UniValue& oOffer);
 uint64_t GetOfferExpiration(const COffer& offer);
 #endif // OFFER_H

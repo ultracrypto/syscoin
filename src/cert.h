@@ -141,7 +141,6 @@ public:
 	}
 	bool CleanupDatabase(int &servicesCleaned);
 	void WriteCertIndex(const CCert& cert, const int &op);
-	void WriteCertIndexHistory(const CCert& cert, const int &op);
 	bool ScanCerts(const int count, const int from, const UniValue& oOptions, UniValue& oRes);
 
 };
@@ -149,6 +148,5 @@ bool GetCert(const std::vector<unsigned char> &vchCert,CCert& txPos);
 bool GetFirstCert(const std::vector<unsigned char> &vchCert, CCert& txPos);
 bool BuildCertJson(const CCert& cert, UniValue& oName);
 bool BuildCertIndexerJson(const CCert& cert,UniValue& oName);
-bool BuildCertIndexerHistoryJson(const CCert& cert, UniValue& oName);
 uint64_t GetCertExpiration(const CCert& cert);
 #endif // CERT_H

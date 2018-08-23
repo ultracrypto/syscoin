@@ -1165,16 +1165,6 @@ void COfferDB::WriteOfferIndex(const COffer& offer, const int &op) {
 			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "offerrecord");
 		}
 	}
-	WriteOfferIndexHistory(offer, op);
-}
-void COfferDB::WriteOfferIndexHistory(const COffer& offer, const int &op) {
-	if (IsArgSet("-zmqpubofferhistory")) {
-		UniValue oName(UniValue::VOBJ);
-		if (BuildOfferIndexerHistoryJson(offer, oName)) {
-			oName.push_back(Pair("op", offerFromOp(op)));
-			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "offerhistory");
-		}
-	}
 }
 UniValue offerinfo(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
@@ -1317,51 +1307,7 @@ bool BuildOfferIndexerJson(const COffer& theOffer, UniValue& oOffer)
 	oOffer.push_back(Pair("auction_reserve_price", auctionOffer.fReservePrice));
 	return true;
 }
-bool BuildOfferIndexerHistoryJson(const COffer& theOffer, UniValue& oOffer)
-{
-	vector<unsigned char> vchCert;
-	if (!theOffer.vchCert.empty())
-		vchCert = theOffer.vchCert;
-	oOffer.push_back(Pair("_id", theOffer.txHash.GetHex()));
-	oOffer.push_back(Pair("offer", stringFromVch(theOffer.vchOffer)));
-	oOffer.push_back(Pair("cert", stringFromVch(vchCert)));
-	oOffer.push_back(Pair("height", (int)theOffer.nHeight));
-	oOffer.push_back(Pair("category", stringFromVch(theOffer.sCategory)));
-	oOffer.push_back(Pair("title", stringFromVch(theOffer.sTitle)));
-	int nQty = theOffer.nQty;
-	string offerTypeStr = "";
-	CAuctionOffer auctionOffer;
-	if (IsOfferTypeInMask(theOffer.offerType, OFFERTYPE_AUCTION))
-		auctionOffer = theOffer.auctionOffer;
-	if (!theOffer.vchLinkOffer.empty()) {
-		oOffer.push_back(Pair("currency", ""));
-		oOffer.push_back(Pair("price", 0));
-		oOffer.push_back(Pair("commission", theOffer.nCommission));
-		oOffer.push_back(Pair("paymentoptions", ""));
-		nQty = 0;
-		offerTypeStr = "";
-		auctionOffer.SetNull();
-	}
-	else
-	{
-		oOffer.push_back(Pair("currency", stringFromVch(theOffer.sCurrencyCode)));
-		oOffer.push_back(Pair("price", theOffer.GetPrice()));
-		oOffer.push_back(Pair("commission", 0));
-		oOffer.push_back(Pair("paymentoptions", GetPaymentOptionsString(theOffer.paymentOptions)));
-		offerTypeStr = GetOfferTypeString(theOffer.offerType);
-	}
 
-	oOffer.push_back(Pair("quantity", nQty));
-	oOffer.push_back(Pair("private", theOffer.bPrivate));
-	oOffer.push_back(Pair("description", stringFromVch(theOffer.sDescription)));
-	oOffer.push_back(Pair("alias", stringFromVch(theOffer.vchAlias)));
-	oOffer.push_back(Pair("offertype", offerTypeStr));
-	oOffer.push_back(Pair("auction_expires_on", auctionOffer.nExpireTime));
-	oOffer.push_back(Pair("auction_reserve_price", auctionOffer.fReservePrice));
-	oOffer.push_back(Pair("auction_require_witness", auctionOffer.bRequireWitness));
-	oOffer.push_back(Pair("auction_deposit", auctionOffer.fDepositPercentage));
-	return true;
-}
 std::string GetOfferTypeString(const uint32_t &offerType)
 {
 	vector<std::string> types;

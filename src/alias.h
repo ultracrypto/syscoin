@@ -270,8 +270,6 @@ public:
 	}
 	bool CleanupDatabase(int &servicesCleaned);
 	void WriteAliasIndex(const CAliasIndex& alias, const int &op);
-	void WriteAliasIndexHistory(const CAliasIndex& alias, const int &op);
-	void WriteAliasIndexTxHistory(const std::string &user1, const std::string &user2, const std::string &user3, const uint256 &txHash, const unsigned int& nHeight, const std::string &type, const std::string &guid);
 	bool ScanAliases(const int count, const int from, const UniValue& oOptions, UniValue& oRes);
 };
 
@@ -333,7 +331,6 @@ bool BuildAliasJson(const CAliasIndex& alias, UniValue& oName);
 void CleanupSyscoinServiceDatabases(int &servicesCleaned);
 void GetAddress(const CAliasIndex &alias, CSyscoinAddress* address, CScript& script, const uint32_t nPaymentOption=1);
 std::string GetSyscoinTransactionDescription(const CTransaction& tx, const int op, std::string& responseEnglish, const char &type, std::string& responseGUID);
-bool BuildAliasIndexerHistoryJson(const CAliasIndex& alias, UniValue& oName);
 bool DoesAliasExist(const std::string &strAddress);
 bool IsOutpointMature(const COutPoint& outpoint, bool fUseInstantSend = false);
 UniValue syscointxfund_helper(const std::vector<unsigned char> &vchAlias, const std::vector<unsigned char> &vchWitness, const CRecipient &aliasRecipient, std::vector<CRecipient> &vecSend);

@@ -1137,15 +1137,6 @@ void CAliasDB::WriteAliasIndex(const CAliasIndex& alias, const int &op) {
 		oName.push_back(Pair("encryption_publickey", HexStr(alias.vchEncryptionPublicKey)));
 		GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "aliasrecord");
 	}
-	WriteAliasIndexHistory(alias, op);
-}
-void CAliasDB::WriteAliasIndexHistory(const CAliasIndex& alias, const int &op) {
-	if (IsArgSet("-zmqpubaliashistory")) {
-		UniValue oName(UniValue::VOBJ);
-		BuildAliasIndexerHistoryJson(alias, oName);
-		oName.push_back(Pair("op", aliasFromOp(op)));
-		GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "aliashistory");
-	}
 }
 bool BuildAliasIndexerTxHistoryJson(const string &user1, const string &user2, const string &user3, const uint256 &txHash, const unsigned int& nHeight, const string &type, const string &guid, UniValue& oName)
 {
@@ -2489,26 +2480,6 @@ bool BuildAliasJson(const CAliasIndex& alias, UniValue& oName)
 	}  
 	oName.push_back(Pair("expires_on", expired_time));
 	oName.push_back(Pair("expired", expired));
-	return true;
-}
-bool BuildAliasIndexerHistoryJson(const CAliasIndex& alias, UniValue& oName)
-{
-	oName.push_back(Pair("_id", alias.txHash.GetHex()));
-	oName.push_back(Pair("publicvalue", stringFromVch(alias.vchPublicValue)));
-	oName.push_back(Pair("alias", stringFromVch(alias.vchAlias)));
-	int64_t nTime = 0; 
-	if (chainActive.Height() >= alias.nHeight-1) {
-		CBlockIndex *pindex = chainActive[alias.nHeight-1];
-		if (pindex) {
-			nTime = pindex->GetMedianTimePast();
-		}
-	}
-	oName.push_back(Pair("time", nTime));
-	oName.push_back(Pair("height", (int)alias.nHeight));
-	oName.push_back(Pair("address", EncodeBase58(alias.vchAddress)));
-	oName.push_back(Pair("accepttransferflags", (int)alias.nAcceptTransferFlags));
-	oName.push_back(Pair("encryption_privatekey", HexStr(alias.vchEncryptionPrivateKey)));
-	oName.push_back(Pair("encryption_publickey", HexStr(alias.vchEncryptionPublicKey)));
 	return true;
 }
 unsigned int aliasunspent(const vector<unsigned char> &vchAlias, COutPoint& outpoint)

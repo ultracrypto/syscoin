@@ -93,16 +93,6 @@ void CAssetDB::WriteAssetIndex(const CAsset& asset, const int& op) {
 			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "assetrecord");
 		}
 	}
-	WriteAssetIndexHistory(asset, op);
-}
-void CAssetDB::WriteAssetIndexHistory(const CAsset& asset, const int &op) {
-	if (IsArgSet("-zmqpubassethistory")) {
-		UniValue oName(UniValue::VOBJ);
-		if (BuildAssetIndexerHistoryJson(asset, oName)) {
-			oName.push_back(Pair("op", assetFromOp(op)));
-			GetMainSignals().NotifySyscoinUpdate(oName.write().c_str(), "assethistory");
-		}
-	}
 }
 bool GetAsset(const vector<unsigned char> &vchAsset,
         CAsset& txPos) {
@@ -1198,28 +1188,6 @@ bool BuildAssetJson(const CAsset& asset, const bool bGetInputs, UniValue& oAsset
 		}
 		oAsset.push_back(Pair("inputs", oAssetAllocationInputsArray));
 	}
-	return true;
-}
-bool BuildAssetIndexerHistoryJson(const CAsset& asset, UniValue& oAsset)
-{
-	oAsset.push_back(Pair("_id", asset.txHash.GetHex()));
-	oAsset.push_back(Pair("asset", stringFromVch(asset.vchAsset)));
-	oAsset.push_back(Pair("symbol", stringFromVch(asset.vchSymbol)));
-	oAsset.push_back(Pair("height", (int)asset.nHeight));
-	int64_t nTime = 0;
-	if (chainActive.Height() >= asset.nHeight-1) {
-		CBlockIndex *pindex = chainActive[asset.nHeight-1];
-		if (pindex) {
-			nTime = pindex->GetMedianTimePast();
-		}
-	}
-	oAsset.push_back(Pair("time", nTime));
-	oAsset.push_back(Pair("publicvalue", stringFromVch(asset.vchPubData)));
-	oAsset.push_back(Pair("category", stringFromVch(asset.sCategory)));
-	oAsset.push_back(Pair("owner", stringFromVch(asset.vchAliasOrAddress)));
-	oAsset.push_back(Pair("balance", ValueFromAssetAmount(asset.nBalance, asset.nPrecision, asset.bUseInputRanges)));
-	oAsset.push_back(Pair("total_supply", ValueFromAssetAmount(asset.nTotalSupply, asset.nPrecision, asset.bUseInputRanges)));
-	oAsset.push_back(Pair("interest_rate", asset.fInterestRate));
 	return true;
 }
 bool BuildAssetIndexerJson(const CAsset& asset, UniValue& oAsset)

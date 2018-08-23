@@ -146,13 +146,11 @@ public:
         return Read(make_pair(std::string("asseti"), vchAsset), asset);
     }
 	void WriteAssetIndex(const CAsset& asset, const int &op);
-	void WriteAssetIndexHistory(const CAsset& asset, const int &op);
 	bool ScanAssets(const int count, const int from, const UniValue& oOptions, UniValue& oRes);
 };
 bool GetAsset(const std::vector<unsigned char> &vchAsset,CAsset& txPos);
 bool BuildAssetJson(const CAsset& asset, const bool bGetInputs, UniValue& oName);
 bool BuildAssetIndexerJson(const CAsset& asset,UniValue& oName);
-bool BuildAssetIndexerHistoryJson(const CAsset& asset, UniValue& oName);
 UniValue ValueFromAssetAmount(const CAmount& amount, int precision, bool isInputRange);
 CAmount AssetAmountFromValue(UniValue& value, int precision, bool isInputRange);
 bool AssetRange(const CAmount& amountIn, int precision, bool isInputRange);
