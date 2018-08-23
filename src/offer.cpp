@@ -1030,10 +1030,11 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 		ArrivalTimesMap arrivalTimes;
 		pofferdb->ReadISArrivalTimes(vchOffer, arrivalTimes);
 		const int64_t & nNow = GetTimeMillis();
+		int minLatency = ZDAG_MINIMUM_LATENCY_SECONDS * 1000;
 		for (auto& arrivalTime : arrivalTimes) {
 			// if this tx arrived within the minimum latency period flag it as potentially conflicting
-			if ((nNow - (arrivalTime.second / 1000)) < ZDAG_MINIMUM_LATENCY_SECONDS) {
-				throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 2510 - " + _("Please wait a few more seconds and try again..."));
+			if ((nNow - arrivalTime.second) < minLatency) {
+				throw runtime_error("SYSCOIN_CERTIFICATE_CONSENSUS_ERROR: ERRCODE: 1535 - " + _("Please wait a few more seconds and try again..."));
 			}
 		}
 	}

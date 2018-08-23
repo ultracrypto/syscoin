@@ -1101,9 +1101,10 @@ UniValue assetsend(const JSONRPCRequest& request) {
 		ArrivalTimesMap arrivalTimes;
 		passetallocationdb->ReadISArrivalTimes(assetAllocationTuple, arrivalTimes);
 		const int64_t & nNow = GetTimeMillis();
+		int minLatency = ZDAG_MINIMUM_LATENCY_SECONDS * 1000;
 		for (auto& arrivalTime : arrivalTimes) {
 			// if this tx arrived within the minimum latency period flag it as potentially conflicting
-			if ((nNow - (arrivalTime.second / 1000)) < ZDAG_MINIMUM_LATENCY_SECONDS) {
+			if ((nNow - arrivalTime.second) < minLatency) {
 				throw runtime_error("SYSCOIN_ASSET_RPC_ERROR: ERRCODE: 2509 - " + _("Please wait a few more seconds and try again..."));
 			}
 		}

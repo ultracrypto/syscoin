@@ -986,11 +986,10 @@ UniValue assetallocationsend(const JSONRPCRequest& request) {
 	ArrivalTimesMap arrivalTimes;
 	passetallocationdb->ReadISArrivalTimes(assetAllocationTuple, arrivalTimes);
 	const int64_t & nNow = GetTimeMillis();
-        
+	int minLatency = ZDAG_MINIMUM_LATENCY_SECONDS * 1000;
+	if (fUnitTest)
+		minLatency = 1000;
 	for (auto& arrivalTime : arrivalTimes) {
-		int minLatency = ZDAG_MINIMUM_LATENCY_SECONDS*1000;
-		if (fUnitTest)
-			minLatency = 1000;
 		// if this tx arrived within the minimum latency period flag it as potentially conflicting
 		if ((nNow - arrivalTime.second) < minLatency) {
 			throw runtime_error("SYSCOIN_ASSET_ALLOCATION_RPC_ERROR: ERRCODE: 1503 - " + _("Please wait a few more seconds and try again..."));
