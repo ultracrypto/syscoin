@@ -706,9 +706,9 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	balanceAfter = AmountFromValue(find_value(r.get_obj(), "balance"));
 	BOOST_CHECK(abs(balanceBefore - balanceAfter) < COIN);
 	// create 2 of 3
-	string multisig1pubkey = aliasPubkeys["jagnodemultisig1"];
-	string multisig2pubkey = aliasPubkeys["jagnodemultisig2"];
-	string multisig3pubkey = aliasPubkeys["jagnodemultisig3"];
+	multisig1pubkey = aliasPubkeys["jagnodemultisig1"];
+	multisig2pubkey = aliasPubkeys["jagnodemultisig2"];
+	multisig3pubkey = aliasPubkeys["jagnodemultisig3"];
 	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\", \\\"" + multisig3pubkey + "\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
