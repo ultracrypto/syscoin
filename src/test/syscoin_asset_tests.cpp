@@ -19,7 +19,7 @@
 using namespace boost::chrono;
 using namespace std;
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
-
+std::map<string, string> aliasPubKeys;
 void printRangeVector (vector<CRange> &vecRange, string tag) {
 	printf("Printing vector range %s: ", tag.c_str());
 	for(int index = 0; index < vecRange.size(); index++) {
@@ -284,6 +284,7 @@ BOOST_AUTO_TEST_CASE(generate_big_assetdata)
 	RandomInit();
 	ECC_Start();
 	StartNodes();
+	SetAliasPubKeys(&aliasPubKeys);
 	GenerateSpendableCoins();
 	printf("Running generate_big_assetdata...\n");
 	GenerateBlocks(5);

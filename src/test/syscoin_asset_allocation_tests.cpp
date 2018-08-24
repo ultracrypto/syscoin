@@ -19,10 +19,11 @@
 using namespace boost::chrono;
 using namespace std;
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
-
+std::map<string, string> aliasPubKeys;
 BOOST_FIXTURE_TEST_SUITE(syscoin_asset_allocation_tests, BasicSyscoinTestingSetup)
 BOOST_AUTO_TEST_CASE(generate_asset_allocation_alias_sync)
 {
+	SetAliasPubKeys(&aliasPubKeys);
 	UniValue r;
 	GenerateBlocks(5);
 	printf("Running generate_asset_allocation_alias_sync...\n");
