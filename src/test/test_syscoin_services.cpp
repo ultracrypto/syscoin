@@ -800,7 +800,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	vector<unsigned char> vchPrivEncryptionKey(privEncryptionKey.begin(), privEncryptionKey.end());
 	vector<unsigned char> vchPubEncryptionKey(pubEncryptionKey.begin(), pubEncryptionKey.end());
 
-	aliasPubKeys[aliasname] = HexStr(vchPubEncryptionKey);
+	aliasPubKeys.insert(aliasname, HexStr(vchPubEncryptionKey));
 
 	CKey privKey;
 	privKey.MakeNewKey(true);
