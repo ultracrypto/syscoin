@@ -2054,9 +2054,9 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 	float fPaymentCurrency = boost::lexical_cast<float>(bid_in_offer_currency);
 	const string &bid_in_offer_currency1 = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option1 = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
-	const string& buyerpubkey = aliasPubKeys[buyeralias];
-	const string& sellerpubkey = aliasPubKeys[selleralias];
-	const string& arbiterpubkey = aliasPubKeys[arbiteralias];
+	const string& buyerpubkey = aliasPubKeys[0][buyeralias];
+	const string& sellerpubkey = aliasPubKeys[0][selleralias];
+	const string& arbiterpubkey = aliasPubKeys[0][arbiteralias];
 
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option1 + " " + bid_in_offer_currency1 + " " + witness));
@@ -2173,9 +2173,9 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	float fPaymentCurrency = find_value(r.get_obj(), "price").get_real();
 	const string &bid_in_offer_currency = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
-	const string& buyerpubkey = aliasPubKeys[buyeralias];
-	const string& sellerpubkey = aliasPubKeys[selleralias];
-	const string& arbiterpubkey = aliasPubKeys[arbiteralias];
+	const string& buyerpubkey = aliasPubKeys[0][buyeralias];
+	const string& sellerpubkey = aliasPubKeys[0][selleralias];
+	const string& arbiterpubkey = aliasPubKeys[0][arbiteralias];
 
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
