@@ -10,7 +10,7 @@
 #include <map>
 using namespace std;
 static map<string, float> pegRates;
-std::map<string, string> aliasPubKeys;
+static std::map<string, string> aliasPubKeys;
 /** Testing syscoin services setup that configures a complete environment with 3 nodes.
  */
 UniValue CallRPC(const string &dataDir, const string& commandWithArgs, bool regTest = true, bool readJson = true);
