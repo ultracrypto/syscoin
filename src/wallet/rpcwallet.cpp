@@ -37,7 +37,7 @@ using namespace std;
 #include "assetallocation.h"
 #include "asset.h"
 #include "coincontrol.h"
-extern bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress, std::vector<unsigned char> &vchPubKey);
+extern bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress);
 extern std::string stringFromVch(const std::vector<unsigned char> &vch);
 extern bool IsSyscoinScript(const CScript& scriptPubKey, int &op, vector<vector<unsigned char> > &vvchArgs);
 extern string GetSyscoinTransactionDescription(const CTransaction& tx, const int op, string& responseEnglish, const char &type, string& responseGUID);
@@ -439,9 +439,8 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
 
     CSyscoinAddress address(request.params[0].get_str());
 	// SYSCOIN
-	vector<unsigned char> vchPubKey;
 	string strAddress;
-	if (GetAddressFromAlias(request.params[0].get_str(), strAddress, vchPubKey))
+	if (GetAddressFromAlias(request.params[0].get_str(), strAddress))
 	{
 		address = CSyscoinAddress(strAddress);
 	}

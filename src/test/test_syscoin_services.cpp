@@ -36,6 +36,7 @@ static bool node1Online = false;
 static bool node2Online = false;
 static bool node3Online = false;
 std::map<string, string> mapNodes;
+std::map<string, string> aliasPubKeys;
 // create a map between node alias names and URLs to be used in testing for example CallRPC("mynode", "getinfo") would call getinfo on the node alias mynode which would be pushed as a URL here.
 // it is assumed RPC ports are open and u:p is the authentication
 void InitNodeURLMap() {
@@ -800,22 +801,20 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	vector<unsigned char> vchPrivEncryptionKey(privEncryptionKey.begin(), privEncryptionKey.end());
 	vector<unsigned char> vchPubEncryptionKey(pubEncryptionKey.begin(), pubEncryptionKey.end());
 
-	vector<unsigned char> vchPubKey;
-	CKey privKey;
-	vector<unsigned char> vchPasswordSalt;
+	aliasPubKeys[aliasname] = HexStr(vchPubEncryptionKey);
 
+	CKey privKey;
 	privKey.MakeNewKey(true);
 	CPubKey pubKey = privKey.GetPubKey();
-	vchPubKey = vector<unsigned char>(pubKey.begin(), pubKey.end());
+	vector<unsigned char> vchPubKey(pubKey.begin(), pubKey.end());
 	CSyscoinAddress aliasAddress(pubKey.GetID());
 	vector<unsigned char> vchPrivKey(privKey.begin(), privKey.end());
 	BOOST_CHECK(privKey.IsValid());
-	BOOST_CHECK(privEncryptionKey.IsValid());
 	BOOST_CHECK(pubKey.IsFullyValid());
 	BOOST_CHECK_NO_THROW(CallRPC(node, "importprivkey " + CSyscoinSecret(privKey).ToString() + " \"\" false", true, false));
 	BOOST_CHECK_NO_THROW(CallRPC(node, "importprivkey " + CSyscoinSecret(privEncryptionKey).ToString() + " \"\" false", true, false));
 
-	string strEncryptionPrivateKeyHex = HexStr(vchPrivEncryptionKey);
+
 	string acceptTransfers = "3";
 	string expireTime = "0";
 	string strAddress = aliasAddress.ToString();
@@ -824,7 +823,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 		strAddress = newaddress;
 	UniValue r;
 	// registration
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + strEncryptionPrivateKeyHex + " " + HexStr(vchPubEncryptionKey) + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + witness));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscointxfund " + varray[0].get_str()));
 	varray = r.get_array();
@@ -832,7 +831,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 	GenerateBlocks(5, node);
 	// activation
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + strEncryptionPrivateKeyHex + " " + HexStr(vchPubEncryptionKey) + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + witness));
 	UniValue varray1 = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscointxfund " + varray1[0].get_str()));
 	varray1 = r.get_array();
@@ -877,12 +876,10 @@ string AliasTransfer(const string& node, const string& aliasname, const string& 
 	string oldaddress = find_value(r.get_obj(), "address").get_str();
 	int nAcceptTransferFlags = find_value(r.get_obj(), "accepttransferflags").get_int();
 	string expires = "0";
-	string encryptionkey = find_value(r.get_obj(), "encryption_publickey").get_str();
-	string encryptionprivkey = find_value(r.get_obj(), "encryption_privatekey").get_str();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasbalance " + aliasname));
 	CAmount balanceBefore = AmountFromValue(find_value(r.get_obj(), "balance"));
 
-	CKey privKey, encryptionPrivKey;
+	CKey privKey;
 	privKey.MakeNewKey(true);
 	CPubKey pubKey = privKey.GetPubKey();
 	vector<unsigned char> vchPubKey(pubKey.begin(), pubKey.end());
@@ -894,7 +891,7 @@ string AliasTransfer(const string& node, const string& aliasname, const string& 
 
 	string address = aliasAddress.ToString();
 	string newpubdata = pubdata == "''" ? oldvalue : pubdata;
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + address + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + encryptionprivkey + " " + encryptionkey + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + address + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + witness));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + varray[0].get_str()));
 	string hex_str;
@@ -933,8 +930,6 @@ string AliasTransfer(const string& node, const string& aliasname, const string& 
 	BOOST_CHECK_EQUAL(balanceAfter, 0);
 	BOOST_CHECK_NO_THROW(r = CallRPC(tonode, "aliasinfo " + aliasname));
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "publicvalue").get_str(), newpubdata);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_publickey").get_str(), encryptionkey);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_privatekey").get_str(), encryptionprivkey);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "address").get_str(), aliasAddress.ToString());
 
 	// check xferred right person and data changed
@@ -949,8 +944,6 @@ string AliasTransfer(const string& node, const string& aliasname, const string& 
 	BOOST_CHECK(abs(newBalanceFrom - balanceBefore) < COIN);
 	BOOST_CHECK_NO_THROW(r = CallRPC(tonode, "aliasinfo " + aliasname));
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "publicvalue").get_str(), newpubdata);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_publickey").get_str(), encryptionkey);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_privatekey").get_str(), encryptionprivkey);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "address").get_str(), aliasAddress.ToString());
 	// fund new alias with some money
 	BOOST_CHECK_THROW(CallRPC(tonode, "sendtoaddress " + aliasname + " 10"), runtime_error);
@@ -967,15 +960,13 @@ string AliasUpdate(const string& node, const string& aliasname, const string& pu
 
 	string oldvalue = find_value(r.get_obj(), "publicvalue").get_str();
 	string oldAddressStr = find_value(r.get_obj(), "address").get_str();
-	string encryptionkey = find_value(r.get_obj(), "encryption_publickey").get_str();
-	string encryptionprivkey = find_value(r.get_obj(), "encryption_privatekey").get_str();
 	string expires = "0";
 	int nAcceptTransferFlags = find_value(r.get_obj(), "accepttransferflags").get_int();
 
 	string newpubdata = pubdata == "''" ? oldvalue : pubdata;
 	string newAddressStr = addressStr == "''" ? oldAddressStr : addressStr;
-	// "aliasupdate <aliasname> [public value]  [address] [accept_transfers=true] [expire_timestamp] [encryption_privatekey] [encryption_publickey] [witness]\n"
-	BOOST_CHECK_NO_THROW(r1 = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + newAddressStr + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + encryptionprivkey + " " + encryptionkey + " " + witness));
+	// "aliasupdate <aliasname> [public value]  [address] [accept_transfers=true] [expire_timestamp] [witness]\n"
+	BOOST_CHECK_NO_THROW(r1 = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + newAddressStr + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + witness));
 	UniValue varray = r1.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + varray[0].get_str()));
 	string hex_str;
@@ -1001,8 +992,6 @@ string AliasUpdate(const string& node, const string& aliasname, const string& pu
 
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "publicvalue").get_str(), newpubdata);
 
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_publickey").get_str(), encryptionkey);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_privatekey").get_str(), encryptionprivkey);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "expired").get_bool(), false);
 
 	if (!otherNode1.empty())
@@ -1012,7 +1001,6 @@ string AliasUpdate(const string& node, const string& aliasname, const string& pu
 		BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == aliasname);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "expired").get_bool(), false);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "publicvalue").get_str(), newpubdata);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_publickey").get_str(), encryptionkey);
 
 	}
 	if (!otherNode2.empty())
@@ -1024,7 +1012,6 @@ string AliasUpdate(const string& node, const string& aliasname, const string& pu
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "expired").get_bool(), false);
 
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "publicvalue").get_str(), newpubdata);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "encryption_publickey").get_str(), encryptionkey);
 
 	}
 	return "";
@@ -2065,10 +2052,12 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 	float fPaymentCurrency = boost::lexical_cast<float>(bid_in_offer_currency);
 	const string &bid_in_offer_currency1 = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option1 = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
+	const string& buyerpubkey = aliasPubKeys[buyeralias];
+	const string& sellerpubkey = aliasPubKeys[selleralias];
+	const string& arbiterpubkey = aliasPubKeys[arbiteralias];
 
-
-	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option1 + " " + bid_in_offer_currency1 + " " + witness));
+	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " buyerpubkey + " " sellerpubkey + " " arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option1 + " " + bid_in_offer_currency1 + " " + witness));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
 	string hex_str = find_value(r.get_obj(), "hex").get_str();
@@ -2182,8 +2171,12 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	float fPaymentCurrency = find_value(r.get_obj(), "price").get_real();
 	const string &bid_in_offer_currency = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
-	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
+	const string& buyerpubkey = aliasPubKeys[buyeralias];
+	const string& sellerpubkey = aliasPubKeys[selleralias];
+	const string& arbiterpubkey = aliasPubKeys[arbiteralias];
+
+	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " buyerpubkey + " " sellerpubkey + " " arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
 	string hex_str = find_value(r.get_obj(), "hex").get_str();

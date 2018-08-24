@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE (generate_certpruning)
 	// stop node3
 	StopNode("node3");
 	// should fail: already expired alias
-	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdate jagprune1 newdata TTVgyEvCfgZFiVL32kD7jMRaBKtGCHqwbD 3 0 '' '' ''"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdate jagprune1 newdata TTVgyEvCfgZFiVL32kD7jMRaBKtGCHqwbD 3 0 ''"), runtime_error);
 	GenerateBlocks(5, "node1");
 
 	// stop and start node1

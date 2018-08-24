@@ -627,7 +627,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_maxsenders)
 		if (i < 249)
 			senderstring += ",";
 		// registration	
-		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' '' '' ''"));
+		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' ''"));
 		UniValue varray = r.get_array();
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscointxfund " + varray[0].get_str() + " " + "\"{\\\"addresses\\\":[\\\"" + strAddress + "\\\"]}\""));
 		varray = r.get_array();
@@ -635,7 +635,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_maxsenders)
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "generate 1"));
 		// activation	
-		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' '' '' ''"));
+		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' ''"));
 		UniValue varray1 = r.get_array();
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscointxfund " + varray1[0].get_str() + " " + "\"{\\\"addresses\\\":[\\\"" + strAddress + "\\\"]}\""));
 		varray1 = r.get_array();
