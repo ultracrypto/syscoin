@@ -708,7 +708,7 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	// create 2 of 3
 	multisig1pubkey = aliasPubKeys["jagnodemultisig1"];
 	multisig2pubkey = aliasPubKeys["jagnodemultisig2"];
-	multisig3pubkey = aliasPubKeys["jagnodemultisig3"];
+	string multisig3pubkey = aliasPubKeys["jagnodemultisig3"];
 	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\", \\\"" + multisig3pubkey + "\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
