@@ -19,7 +19,7 @@ void StopNode(const string &dataDir="node1");
 void StartNodes();
 void StartMainNetNodes();
 void StopMainNetNodes();
-void SetAliasPubKeys(std::map<string, string> &aliasPubKeys);
+void SetAliasPubKeys(std::map<string, string> *aliasPubKeys);
 void StopNodes();
 void GenerateBlocks(int nBlocks, const string& node="node1");
 void GenerateSpendableCoins();
