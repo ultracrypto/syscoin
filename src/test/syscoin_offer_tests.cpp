@@ -373,6 +373,7 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate_editcurrency)
 	string sellerpubkey = aliasPubKeys["selleraliascurrency"];
 	string arbiterpubkey = aliasPubKeys["arbiteraliascurrency1"];
 
+	printf("buyerpubkey %s sellerpubkey %s arbiterpubkey %s\n", buyerpubkey.c_str(), sellerpubkey.c_str(), arbiterpubkey.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "escrownew false buyeraliascurrency arbiteraliascurrency1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 10 true 1 0 25 0.005 0 '' SYS 0 0 ''"));
 	UniValue arr1 = r.get_array();
 	escrowguid = arr1[1].get_str();
