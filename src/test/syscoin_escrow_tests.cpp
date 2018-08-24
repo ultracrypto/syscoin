@@ -13,8 +13,10 @@
 #include "base58.h"
 #include <boost/lexical_cast.hpp>
 BOOST_FIXTURE_TEST_SUITE(syscoin_escrow_tests, BasicSyscoinTestingSetup)
+std::map<string, string> aliasPubKeys;
 BOOST_AUTO_TEST_CASE(generate_auction_regular)
 {
+	SetAliasPubKeys(&aliasPubKeys);
 	// rate converstion to SYS
 	pegRates["USD"] = 2690.1;
 	pegRates["EUR"] = 2695.2;

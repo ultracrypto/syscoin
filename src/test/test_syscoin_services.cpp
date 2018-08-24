@@ -36,6 +36,10 @@ static bool node1Online = false;
 static bool node2Online = false;
 static bool node3Online = false;
 std::map<string, string> mapNodes;
+std::map<string, string> *aliasPubKeys;
+void SetAliasPubKeys(std::map<string, string> *keys) {
+	aliasPubKeys = keys;
+}
 // create a map between node alias names and URLs to be used in testing for example CallRPC("mynode", "getinfo") would call getinfo on the node alias mynode which would be pushed as a URL here.
 // it is assumed RPC ports are open and u:p is the authentication
 void InitNodeURLMap() {
@@ -798,8 +802,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	privEncryptionKey.MakeNewKey(true);
 	CPubKey pubEncryptionKey = privEncryptionKey.GetPubKey();
 	vector<unsigned char> vchPrivEncryptionKey(privEncryptionKey.begin(), privEncryptionKey.end());
-	vector<unsigned char> vchPubEncryptionKey(pubEncryptionKey.begin(), pubEncryptionKey.end());
-
+	
 	aliasPubKeys.insert(aliasname, HexStr(vchPubEncryptionKey));
 
 	CKey privKey;

@@ -13,12 +13,12 @@ BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
 
 BOOST_FIXTURE_TEST_SUITE (syscoin_offer_tests, BasicSyscoinTestingSetup)
 
-
+std::map<string, string> aliasPubKeys;
 BOOST_AUTO_TEST_CASE (generate_offernew)
 {
 	printf("Running generate_offernew...\n");
 	UniValue r;
-
+	SetAliasPubKeys(&aliasPubKeys);
 	GenerateBlocks(5);
 	GenerateBlocks(5, "node2");
 	GenerateBlocks(5, "node3");
