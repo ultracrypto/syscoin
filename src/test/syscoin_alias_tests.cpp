@@ -19,14 +19,14 @@ BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
 
 BOOST_FIXTURE_TEST_SUITE (syscoin_alias_tests, BasicSyscoinTestingSetup)
 const unsigned int MAX_ALIAS_UPDATES_PER_BLOCK = 5;
-std::map<string, string> aliasPubKeys;
+std::map<string, string> aliasPubKeysAlias;
 BOOST_AUTO_TEST_CASE (generate_big_aliasdata)
 {
 	/*ECC_Start();
 	GenerateBlocks(200, "node1");
 	GenerateBlocks(200, "node2");
 	GenerateBlocks(200, "node3");*/
-	SetAliasPubKeys(&aliasPubKeys);
+	SetAliasPubKeys(&aliasPubKeysAlias);
 	UniValue r;
 	// rate converstion to SYS
 	pegRates["USD"] = 2690.1;
@@ -626,8 +626,8 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	// create 2 of 2
 	UniValue resCreate;
 	string redeemScript, addressStr;
-	string multisig1pubkey = aliasPubKeys["jagnodemultisig1"];
-	string multisig2pubkey = aliasPubKeys["jagnodemultisig2"];
+	string multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
+	string multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
 	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\"]\""));
 	UniValue redeemScript_value = find_value(resCreate, "redeemScript");
 	UniValue address_value = find_value(resCreate, "address");
@@ -675,8 +675,8 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	BOOST_CHECK(hex_str != "");
 
 	// create 1 of 2
-	multisig1pubkey = aliasPubKeys["jagnodemultisig1"];
-	multisig2pubkey = aliasPubKeys["jagnodemultisig2"];
+	multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
+	multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
 	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 1 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
@@ -708,9 +708,9 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	balanceAfter = AmountFromValue(find_value(r.get_obj(), "balance"));
 	BOOST_CHECK(abs(balanceBefore - balanceAfter) < COIN);
 	// create 2 of 3
-	multisig1pubkey = aliasPubKeys["jagnodemultisig1"];
-	multisig2pubkey = aliasPubKeys["jagnodemultisig2"];
-	string multisig3pubkey = aliasPubKeys["jagnodemultisig3"];
+	multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
+	multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
+	string multisig3pubkey = aliasPubKeysAlias["jagnodemultisig3"];
 	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\", \\\"" + multisig3pubkey + "\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
@@ -1039,9 +1039,9 @@ BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 	BOOST_CHECK(pubKey.IsFullyValid());
 	CSyscoinAddress aliasAddress(pubKey.GetID());
 
-	string buyerpubkey = aliasPubKeys["aliasexpire2node2"];
-	string sellerpubkey = aliasPubKeys["aliasexpirednode2"];
-	string arbiterpubkey = aliasPubKeys["aliasexpirednode2"];
+	string buyerpubkey = aliasPubKeysAlias["aliasexpire2node2"];
+	string sellerpubkey = aliasPubKeysAlias["aliasexpirednode2"];
+	string arbiterpubkey = aliasPubKeysAlias["aliasexpirednode2"];
 
 
 	// should fail: alias update on expired alias
@@ -1058,8 +1058,8 @@ BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 	BOOST_CHECK_THROW(CallRPC("node2", "offernew aliasexpirednode2 category title 1 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 	// should fail: new escrow with expired arbiter alias
 
-	buyerpubkey = aliasPubKeys["aliasexpirednode2"];
-	arbiterpubkey = aliasPubKeys["aliasexpire"];
+	buyerpubkey = aliasPubKeysAlias["aliasexpirednode2"];
+	arbiterpubkey = aliasPubKeysAlias["aliasexpire"];
 	BOOST_CHECK_THROW(CallRPC("node2", "escrownew false aliasexpire2node2 aliasexpirednode2 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 	// should fail: new escrow with expired alias
 	BOOST_CHECK_THROW(CallRPC("node2", "escrownew false aliasexpirednode2 aliasexpire " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);

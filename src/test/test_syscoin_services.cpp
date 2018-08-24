@@ -36,9 +36,9 @@ static bool node1Online = false;
 static bool node2Online = false;
 static bool node3Online = false;
 std::map<string, string> mapNodes;
-std::map<string, string> *aliasPubKeys;
+std::map<string, string> *aliasPubKeysInt;
 void SetAliasPubKeys(std::map<string, string> *keys) {
-	aliasPubKeys = keys;
+	aliasPubKeysInt = keys;
 }
 // create a map between node alias names and URLs to be used in testing for example CallRPC("mynode", "getinfo") would call getinfo on the node alias mynode which would be pushed as a URL here.
 // it is assumed RPC ports are open and u:p is the authentication
@@ -803,7 +803,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	CPubKey pubEncryptionKey = privEncryptionKey.GetPubKey();
 	vector<unsigned char> vchPubEncryptionKey(pubEncryptionKey.begin(), pubEncryptionKey.end());
 	
-	aliasPubKeys[0][aliasname] = HexStr(vchPubEncryptionKey);
+	aliasPubKeysInt[0][aliasname] = HexStr(vchPubEncryptionKey);
 
 	CKey privKey;
 	privKey.MakeNewKey(true);
@@ -2054,9 +2054,9 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 	float fPaymentCurrency = boost::lexical_cast<float>(bid_in_offer_currency);
 	const string &bid_in_offer_currency1 = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option1 = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
-	const string& buyerpubkey = aliasPubKeys[0][buyeralias];
-	const string& sellerpubkey = aliasPubKeys[0][selleralias];
-	const string& arbiterpubkey = aliasPubKeys[0][arbiteralias];
+	const string& buyerpubkey = aliasPubKeysInt[0][buyeralias];
+	const string& sellerpubkey = aliasPubKeysInt[0][selleralias];
+	const string& arbiterpubkey = aliasPubKeysInt[0][arbiteralias];
 
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option1 + " " + bid_in_offer_currency1 + " " + witness));
@@ -2173,9 +2173,9 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	float fPaymentCurrency = find_value(r.get_obj(), "price").get_real();
 	const string &bid_in_offer_currency = strprintf("%.*f", 8, fPaymentCurrency);
 	const string &bid_in_payment_option = strprintf("%.*f", 8, strprintf("%.*f", 8, pegRates[currency] * fPaymentCurrency));
-	const string& buyerpubkey = aliasPubKeys[0][buyeralias];
-	const string& sellerpubkey = aliasPubKeys[0][selleralias];
-	const string& arbiterpubkey = aliasPubKeys[0][arbiteralias];
+	const string& buyerpubkey = aliasPubKeysInt[0][buyeralias];
+	const string& sellerpubkey = aliasPubKeysInt[0][selleralias];
+	const string& arbiterpubkey = aliasPubKeysInt[0][arbiteralias];
 
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));

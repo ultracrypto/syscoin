@@ -13,10 +13,10 @@
 #include "base58.h"
 #include <boost/lexical_cast.hpp>
 BOOST_FIXTURE_TEST_SUITE(syscoin_escrow_tests, BasicSyscoinTestingSetup)
-std::map<string, string> aliasPubKeys;
+std::map<string, string> aliasPubKeysEscrow;
 BOOST_AUTO_TEST_CASE(generate_auction_regular)
 {
-	SetAliasPubKeys(&aliasPubKeys);
+	SetAliasPubKeys(&aliasPubKeysEscrow);
 	// rate converstion to SYS
 	pegRates["USD"] = 2690.1;
 	pegRates["EUR"] = 2695.2;
@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(generate_auction_regular)
 
 	string bid_in_payment_option = strprintf("%.*f", 2, pegRates["USD"] * 0.03);
 
-	string buyerpubkey = aliasPubKeys["buyerauction"];
-	string sellerpubkey = aliasPubKeys["sellerauction"];
-	string arbiterpubkey = aliasPubKeys["arbiterauction"];
+	string buyerpubkey = aliasPubKeysEscrow["buyerauction"];
+	string sellerpubkey = aliasPubKeysEscrow["sellerauction"];
+	string arbiterpubkey = aliasPubKeysEscrow["arbiterauction"];
 
 	string query = "escrownew true buyerauction arbiterauction " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", query));
@@ -138,9 +138,9 @@ BOOST_AUTO_TEST_CASE(generate_auction_reserve)
 	string bid_in_offer_currency = "0.01";
 	string total_in_payment_option = strprintf("%.*f", 2, pegRates["USD"] * 0.05);
 	string bid_in_payment_option = strprintf("%.*f", 2, pegRates["USD"] * 0.01);
-	string buyerpubkey = aliasPubKeys["buyerauction1"];
-	string sellerpubkey = aliasPubKeys["sellerauction1"];
-	string arbiterpubkey = aliasPubKeys["arbiterauction1"];
+	string buyerpubkey = aliasPubKeysEscrow["buyerauction1"];
+	string sellerpubkey = aliasPubKeysEscrow["sellerauction1"];
+	string arbiterpubkey = aliasPubKeysEscrow["arbiterauction1"];
 	// try to underbid in offer currency
 	string query = "escrownew false buyerauction1 arbiterauction1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_THROW(r = CallRPC("node1", query), runtime_error);

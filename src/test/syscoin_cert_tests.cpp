@@ -10,10 +10,10 @@
 #include "base58.h"
 #include <boost/test/unit_test.hpp>
 BOOST_FIXTURE_TEST_SUITE (syscoin_cert_tests, BasicSyscoinTestingSetup)
-std::map<string, string> aliasPubKeys;
+std::map<string, string> aliasPubKeysCert;
 BOOST_AUTO_TEST_CASE (generate_big_certdata)
 {
-	SetAliasPubKeys(&aliasPubKeys);
+	SetAliasPubKeys(&aliasPubKeysCert);
 	printf("Running generate_big_certdata...\n");
 	GenerateBlocks(5);
 	AliasNew("node1", "jagcertbig1", "data");
