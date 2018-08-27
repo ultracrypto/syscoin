@@ -1695,7 +1695,8 @@ UniValue aliasnew(const JSONRPCRequest& request) {
 
 	CSyscoinAddress newAddress;
 	GetAddress(newAlias1, &newAddress, scriptPubKeyOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	scriptPubKey += scriptPubKeyOrig;
 
 
@@ -1735,7 +1736,7 @@ UniValue aliasnew(const JSONRPCRequest& request) {
 		tx.vin.push_back(CTxIn(regOut, pcoin.out.scriptPubKey));
 		for (unsigned int i = 0; i<MAX_ALIAS_UPDATES_PER_BLOCK; i++)
 		{
-			vecSend.push_back(recipient);
+			vecSend.push_back(addrrecipient);
 		}
 		if (!vchWitness.empty())
 		{
@@ -1756,8 +1757,8 @@ UniValue aliasnew(const JSONRPCRequest& request) {
 			tx.vin.push_back(CTxIn(aliasOutPointWitness, pcoinW.out.scriptPubKey));
 		}
 	}
-	else
-		vecSend.push_back(recipient);
+	
+	vecSend.push_back(recipient);
 	for (auto& recp : vecSend) {
 		tx.vout.push_back(CTxOut(recp.nAmount, recp.scriptPubKey));
 	}
