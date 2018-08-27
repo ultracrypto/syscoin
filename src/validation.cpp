@@ -602,9 +602,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 	// Ensure that we don't fail on verifydb which loads recent UTXO and will fail if the input is already spent, 
 	// but during runtime fLoaded should be true so it should check UTXO in correct state
 	if (!fLoaded)
-		return true;
-   if(tx.nVersion != SYSCOIN_TX_VERSION && tx.nVersion != SYSCOIN_TX_VERSION2)
-        return true;        
+		return true;     
 	static int64_t nFlushIndexBlocks = 0;
 	std::string statusRpc = "";
 	if (fJustCheck && (IsInitialBlockDownload() || RPCIsInWarmup(&statusRpc)))
@@ -621,6 +619,8 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 	bool good = true;
 	const std::vector<unsigned char> &emptyVch = vchFromString("");
 	if (block.vtx.empty()) {
+		if (tx.nVersion != SYSCOIN_TX_VERSION && tx.nVersion != SYSCOIN_TX_VERSION2)
+			return true;
 		bool foundAliasOutput = false;
         
         foundAliasOutput = true;
