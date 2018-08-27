@@ -603,7 +603,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 	// but during runtime fLoaded should be true so it should check UTXO in correct state
 	if (!fLoaded)
 		return true;
-   if(tx.nVersion != SYSCOIN_TX_VERSION || tx.nVersion != SYSCOIN_TX_VERSION2)
+   if(tx.nVersion != SYSCOIN_TX_VERSION && tx.nVersion != SYSCOIN_TX_VERSION2)
         return true;        
 	static int64_t nFlushIndexBlocks = 0;
 	std::string statusRpc = "";
