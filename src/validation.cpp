@@ -703,10 +703,9 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 
 		for (unsigned int i = 0; i < sortedBlock.vtx.size(); i++)
 		{
-           	bool foundAliasOutput = false;
+           	bool foundAliasOutput = true;
 			good = true; 
 			const CTransaction &tx = *sortedBlock.vtx[i];
-            foundAliasOutput = true;
             if (!DecodeAliasTx(tx, op, vvchAliasArgs))
             {
                 if (tx.nVersion == SYSCOIN_TX_VERSION2 || !FindAliasInTx(inputs, tx, vvchAliasArgs)) {

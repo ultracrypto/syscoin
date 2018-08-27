@@ -248,17 +248,16 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 	vector<unsigned char> vchHash;
 	int nDataOut;
 	bool aliasData = true;
-	if(tx.nVersion == SYSCOIN_TX_VERSION){
-		// check to see if there is more than just an alias script output for this tx, if so its not an alias update
-		for (unsigned int i = 0; i < tx.vout.size(); i++) {
-			int pop;
-			if (!FindSyscoinScriptOp(tx.vout[i].scriptPubKey, pop))
-				continue;
-			if (pop != OP_SYSCOIN_ALIAS) {
-				aliasData = false;
-			}
+	// check to see if there is more than just an alias script output for this tx, if so its not an alias update
+	for (unsigned int i = 0; i < tx.vout.size(); i++) {
+		int pop;
+		if (!FindSyscoinScriptOp(tx.vout[i].scriptPubKey, pop))
+			continue;
+		if (pop != OP_SYSCOIN_ALIAS) {
+			aliasData = false;
 		}
 	}
+	
 	// if it has alias data, get it and unserialize the alias from data output
 	if (aliasData) {
 		bool bData = GetSyscoinData(tx, vchData, vchHash, nDataOut);
