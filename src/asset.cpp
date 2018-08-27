@@ -935,8 +935,7 @@ UniValue assettransfer(const JSONRPCRequest& request) {
 		CSyscoinAddress toAddr;
 		GetAddress(toAlias, &toAddr, scriptPubKeyOrig);
 	}
-	CRecipient addrrecipient;
-	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
+
 	CAliasIndex fromAlias;
 	if (!strAddressFrom.empty()) {
 		scriptPubKeyFromOrig = GetScriptForDestination(addressFrom.Get());
