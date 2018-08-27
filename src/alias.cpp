@@ -952,11 +952,6 @@ bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias) {
 	return true;
 }
 
-		name = vvchArgs[0];
-		return true;
-	}
-	return false;
-}
 bool DecodeAndParseSyscoinTx(const CTransaction& tx, int& op,
 		vector<vector<unsigned char> >& vvch, char& type)
 {
@@ -1206,8 +1201,8 @@ UniValue SyscoinListReceived(bool includeempty=true)
 	}
 
 	vector<COutput> vecOutputs;
-	// include alias balances and alias outputs
-	pwalletMain->AvailableCoins(vecOutputs, true, NULL, includeempty, ALL_COINS, false, true, true);
+	// include alias balances
+	pwalletMain->AvailableCoins(vecOutputs, true, NULL, includeempty, ALL_COINS, false, true);
 	BOOST_FOREACH(const COutput& out, vecOutputs) {
 		CTxDestination address;
 		if (!ExtractDestination(out.tx->tx->vout[out.i].scriptPubKey, address))
@@ -1254,9 +1249,8 @@ UniValue SyscoinListReceived(bool includeempty=true)
 	}
 	return ret;
 }
-UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vector<unsigned char> &vchWitness, const CRecipient &aliasRecipient, vector<CRecipient> &vecSend) {
+UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vector<unsigned char> &vchWitness,const CRecipient &addressRecipient, vector<CRecipient> &vecSend) {
 	CMutableTransaction txNew;
-	txNew.nVersion = SYSCOIN_TX_VERSION;
 	txNew.nVersion = SYSCOIN_TX_VERSION2;
 	// set an address for syscointxfund so it uses that address to fund (alias passed in)
 	string strAddress;
