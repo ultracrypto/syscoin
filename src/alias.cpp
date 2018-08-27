@@ -1737,8 +1737,12 @@ UniValue aliasnew(const JSONRPCRequest& request) {
 		}
 		if (!vchWitness.empty())
 		{
+			string strWitnessAddress;
+			CAliasIndex witnessalias;
+			if (!GetAlias(vchWitness, witnessalias))
+				throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 5509 - " + _("Cannot find witness alias used to fund this transaction: ") + stringFromVch(vchWitness));
 			COutPoint aliasOutPointWitness;
-			addressunspent(vchWitness, aliasOutPointWitness);
+			addressunspent(strWitnessAddress, aliasOutPointWitness);
 			if (aliasOutPointWitness.IsNull())
 			{
 				throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 5509 - " + _("This transaction requires a witness but not enough outputs found for witness alias: ") + stringFromVch(vchWitness));
