@@ -644,7 +644,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 			if (DecodeAssetAllocationTx(tx, op, vvchArgs))
 			{
 				errorMessage.clear();
-				good = CheckAssetAllocationInputs(tx, inputs, op, vvchArgs, foundAliasInput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage, bSanity);
+				good = CheckAssetAllocationInputs(tx, inputs, op, vvchArgs, foundAliasOutput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage, bSanity);
 			}
 			else if (DecodeOfferTx(tx, op, vvchArgs))
 			{
@@ -670,7 +670,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 			else if (DecodeAssetTx(tx, op, vvchArgs))
 			{
 				errorMessage.clear();
-				good = CheckAssetInputs(tx, inputs, op, vvchArgs, foundAliasInput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage, bSanity);
+				good = CheckAssetInputs(tx, inputs, op, vvchArgs, foundAliasOutput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage, bSanity);
 			}
 		}
 		else
@@ -726,7 +726,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 			    if (DecodeAssetAllocationTx(tx, op, vvchArgs))
                 {
                     errorMessage.clear();
-                    good = CheckAssetAllocationInputs(tx, inputs, op, vvchArgs, foundAliasInput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage);
+                    good = CheckAssetAllocationInputs(tx, inputs, op, vvchArgs, foundAliasOutput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage);
                     if (fDebug && !errorMessage.empty())
                         LogPrintf("%s\n", errorMessage.c_str());
 
@@ -761,7 +761,7 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
                 else if (DecodeAssetTx(tx, op, vvchArgs))
                 {
                     errorMessage.clear();
-                    good = CheckAssetInputs(tx, inputs, op, vvchArgs, foundAliasInput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage);
+                    good = CheckAssetInputs(tx, inputs, op, vvchArgs, foundAliasOutput ? vvchAliasArgs[0] : emptyVch, fJustCheck, nHeight, revertedAssetAllocations, errorMessage);
                     if (fDebug && !errorMessage.empty())
                         LogPrintf("%s\n", errorMessage.c_str());
                 }
