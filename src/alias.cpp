@@ -1260,7 +1260,7 @@ UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vecto
 	strAddress = EncodeBase58(alias.vchAddress);
 	
 	COutPoint addressOutPoint;
-	unsigned int unspentcount = addressunspent(vchAlias, addressOutPoint);
+	unsigned int unspentcount = addressunspent(strAddress, addressOutPoint);
 	if (unspentcount <= 1)
 	{
 		for (unsigned int i = 0; i < MAX_ALIAS_UPDATES_PER_BLOCK; i++)
@@ -1273,7 +1273,11 @@ UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vecto
 	COutPoint witnessOutpoint;
 	if (!vchWitness.empty())
 	{
-		addressunspent(vchWitness, witnessOutpoint);
+		string strWitnessAddress;
+		CAliasIndex witnessalias;
+		if (!GetAlias(vchWitness, witnessalias))
+			throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 9000 - " + _("Cannot find witness alias used to fund this transaction: ") + stringFromVch(vchWitness));
+		addressunspent(strWitnessAddress, witnessOutpoint);
 		if (witnessOutpoint.IsNull())
 		{
 			throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 9000 - " + _("This transaction requires a witness but not enough outputs found for witness alias: ") + stringFromVch(vchWitness));
@@ -2402,7 +2406,7 @@ bool BuildAliasJson(const CAliasIndex& alias, UniValue& oName)
 	oName.push_back(Pair("expired", expired));
 	return true;
 }
-unsigned int addressunspent(const string& strAddressFrom)
+unsigned int addressunspent(const string& strAddressFrom, COutPoint& outpoint)
 {
 	UniValue paramsUTXO(UniValue::VARR);
 	UniValue param(UniValue::VOBJ);
@@ -2437,6 +2441,8 @@ unsigned int addressunspent(const string& strAddressFrom)
 
 			if (mempool.mapNextTx.find(outPointToCheck) != mempool.mapNextTx.end())
 				continue;
+			if (outpoint.IsNull())
+				outpoint = outPointToCheck;
 			count++;
 		}
 	}

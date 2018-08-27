@@ -310,7 +310,7 @@ bool DecodeAndParseSyscoinTx(const CTransaction& tx, int& op, std::vector<std::v
 bool DecodeAliasScript(const CScript& script, int& op,
 		std::vector<std::vector<unsigned char> > &vvch);
 bool FindAliasInTx(const CCoinsViewCache &inputs, const CTransaction& tx, std::vector<std::vector<unsigned char> >& vvch);
-unsigned int addressunspent(const std::string& strAddressFrom);
+unsigned int addressunspent(const std::string& strAddressFrom, COutPoint& outpoint);
 bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress);
 bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias);
 int getFeePerByte(const uint64_t &paymentOptionMask);
