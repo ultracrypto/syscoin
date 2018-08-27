@@ -845,6 +845,8 @@ UniValue offernew(const JSONRPCRequest& request) {
     vector<unsigned char> vchHashOffer = vchFromString(hash.GetHex());
 	CSyscoinAddress aliasAddress;
 	GetAddress(alias, &aliasAddress, scriptPubKeyOrig);
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	scriptPubKey << CScript::EncodeOP_N(OP_SYSCOIN_OFFER) << CScript::EncodeOP_N(OP_OFFER_ACTIVATE) << vchHashOffer << OP_2DROP << OP_DROP;
 	scriptPubKey += scriptPubKeyOrig;
 	CScript scriptPubKeyAlias;
@@ -863,9 +865,9 @@ UniValue offernew(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	UniValue res = syscointxfund_helper(vchAlias, vchWitness, aliasRecipient, vecSend);
+	UniValue res = syscointxfund_helper(vchAlias, vchWitness, addrrecipient, vecSend);
 	res.push_back(stringFromVch(vchOffer));
 	return res;
 }
@@ -933,6 +935,8 @@ UniValue offerlink(const JSONRPCRequest& request) {
     vector<unsigned char> vchHashOffer = vchFromString(hash.GetHex());
 	CSyscoinAddress aliasAddress;
 	GetAddress(alias, &aliasAddress, scriptPubKeyOrig);
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	scriptPubKey << CScript::EncodeOP_N(OP_SYSCOIN_OFFER) << CScript::EncodeOP_N(OP_OFFER_ACTIVATE) << vchHashOffer << OP_2DROP << OP_DROP;
 	scriptPubKey += scriptPubKeyOrig;
 	CScript scriptPubKeyAlias;
@@ -954,9 +958,9 @@ UniValue offerlink(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	UniValue res = syscointxfund_helper(vchAlias, vchWitness, aliasRecipient, vecSend);
+	UniValue res = syscointxfund_helper(vchAlias, vchWitness, addrrecipient, vecSend);
 	res.push_back(stringFromVch(vchOffer));
 	return res;
 }
@@ -1087,7 +1091,8 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	}
 	CSyscoinAddress aliasAddress;
 	GetAddress(alias, &aliasAddress, scriptPubKeyOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	// create OFFERUPDATE, ALIASUPDATE txn keys
 	CScript scriptPubKey;
 
@@ -1150,12 +1155,9 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-	CCoinControl coinControl;
-	coinControl.fAllowOtherInputs = false;
-	coinControl.fAllowWatchOnly = false;
+	vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(offerAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(offerAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 
 void COfferDB::WriteOfferIndex(const COffer& offer, const int &op) {

@@ -518,7 +518,8 @@ UniValue certnew(const JSONRPCRequest& request) {
     CScript scriptPubKeyOrig;
 	CSyscoinAddress aliasAddress;
 	GetAddress(theAlias, &aliasAddress, scriptPubKeyOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 
     CScript scriptPubKey,scriptPubKeyAlias;
 
@@ -555,8 +556,9 @@ UniValue certnew(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-	UniValue res = syscointxfund_helper(vchAlias, vchWitness, aliasRecipient, vecSend);
+	UniValue res = syscointxfund_helper(vchAlias, vchWitness, addrrecipient, vecSend);
 	res.push_back(stringFromVch(vchCert));
 	return res;
 }
@@ -616,7 +618,8 @@ UniValue certupdate(const JSONRPCRequest& request) {
 	theCert.ClearCert();
 	CSyscoinAddress aliasAddress;
 	GetAddress(theAlias, &aliasAddress, scriptPubKeyOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
     // create CERTUPDATE txn keys
     CScript scriptPubKey;
 
@@ -649,8 +652,8 @@ UniValue certupdate(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-	
-	return syscointxfund_helper(theAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	vecSend.push_back(aliasRecipient);
+	return syscointxfund_helper(theAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 
 
@@ -715,7 +718,8 @@ UniValue certtransfer(const JSONRPCRequest& request) {
 	GetAddress(toAlias, &sendAddr, scriptPubKeyOrig);
 	CSyscoinAddress fromAddr;
 	GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	CCert copyCert = theCert;
 	theCert.ClearCert();
     CScript scriptPubKey;
@@ -750,9 +754,9 @@ UniValue certtransfer(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 	
-	
-	return syscointxfund_helper(fromAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(fromAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 
 

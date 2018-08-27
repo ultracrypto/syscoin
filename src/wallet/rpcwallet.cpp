@@ -1458,7 +1458,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
             entry.push_back(Pair("abandoned", wtx.isAbandoned()));
 			// SYSCOIN
 			const CTransaction& tx = *wtx.tx;
-			if (tx.nVersion == SYSCOIN_TX_VERSION && DecodeAndParseSyscoinTx(tx, op, vvchArgs, type))
+			if ((tx.nVersion == SYSCOIN_TX_VERSION || tx.nVersion == SYSCOIN_TX_VERSION2) && DecodeAndParseSyscoinTx(tx, op, vvchArgs, type))
 			{
 				int aliasOp;
 				vector<vector<unsigned char> > aliasVvch;
@@ -1560,7 +1560,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
                     WalletTxToJSON(wtx, entry);
 				// SYSCOIN
 				const CTransaction& tx = *wtx.tx;
-				if (tx.nVersion == SYSCOIN_TX_VERSION && DecodeAndParseSyscoinTx(tx, op, vvchArgs, type))
+				if ((tx.nVersion == SYSCOIN_TX_VERSION || tx.nVersion == SYSCOIN_TX_VERSION2)  && DecodeAndParseSyscoinTx(tx, op, vvchArgs, type))
 				{
 					int aliasOp;
 					vector<vector<unsigned char> > aliasVvch;
@@ -2816,8 +2816,8 @@ UniValue listunspent(const JSONRPCRequest& request)
     std::vector<COutput> vecOutputs;
     assert(pwalletMain != NULL);
     LOCK2(cs_main, pwalletMain->cs_wallet);
-	// SYSCOIN include sys alias balances and sys outputs
-    pwalletMain->AvailableCoins(vecOutputs, !include_unsafe, NULL, true, ALL_COINS, false, true, true);
+	// SYSCOIN include sys alias balances
+    pwalletMain->AvailableCoins(vecOutputs, !include_unsafe, NULL, true, ALL_COINS, false, true);
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;

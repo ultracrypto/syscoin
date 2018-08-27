@@ -2571,7 +2571,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
     return nTotal;
 }
 
-void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, AvailableCoinsType nCoinType, bool fUseInstantSend, bool fIncludeSyscoinAliasBalances, bool fIncludeSyscoinAliasOutputs) const
+void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, AvailableCoinsType nCoinType, bool fUseInstantSend, bool fIncludeSyscoinAliasBalances) const
 {
     vCoins.clear();
 
@@ -2610,7 +2610,7 @@ void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, 
 
             for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
 				// SYSCOIN
-				if (!fIncludeSyscoinAliasBalances || !fIncludeSyscoinAliasOutputs) {
+				if (!fIncludeSyscoinAliasBalances) {
 					if (coinControl && coinControl->HasSelected() && !coinControl->fAllowOtherInputs && !coinControl->IsSelected(COutPoint((*it).first, i)))
 						continue;
 					// SYSCOIN txs are unspendable by wallet unless using coincontrol(and the tx is selected)
@@ -2619,12 +2619,8 @@ void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, 
 						CTxDestination sysdestination;
 						if (pcoin->tx->vout.size() >= i && ExtractDestination(pcoin->tx->vout[i].scriptPubKey, sysdestination))
 						{
-							int op;
-							std::vector<std::vector<unsigned char> > vvchArgs;
-							if (IsSyscoinScript(pcoin->tx->vout[i].scriptPubKey, op, vvchArgs) && !fIncludeSyscoinAliasOutputs)
-								continue;
 							CSyscoinAddress address = CSyscoinAddress(sysdestination);
-							if (DoesAliasExist(address.ToString()) && !fIncludeSyscoinAliasBalances)
+							if (DoesAliasExist(address.ToString()))
 								continue;
 						}
 					}

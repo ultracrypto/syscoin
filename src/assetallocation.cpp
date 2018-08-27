@@ -154,7 +154,7 @@ bool DecodeAndParseAssetAllocationTx(const CTransaction& tx, int& op,
 }
 bool DecodeAssetAllocationTx(const CTransaction& tx, int& op,
         vector<vector<unsigned char> >& vvch) {
-	if (tx.nVersion != SYSCOIN_TX_VERSION)
+	if (tx.nVersion != SYSCOIN_TX_VERSION || tx.nVersion != SYSCOIN_TX_VERSION2)
 		return false;
     bool found = false;
 
@@ -979,7 +979,8 @@ UniValue assetallocationsend(const JSONRPCRequest& request) {
 		CSyscoinAddress fromAddr;
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);
 	CScript scriptPubKey;
 
 	// check to see if a transaction for this asset/address tuple has arrived before minimum latency period
@@ -1028,9 +1029,10 @@ UniValue assetallocationsend(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	if (strAddressFrom.empty())
+		vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, addrrecipient, vecSend);
 }
 UniValue assetallocationcollectinterest(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
@@ -1076,6 +1078,8 @@ UniValue assetallocationcollectinterest(const JSONRPCRequest& request) {
 		CSyscoinAddress fromAddr;
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 	}
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);	
 	CScript scriptPubKey;
 	theAssetAllocation.ClearAssetAllocation();
 	theAssetAllocation.vchAsset = assetAllocationTuple.vchAsset;
@@ -1106,9 +1110,10 @@ UniValue assetallocationcollectinterest(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	if (strAddressFrom.empty())
+		vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, addrrecipient, vecSend);
 }
 
 UniValue assetallocationinfo(const JSONRPCRequest& request) {

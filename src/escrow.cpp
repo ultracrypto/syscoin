@@ -1040,7 +1040,8 @@ UniValue escrowbid(const JSONRPCRequest& request) {
 	CScript scriptPubKeyAliasOrig, scriptPubKeyAlias;
 	CSyscoinAddress buyerAddress;
 	GetAddress(bidderalias, &buyerAddress, scriptPubKeyAliasOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyAliasOrig, addrrecipient);
 	CEscrow theEscrow;
 
 	if (!GetEscrow(vchEscrow, theEscrow))
@@ -1077,10 +1078,10 @@ UniValue escrowbid(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
 
-
-	return syscointxfund_helper(vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(vchAlias, vchWitness, addrrecipient, vecSend);
 }
 UniValue escrowaddshipping(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
@@ -1119,7 +1120,8 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 
 	CSyscoinAddress buyerAddress;
 	GetAddress(bidderalias, &buyerAddress, scriptPubKeyAliasOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyAliasOrig, addrrecipient);
 	scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << bidderalias.vchAlias << bidderalias.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 	scriptPubKeyAlias += scriptPubKeyAliasOrig;
 
@@ -1148,9 +1150,9 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(bidderalias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(bidderalias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 UniValue escrownew(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
@@ -1288,7 +1290,8 @@ UniValue escrownew(const JSONRPCRequest& request) {
 
 	CSyscoinAddress buyerAddress;
 	GetAddress(buyeralias, &buyerAddress, scriptPubKeyAliasOrig);
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyAliasOrig, addrrecipient);
 	scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << buyeralias.vchAlias  << buyeralias.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 	scriptPubKeyAlias += scriptPubKeyAliasOrig;
 
@@ -1422,9 +1425,9 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	UniValue res = syscointxfund_helper(buyeralias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	UniValue res = syscointxfund_helper(buyeralias.vchAlias, vchWitness, addrrecipient, vecSend);
 	res.push_back(stringFromVch(vchEscrow));
 	return res;
 }
@@ -1466,7 +1469,8 @@ UniValue escrowacknowledge(const JSONRPCRequest& request) {
 	{
 		GetAddress(sellerAliasLatest, &sellerPaymentAddress, sellerScript, escrow.nPaymentOption);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(sellerScript, addrrecipient);
 
 
 
@@ -1500,9 +1504,9 @@ UniValue escrowacknowledge(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(sellerAliasLatest.vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(sellerAliasLatest.vchAlias, vchWitness, addrrecipient, vecSend);
 
 }
 UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
@@ -1703,19 +1707,21 @@ UniValue escrowrelease(const JSONRPCRequest& request) {
 
 	CScript scriptPubKeyAlias;
 	CAliasIndex theAlias;
-
+	CRecipient addrrecipient;
 	// who is initiating release arbiter or buyer?
 	if(role == "arbiter")
 	{
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << arbiterAliasLatest.vchAlias << arbiterAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += arbiterScript;
-		theAlias = arbiterAliasLatest;
+		theAlias = arbiterAliasLatest;	
+		CreateAliasRecipient(arbiterScript, addrrecipient);
 	}
 	else if(role == "buyer")
 	{
 		scriptPubKeyAlias = CScript() << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << buyerAliasLatest.vchAlias << buyerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += buyerScript;
 		theAlias = buyerAliasLatest;
+		CreateAliasRecipient(buyerScript, addrrecipient);
 	}
 	else
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4529 - " + _("Invalid role"));
@@ -1759,8 +1765,8 @@ UniValue escrowrelease(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-
-	return syscointxfund_helper(theAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	vecSend.push_back(aliasRecipient);
+	return syscointxfund_helper(theAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 
 UniValue escrowcompleterelease(const JSONRPCRequest& request) {
@@ -1798,7 +1804,8 @@ UniValue escrowcompleterelease(const JSONRPCRequest& request) {
 	{
 		GetAddress(sellerAliasLatest, &sellerPaymentAddress, sellerScript, escrow.nPaymentOption);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(sellerScript, addrrecipient);
 
 	CScript scriptPubKeyAlias;
 	
@@ -1831,10 +1838,10 @@ UniValue escrowcompleterelease(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
 
-
-	const UniValue res = syscointxfund_helper(sellerAliasLatest.vchAlias, vchWitness, aliasRecipient, vecSend);
+	const UniValue res = syscointxfund_helper(sellerAliasLatest.vchAlias, vchWitness, addrrecipient, vecSend);
 	UniValue returnRes;
 	UniValue sendParams(UniValue::VARR);
 	sendParams.push_back(rawTx);
@@ -1891,19 +1898,21 @@ UniValue escrowrefund(const JSONRPCRequest& request) {
 
 	CScript scriptPubKeyAlias;
 	CAliasIndex theAlias;
-
+	CRecipient addrrecipient;
 	// who is initiating refund arbiter or seller?
 	if (role == "arbiter")
 	{
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << arbiterAliasLatest.vchAlias << arbiterAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += arbiterScript;
 		theAlias = arbiterAliasLatest;
+		CreateAliasRecipient(arbiterScript, addrrecipient);	
 	}
 	else if (role == "seller")
 	{
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << sellerAliasLatest.vchAlias << sellerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += sellerScript;
 		theAlias = sellerAliasLatest;
+		CreateAliasRecipient(sellerScript, addrrecipient);	
 	}
 	else
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4533 - " + _("Invalid role"));
@@ -1947,8 +1956,8 @@ UniValue escrowrefund(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-
-	return syscointxfund_helper(theAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	vecSend.push_back(aliasRecipient);
+	return syscointxfund_helper(theAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 
 UniValue escrowcompleterefund(const JSONRPCRequest& request) {
@@ -1988,7 +1997,8 @@ UniValue escrowcompleterefund(const JSONRPCRequest& request) {
 	{
 		GetAddress(buyerAliasLatest, &buyerPaymentAddress, buyerScript, escrow.nPaymentOption);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(buyerScript, addrrecipient);	
 	CScript scriptPubKeyAlias;
 
 	scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << buyerAliasLatest.vchAlias << buyerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
@@ -2022,9 +2032,9 @@ UniValue escrowcompleterefund(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	const UniValue& res = syscointxfund_helper(buyerAliasLatest.vchAlias, vchWitness, aliasRecipient, vecSend);
+	const UniValue& res = syscointxfund_helper(buyerAliasLatest.vchAlias, vchWitness, addrrecipient, vecSend);
 	UniValue returnRes;
 	UniValue sendParams(UniValue::VARR);
 	sendParams.push_back(rawTx);
@@ -2093,31 +2103,36 @@ UniValue escrowfeedback(const JSONRPCRequest& request) {
 
 	CAliasIndex theAlias;
 	CScript scriptPubKeyAlias;
-
+	CRecipient addrrecipient;
+	
 	if(userfrom == "buyer")
 	{
 			
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << buyerAliasLatest.vchAlias << buyerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += buyerScript;
 		theAlias = buyerAliasLatest;
+		CreateAliasRecipient(buyerScript, addrrecipient);
 	}
 	else if(userfrom == "seller")
 	{	
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << sellerAliasLatest.vchAlias << sellerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += sellerScript;
 		theAlias = sellerAliasLatest;
+		CreateAliasRecipient(sellerScript, addrrecipient);
 	}
 	else if(userfrom == "reseller")
 	{
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << resellerAliasLatest.vchAlias << resellerAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += resellerScript;
 		theAlias = resellerAliasLatest;
+		CreateAliasRecipient(resellerScript, addrrecipient);
 	}
 	else if(userfrom == "arbiter")
 	{		
 		scriptPubKeyAlias << CScript::EncodeOP_N(OP_SYSCOIN_ALIAS) << CScript::EncodeOP_N(OP_ALIAS_UPDATE) << arbiterAliasLatest.vchAlias << arbiterAliasLatest.vchGUID << vchFromString("") << vchWitness << OP_2DROP << OP_2DROP << OP_2DROP;
 		scriptPubKeyAlias += arbiterScript;
 		theAlias = arbiterAliasLatest;
+		CreateAliasRecipient(arbiterScript, addrrecipient);
 	}
 	escrow.ClearEscrow();
 	escrow.vchEscrow = vchEscrow;
@@ -2209,9 +2224,9 @@ UniValue escrowfeedback(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(theAlias.vchAlias, vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(theAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
 UniValue escrowinfo(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;

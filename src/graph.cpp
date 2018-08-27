@@ -22,26 +22,16 @@ bool OrderBasedOnArrivalTime(const int &nHeight, std::vector<CTransactionRef>& b
 		if (!txRef)
 			continue;
 		const CTransaction &tx = *txRef;
-		if (tx.nVersion == SYSCOIN_TX_VERSION)
+		if (tx.nVersion == SYSCOIN_TX_VERSION2)
 		{
 			if (DecodeAssetAllocationTx(tx, op, vvchArgs))
 			{
 				LOCK(cs_assetallocation);
 				ArrivalTimesMap arrivalTimes;
 				CAssetAllocation assetallocation(tx);
-				if (nHeight >= Params().GetConsensus().nShareFeeBlock) {
-					CAssetAllocationTuple assetAllocationTuple(assetallocation.vchAsset, assetallocation.vchAliasOrAddress);
-					passetallocationdb->ReadISArrivalTimes(assetAllocationTuple, arrivalTimes);
-				}
-				else {
-					if (!FindAliasInTx(view, tx, vvchAliasArgs)) {
-						continue;
-					}
-					CAssetAllocationTuple assetAllocationTuple(assetallocation.vchAsset, vvchAliasArgs[0]);
-					passetallocationdb->ReadISArrivalTimes(assetAllocationTuple, arrivalTimes);
-				}
+				CAssetAllocationTuple assetAllocationTuple(assetallocation.vchAsset, assetallocation.vchAliasOrAddress);
+				passetallocationdb->ReadISArrivalTimes(assetAllocationTuple, arrivalTimes);
 
-				
 				ArrivalTimesMap::iterator it = arrivalTimes.find(tx.GetHash());
 				if (it != arrivalTimes.end())
 					orderedIndexes.insert(make_pair((*it).second, n));
@@ -104,23 +94,16 @@ bool CreateGraphFromVTX(const int &nHeight, const std::vector<CTransactionRef>& 
 		if (!txRef)
 			continue;
 		const CTransaction &tx = *txRef;
-		if (tx.nVersion == SYSCOIN_TX_VERSION)
+		if (tx.nVersion == SYSCOIN_TX_VERSION2)
 		{
 			if (DecodeAssetAllocationTx(tx, op, vvchArgs))
 			{	
 				AliasMap::const_iterator it;
 				CAssetAllocation allocation(tx);
-				if (nHeight >= Params().GetConsensus().nShareFeeBlock) {
-					sender = stringFromVch(allocation.vchAliasOrAddress);
-					it = mapAliasIndex.find(sender);
-				}
-				else {
-					if (!FindAliasInTx(view, tx, vvchAliasArgs)) {
-						continue;
-					}
-					sender = stringFromVch(vvchAliasArgs[0]);
-					it = mapAliasIndex.find(sender);
-				}
+				
+				sender = stringFromVch(allocation.vchAliasOrAddress);
+				it = mapAliasIndex.find(sender);
+				
 				if (it == mapAliasIndex.end()) {
 					vertices.push_back(add_vertex(graph));
 					mapAliasIndex[sender] = vertices.size() - 1;

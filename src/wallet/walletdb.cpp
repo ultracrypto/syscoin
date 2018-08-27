@@ -303,7 +303,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             if (!(CheckTransaction(*wtx.tx, state) && (wtx.tx->GetHash() == hash) && state.IsValid()))
 			{
 				// SYSCOIN
-				if (wtx.tx->GetHash() != hash && wtx.tx->nVersion == SYSCOIN_TX_VERSION)
+				if (wtx.tx->GetHash() != hash && (wtx.tx->nVersion == SYSCOIN_TX_VERSION || wtx.tx->nVersion == SYSCOIN_TX_VERSION2))
 					return true;
 				strErr = "Error reading wallet database. CheckTransaction failed, validation state: " + FormatStateMessage(state);
 				return false;

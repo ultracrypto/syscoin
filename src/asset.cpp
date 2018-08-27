@@ -723,7 +723,8 @@ UniValue assetnew(const JSONRPCRequest& request) {
 		CSyscoinAddress fromAddr;
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);
     CScript scriptPubKey;
 
 	// calculate net
@@ -773,8 +774,9 @@ UniValue assetnew(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-
-	UniValue res = syscointxfund_helper(vchAliasOrAddress, vchWitness, aliasRecipient, vecSend);
+	if (strAddressFrom.empty())
+		vecSend.push_back(aliasRecipient);
+	UniValue res = syscointxfund_helper(vchAliasOrAddress, vchWitness, addrrecipient, vecSend);
 	res.push_back(stringFromVch(newAsset.vchAsset));
 	return res;
 }
@@ -833,6 +835,8 @@ UniValue assetupdate(const JSONRPCRequest& request) {
 		CSyscoinAddress fromAddr;
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 	}
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);
 	CAsset copyAsset = theAsset;
 	theAsset.ClearAsset();
 
@@ -882,9 +886,9 @@ UniValue assetupdate(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-	
-	
-	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, aliasRecipient, vecSend);
+	if (strAddressFrom.empty())
+		vecSend.push_back(aliasRecipient);
+	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, addrrecipient, vecSend);
 }
 
 UniValue assettransfer(const JSONRPCRequest& request) {
@@ -931,7 +935,8 @@ UniValue assettransfer(const JSONRPCRequest& request) {
 		CSyscoinAddress toAddr;
 		GetAddress(toAlias, &toAddr, scriptPubKeyOrig);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyOrig, addrrecipient);
 	CAliasIndex fromAlias;
 	if (!strAddressFrom.empty()) {
 		scriptPubKeyFromOrig = GetScriptForDestination(addressFrom.Get());
@@ -944,7 +949,8 @@ UniValue assettransfer(const JSONRPCRequest& request) {
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 
 	}
-	
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);	
 
 	CAsset copyAsset = theAsset;
 	theAsset.ClearAsset();
@@ -978,8 +984,9 @@ UniValue assettransfer(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
-	
-	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, aliasRecipient, vecSend);
+	if (strAddressFrom.empty()) 
+		vecSend.push_back(aliasRecipient);
+	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, addrrecipient, vecSend);
 }
 UniValue assetsend(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
@@ -1028,7 +1035,8 @@ UniValue assetsend(const JSONRPCRequest& request) {
 		CSyscoinAddress fromAddr;
 		GetAddress(fromAlias, &fromAddr, scriptPubKeyFromOrig);
 	}
-
+	CRecipient addrrecipient;
+	CreateAliasRecipient(scriptPubKeyFromOrig, addrrecipient);
 	CAliasIndex toAlias;
 	CAssetAllocation theAssetAllocation;
 	theAssetAllocation.vchMemo = vchMemo;
@@ -1131,9 +1139,10 @@ UniValue assetsend(const JSONRPCRequest& request) {
 	CRecipient fee;
 	CreateFeeRecipient(scriptData, data, fee);
 	vecSend.push_back(fee);
+	if (strAddressFrom.empty())
+		vecSend.push_back(aliasRecipient);
 
-
-	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, aliasRecipient, vecSend);
+	return syscointxfund_helper(vchFromString(strAliasOrAddress), vchWitness, addrrecipient, vecSend);
 }
 
 UniValue assetinfo(const JSONRPCRequest& request) {
