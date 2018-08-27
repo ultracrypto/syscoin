@@ -1253,11 +1253,13 @@ UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vecto
 	CMutableTransaction txNew;
 	txNew.nVersion = SYSCOIN_TX_VERSION2;
 	// set an address for syscointxfund so it uses that address to fund (alias passed in)
-	string strAddress;
-	CAliasIndex alias;
-	if (!GetAlias(vchAlias, alias))
-		throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 9000 - " + _("Cannot find alias used to fund this transaction: ") + stringFromVch(vchAlias));
-	strAddress = EncodeBase58(alias.vchAddress);
+	string strAddress = stringFromVch(vchAlias);
+	if (!CSyscoinAddress(strAddress).IsValid()) {
+		CAliasIndex alias;
+		if (!GetAlias(vchAlias, alias))
+			throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 9000 - " + _("Cannot find alias used to fund this transaction: ") + stringFromVch(vchAlias));
+		strAddress = EncodeBase58(alias.vchAddress);
+	}
 	
 	COutPoint addressOutPoint;
 	unsigned int unspentcount = addressunspent(strAddress, addressOutPoint);
