@@ -22,7 +22,7 @@ bool OrderBasedOnArrivalTime(const int &nHeight, std::vector<CTransactionRef>& b
 		if (!txRef)
 			continue;
 		const CTransaction &tx = *txRef;
-		if (tx.nVersion == SYSCOIN_TX_VERSION2)
+		if (tx.nVersion == SYSCOIN_TX_VERSION || tx.nVersion == SYSCOIN_TX_VERSION2)
 		{
 			if (DecodeAssetAllocationTx(tx, op, vvchArgs))
 			{
@@ -94,15 +94,23 @@ bool CreateGraphFromVTX(const int &nHeight, const std::vector<CTransactionRef>& 
 		if (!txRef)
 			continue;
 		const CTransaction &tx = *txRef;
-		if (tx.nVersion == SYSCOIN_TX_VERSION2)
+		if (tx.nVersion == SYSCOIN_TX_VERSION || tx.nVersion == SYSCOIN_TX_VERSION2)
 		{
 			if (DecodeAssetAllocationTx(tx, op, vvchArgs))
 			{	
 				AliasMap::const_iterator it;
 				CAssetAllocation allocation(tx);
-				
-				sender = stringFromVch(allocation.vchAliasOrAddress);
-				it = mapAliasIndex.find(sender);
+				if (nHeight >= Params().GetConsensus().nShareFeeBlock) {
+					sender = stringFromVch(allocation.vchAliasOrAddress);
+					it = mapAliasIndex.find(sender);
+				}
+				else {
+					if (!FindAliasInTx(view, tx, vvchAliasArgs)) {
+						continue;
+					}
+					sender = stringFromVch(vvchAliasArgs[0]);
+					it = mapAliasIndex.find(sender);
+				}
 				
 				if (it == mapAliasIndex.end()) {
 					vertices.push_back(add_vertex(graph));

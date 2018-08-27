@@ -616,7 +616,8 @@ bool CheckSyscoinInputs(const CTransaction& tx, CValidationState& state, const C
 	sorted_vector<std::vector<unsigned char> > revertedCerts;
 	int op;
 	if (nHeight == 0)
-		nHeight = chainActive.Height()+1;	std::string errorMessage;
+		nHeight = chainActive.Height()+1;	
+	std::string errorMessage;
 	bool good = true;
 	const std::vector<unsigned char> &emptyVch = vchFromString("");
 	if (block.vtx.empty()) {
