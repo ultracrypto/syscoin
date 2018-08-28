@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE (generate_aliasmultiupdate)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasinfo jagmultiupdate"));
 
 	// can do MAX_ALIAS_UPDATES_PER_BLOCK free updates, updated above as well
-	for (unsigned int i = 0; i < MAX_ALIAS_UPDATES_PER_BLOCK; i++)
+	for (unsigned int i = 0; i <= MAX_ALIAS_UPDATES_PER_BLOCK; i++)
 	{
 		// "aliasupdate <aliasname> [public value]  [address] [accept_transfers=true] [expire_timestamp] [witness]\n"
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasupdate jagmultiupdate changeddata '' 3 0 ''"));
