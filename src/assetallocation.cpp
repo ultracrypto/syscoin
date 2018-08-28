@@ -154,8 +154,6 @@ bool DecodeAndParseAssetAllocationTx(const CTransaction& tx, int& op,
 }
 bool DecodeAssetAllocationTx(const CTransaction& tx, int& op,
         vector<vector<unsigned char> >& vvch) {
-	if (tx.nVersion != SYSCOIN_TX_VERSION || tx.nVersion != SYSCOIN_TX_VERSION2)
-		return false;
     bool found = false;
 
 
@@ -454,7 +452,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 			}
 			if (!bSanityCheck && !passetdb->WriteAsset(dbAsset, OP_ASSET_UPDATE))
 			{
-				errorMessage = "SYSCOIN_ASSET_CONSENSUS_ERROR: ERRCODE: 1014 - " + _("Failed to write to asset DB");
+				errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1014 - " + _("Failed to write to asset DB");
 				return error(errorMessage.c_str());
 			}
 		}
