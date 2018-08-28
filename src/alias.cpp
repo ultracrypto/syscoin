@@ -1278,6 +1278,7 @@ UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vecto
 		CAliasIndex witnessalias;
 		if (!GetAlias(vchWitness, witnessalias))
 			throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 9000 - " + _("Cannot find witness alias used to fund this transaction: ") + stringFromVch(vchWitness));
+		strWitnessAddress = EncodeBase58(witnessalias.vchAddress);
 		addressunspent(strWitnessAddress, witnessOutpoint);
 		if (witnessOutpoint.IsNull())
 		{
@@ -1743,6 +1744,9 @@ UniValue aliasnew(const JSONRPCRequest& request) {
 			CAliasIndex witnessalias;
 			if (!GetAlias(vchWitness, witnessalias))
 				throw runtime_error("SYSCOIN_RPC_ERROR ERRCODE: 5509 - " + _("Cannot find witness alias used to fund this transaction: ") + stringFromVch(vchWitness));
+
+			strWitnessAddress = EncodeBase58(witnessalias.vchAddress);
+
 			COutPoint aliasOutPointWitness;
 			addressunspent(strWitnessAddress, aliasOutPointWitness);
 			if (aliasOutPointWitness.IsNull())
