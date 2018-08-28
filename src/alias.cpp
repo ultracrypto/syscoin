@@ -283,8 +283,8 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 		}					
 		
 	}
-	// MAX_ALIAS_UPDATES_PER_BLOCK + 1(change address) + 2(data output and alias coloured output) + 1(alias transfer potentially)
-	if (tx.vout.size() > (MAX_ALIAS_UPDATES_PER_BLOCK + 4))
+	// MAX_ALIAS_UPDATES_PER_BLOCK + 1(change address) + 2(data output and alias coloured output) + 1(alias transfer potentially) + 1(escrow payment potentially)
+	if (tx.vout.size() > (MAX_ALIAS_UPDATES_PER_BLOCK + 5))
 	{
 		errorMessage = "SYSCOIN_ALIAS_CONSENSUS_ERROR: ERRCODE: 5002 - " + _("Too many outputs for this Syscoin transaction");
 		return error(errorMessage.c_str());
