@@ -268,9 +268,9 @@ BOOST_AUTO_TEST_CASE (generate_sendmoneytoalias)
 	BOOST_CHECK_EQUAL(balanceBefore, balanceAfter);
 
 	// pay to node2/node3 wallets for alias funding for tests
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node2address + " 500000"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node2address + " 5000"), runtime_error);
 	GenerateBlocks(10);
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node3address + " 500000"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node3address + " 5000"), runtime_error);
 	GenerateBlocks(10);
 
 }
@@ -318,9 +318,9 @@ BOOST_AUTO_TEST_CASE (generate_aliaspay)
 	BOOST_CHECK_EQUAL(balanceAfterTo, balanceTestAfterTo);
 
 	// pay to node2/node3 wallets for alias funding for tests
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node2address + " 500000"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node2address + " 500"), runtime_error);
 	GenerateBlocks(10);
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node3address + " 500000"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress " + node3address + " 500"), runtime_error);
 	GenerateBlocks(10);
 
 	// there should be atleast 1 UTXO left in the aliases used to update
