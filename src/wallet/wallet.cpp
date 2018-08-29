@@ -2619,8 +2619,7 @@ void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, 
 						CTxDestination sysdestination;
 						if (pcoin->tx->vout.size() >= i && ExtractDestination(pcoin->tx->vout[i].scriptPubKey, sysdestination))
 						{
-							CSyscoinAddress address = CSyscoinAddress(sysdestination);
-							if (DoesAliasExist(address.ToString()))
+							if (DoesAliasExist(CSyscoinAddress(sysdestination).ToString()))
 								continue;
 						}
 					}
