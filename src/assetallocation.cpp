@@ -607,7 +607,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 
 					}
 					const string& receiverAddress = stringFromVch(receiverAllocation.vchAliasOrAddress);
-					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, amountTuple.second, dbAsset, INT64_MAX, user1, receiverAddress, fJustCheck))
+					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, amountTuple.second, dbAsset, INT64_MAX, user1, bBalanceOverrun? "": receiverAddress, fJustCheck))
 					{
 						errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1023 - " + _("Failed to write to asset allocation DB");
 						return error(errorMessage.c_str());
@@ -709,7 +709,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						theAssetAllocation.nBalance -= rangeTotals[i];
 					}
 					const string& receiverAddress = stringFromVch(receiverAllocation.vchAliasOrAddress);
-					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, rangeTotals[i], dbAsset, INT64_MAX, user1, receiverAddress, fJustCheck))
+					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, rangeTotals[i], dbAsset, INT64_MAX, user1, bBalanceOverrun ? "": receiverAddress, fJustCheck))
 					{
 						errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1030 - " + _("Failed to write to asset allocation DB");
 						return error(errorMessage.c_str());
