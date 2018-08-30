@@ -1716,7 +1716,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, C
 		nTotalRewardWithMasternodes = 533000000 * COIN;
 		return nTotalRewardWithMasternodes;
 	}
-	double nSubsidy = 38.5 * COIN;
+	CAmount nSubsidy = 38.5 * COIN;
 	int reductions = nHeight / consensusParams.nSubsidyHalvingInterval;
 	if (reductions >= 50) {
 		nTotalRewardWithMasternodes = 0;
@@ -1754,7 +1754,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, C
 		}
 	}
 
-	return (CAmount)nSubsidy;
+	return nSubsidy;
 
 }
 
