@@ -2735,12 +2735,6 @@ UniValue aliasclearwhitelist(const JSONRPCRequest& request) {
 
 	return syscointxfund_helper(copyAlias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
-bool DoesAliasExist(const string &strAddress) {
-	vector<unsigned char> vchMyAlias;
-	vector<unsigned char> vchAddress;
-	DecodeBase58(strAddress, vchAddress);
-	return paliasdb->ReadAddress(vchAddress, vchMyAlias);
-}
 UniValue syscoinlistreceivedbyaddress(const JSONRPCRequest& request)
 {
 	const UniValue &params = request.params;
