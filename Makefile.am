@@ -9,10 +9,13 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libsyscoinconsensus.pc
 endif
 
-SYSCOIND_BIN=$(top_builddir)/src/syscoind$(EXEEXT)
-SYSCOIN_QT_BIN=$(top_builddir)/src/qt/syscoin-qt$(EXEEXT)
-SYSCOIN_CLI_BIN=$(top_builddir)/src/syscoin-cli$(EXEEXT)
+SYSCOIND_BIN=$(top_builddir)/src/$(SYSCOIN_DAEMON_NAME)$(EXEEXT)
+SYSCOIN_QT_BIN=$(top_builddir)/src/qt/$(SYSCOIN_GUI_NAME)$(EXEEXT)
+SYSCOIN_CLI_BIN=$(top_builddir)/src/$(SYSCOIN_CLI_NAME)$(EXEEXT)
 SYSCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
+
+empty :=
+space := $(empty) $(empty)
 
 OSX_APP=Syscoin-Qt.app
 OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
