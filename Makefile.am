@@ -15,7 +15,8 @@ SYSCOIN_CLI_BIN=$(top_builddir)/src/syscoin-cli$(EXEEXT)
 SYSCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
 OSX_APP=Syscoin-Qt.app
-OSX_DMG=Syscoin-Core.dmg
+OSX_VOLNAME = $(subst $(space),-,,$(PACKAGE_NAME))
+OSX_DMG=$(OSX_VOLNAME).dmg
 OSX_BACKGROUND_IMAGE=background.png
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_FANCY_PLIST=$(top_srcdir)/contrib/macdeploy/fancy.plist
@@ -91,9 +92,12 @@ OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lp
   $(OSX_APP)/Contents/Resources/syscoin.icns $(OSX_APP)/Contents/Info.plist \
   $(OSX_APP)/Contents/MacOS/Syscoin-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
+osx_volname:
+	echo $(OSX_VOLNAME) >$@
+
 if BUILD_DARWIN
-$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	$(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2
+$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
+	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2 -volname $(OSX_VOLNAME)
 
 deploydir: $(OSX_DMG)
 else
