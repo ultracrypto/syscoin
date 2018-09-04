@@ -555,7 +555,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 				}
 			}
 			const CAmount &nBalanceAfterSend = dbAssetAllocation.nBalance - nTotal;
-			if (nBalanceAfterSend < 0) {
+			if (nBalanceAfterSend < -1) {
 				bBalanceOverrun = true;
 				if(bSanityCheck)
 					errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1021 - " + _("Sender balance is insufficient");
@@ -652,7 +652,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 				nTotal += rangeTotals.back();
 			}
 			const CAmount &nBalanceAfterSend = dbAssetAllocation.nBalance - nTotal;
-			if (nBalanceAfterSend < 0) {
+			if (nBalanceAfterSend < -1) {
 				bBalanceOverrun = true;
 				if(bSanityCheck)
 					errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1027 - " + _("Sender balance is insufficient");
