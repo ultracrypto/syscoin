@@ -373,9 +373,10 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 		LogPrintf("*Trying to add escrow in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256 & txHash = tx.GetHash();
 	if (fDebug && !bSanityCheck)
 		LogPrintf("*** ESCROW %d %d %s %s\n", nHeight,
-			chainActive.Tip()->nHeight, tx.GetHash().ToString().c_str(),
+			chainActive.Tip()->nHeight, txHash.ToString().c_str(),
 			fJustCheck ? "JUSTCHECK" : "BLOCK");
 
 
@@ -661,7 +662,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 				}	
 				theEscrow.fBidPerUnit = serializedEscrow.fBidPerUnit;
 				theEscrow.nAmountOrBidPerUnit = serializedEscrow.nAmountOrBidPerUnit;
-				theEscrow.txHash = tx.GetHash();
+				theEscrow.txHash = txHash;
 				theEscrow.nHeight = nHeight;
 				// write escrow bid
 				if (!bSanityCheck)
@@ -896,7 +897,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4073 - " + _("Unknown feedback user type");
 					return true;
 				}
-				serializedEscrow.txHash = tx.GetHash();
+				serializedEscrow.txHash = txHash;
 				serializedEscrow.nHeight = nHeight;
 				serializedEscrow.vchOffer = theEscrow.vchOffer;
 				if (!bSanityCheck) {
@@ -995,7 +996,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 		}
 
 		// set the escrow's txn-dependent values
-		theEscrow.txHash = tx.GetHash();
+		theEscrow.txHash = txHash;
 		theEscrow.nHeight = nHeight;
 		// write escrow
 		if (!bSanityCheck) {
@@ -1008,7 +1009,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 				LogPrintf("CONNECTED ESCROW: op=%s escrow=%s hash=%s height=%d fJustCheck=%d\n",
 					escrowFromOp(op).c_str(),
 					stringFromVch(serializedEscrow.vchEscrow).c_str(),
-					tx.GetHash().ToString().c_str(),
+					txHash.ToString().c_str(),
 					nHeight,
 					fJustCheck ? 1 : -1);
 		}

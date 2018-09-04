@@ -336,10 +336,11 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 		LogPrintf("*Trying to add offer in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256& txHash = tx.GetHash();
 	const uint64_t &nTime = chainActive.Tip()->GetMedianTimePast();
 	if (fDebug && !bSanityCheck)
 		LogPrintf("*** OFFER %d %d %s %s %s %d\n", nHeight,
-			chainActive.Tip()->nHeight, tx.GetHash().ToString().c_str(),
+			chainActive.Tip()->nHeight, txHash.ToString().c_str(),
 			fJustCheck ? "JUSTCHECK" : "BLOCK", " VVCH SIZE: ", vvchArgs.size());
 	// unserialize msg from txn, check for valid
 	COffer theOffer;
@@ -513,7 +514,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 		}
 	}
 	if (!fJustCheck && !bSanityCheck) {
-		if (!RevertOffer(theOffer.vchOffer, op, tx.GetHash(), revertedOffers))
+		if (!RevertOffer(theOffer.vchOffer, op, txHash, revertedOffers))
 		{
 			errorMessage = "SYSCOIN_OFFER_CONSENSUS_ERROR: ERRCODE: 2028 - " + _("Failed to revert offer");
 			return error(errorMessage.c_str());
@@ -672,7 +673,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 		}
 	}
 	theOffer.nHeight = nHeight;
-	theOffer.txHash = tx.GetHash();
+	theOffer.txHash = txHash;
 	// write offer
 	if (!bSanityCheck) {
 		int64_t ms = INT64_MAX;
@@ -691,7 +692,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 				offerFromOp(op).c_str(),
 				stringFromVch(theOffer.vchOffer).c_str(),
 				theOffer.nQty,
-				tx.GetHash().ToString().c_str(),
+				txHash.ToString().c_str(),
 				nHeight,
 				fJustCheck ? 1 : -1);
 	}

@@ -198,9 +198,10 @@ bool CheckAssetInputs(const CTransaction &tx, const CCoinsViewCache &inputs, int
 		LogPrintf("*Trying to add asset in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256& txHash = tx.GetHash();
 	if (fDebug && !bSanityCheck)
 		LogPrintf("*** ASSET %d %d %s %s\n", nHeight,
-			chainActive.Tip()->nHeight, tx.GetHash().ToString().c_str(),
+			chainActive.Tip()->nHeight, txHash.ToString().c_str(),
 			fJustCheck ? "JUSTCHECK" : "BLOCK");
 
 	// unserialize asset from txn, check for valid
@@ -497,7 +498,7 @@ bool CheckAssetInputs(const CTransaction &tx, const CCoinsViewCache &inputs, int
 							receiverAllocation.nHeight = nHeight;
 							receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 						}
-						receiverAllocation.txHash = tx.GetHash();
+						receiverAllocation.txHash = txHash;
 						if (theAsset.fInterestRate > 0) {
 							AccumulateInterestSinceLastClaim(receiverAllocation, nHeight);
 						}
@@ -560,7 +561,7 @@ bool CheckAssetInputs(const CTransaction &tx, const CCoinsViewCache &inputs, int
 							receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 						}
 
-						receiverAllocation.txHash = tx.GetHash();
+						receiverAllocation.txHash = txHash;
 						receiverAllocation.fInterestRate = theAsset.fInterestRate;
 						receiverAllocation.nHeight = nHeight;
 						receiverAllocation.vchMemo = theAssetAllocation.vchMemo;
@@ -643,7 +644,7 @@ bool CheckAssetInputs(const CTransaction &tx, const CCoinsViewCache &inputs, int
 		}
 		// set the asset's txn-dependent values
 		theAsset.nHeight = nHeight;
-		theAsset.txHash = tx.GetHash();
+		theAsset.txHash = txHash;
 		// write asset, if asset send, only write on pow since asset -> asset allocation is not 0-conf compatible
 		if (!bSanityCheck) {
 			if (!passetdb->WriteAsset(theAsset, op))
@@ -656,7 +657,7 @@ bool CheckAssetInputs(const CTransaction &tx, const CCoinsViewCache &inputs, int
 				LogPrintf("CONNECTED ASSET: op=%s asset=%s symbol=%s hash=%s height=%d fJustCheck=%d\n",
 					assetFromOp(op).c_str(),
 					stringFromVch(op == OP_ASSET_SEND ? theAssetAllocation.vchAsset : theAsset.vchAsset).c_str(), stringFromVch(theAsset.vchSymbol).c_str(),
-					tx.GetHash().ToString().c_str(),
+					txHash.ToString().c_str(),
 					nHeight,
 					fJustCheck ? 1 : 0);
 		}

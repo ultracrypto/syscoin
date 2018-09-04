@@ -231,8 +231,9 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 		LogPrintf("*Trying to add alias in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256& txHash = tx.GetHash();
 	if (fDebug && !bSanityCheck)
-		LogPrintf("*** ALIAS %d %d op=%s %s %s\n", nHeight, chainActive.Tip()->nHeight, aliasFromOp(op).c_str(), tx.GetHash().ToString().c_str(), fJustCheck ? "JUSTCHECK" : "BLOCK");
+		LogPrintf("*** ALIAS %d %d op=%s %s %s\n", nHeight, chainActive.Tip()->nHeight, aliasFromOp(op).c_str(), txHash.ToString().c_str(), fJustCheck ? "JUSTCHECK" : "BLOCK");
 	// alias registration has args size of 1 we don't care to validate it until the activation comes in with args size of 4
 	if (vvchArgs.size() < 4)
 		return true;
@@ -660,7 +661,7 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 		{
 
 			theAlias.nHeight = nHeight;
-			theAlias.txHash = tx.GetHash();
+			theAlias.txHash = txHash;
 
 			CAliasUnprunable aliasUnprunable;
 			aliasUnprunable.vchGUID = theAlias.vchGUID;
@@ -677,7 +678,7 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 						"CONNECTED ALIAS: name=%s  op=%s  hash=%s  height=%d fJustCheck=%d\n",
 						strName.c_str(),
 						aliasFromOp(op).c_str(),
-						tx.GetHash().ToString().c_str(), nHeight, fJustCheck ? 1 : -1);
+						txHash.ToString().c_str(), nHeight, fJustCheck ? 1 : -1);
 			}
 		}
 	}
