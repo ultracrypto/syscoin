@@ -15,7 +15,7 @@ SYSCOIN_CLI_BIN=$(top_builddir)/src/syscoin-cli$(EXEEXT)
 SYSCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
 OSX_APP=Syscoin-Qt.app
-OSX_VOLNAME = $(subst $(space),-,,$(PACKAGE_NAME))
+OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
 OSX_DMG=$(OSX_VOLNAME).dmg
 OSX_BACKGROUND_IMAGE=background.png
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
