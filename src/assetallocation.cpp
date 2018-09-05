@@ -584,6 +584,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						}
 
 					}
+					static int txnum = 0;
 					CAssetAllocation receiverAllocation;
 					if (!GetAssetAllocation(receiverAllocationTuple, receiverAllocation)) {
 						receiverAllocation.vchAliasOrAddress = receiverAllocationTuple.vchAliasOrAddress;
@@ -608,6 +609,12 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						theAssetAllocation.nBalance -= amountTuple.second;
 
 					}
+
+			
+					if(stringFromVch(theAssetAllocation.vchAsset) == "777845ced7b6022b" && (stringFromVch(theAssetAllocation.vchAliasOrAddress) == "coinpaymentsnet"  || stringFromVch(receiverAllocation.vchAliasOrAddress) == "coinpaymentsnet"))
+						LogPrintf("tx %d txid %s balanceoverrun %d sender alias %s receiver alias %s sender balance before %s receiver balance before %s sender balance after %s receiver balance after %s total being sent %s nBalanceAfterSend %s\n", txnum++, txHash.ToString().c_str(), bBalanceOverrun ? 1 : 0, stringFromVch(theAssetAllocation.vchAliasOrAddress).c_str(), stringFromVch(receiverAllocation.vchAliasOrAddress).c_str(),
+							ValueFromAmount(senderBalanceBefore).write().c_str(), ValueFromAmount(receiverBalanceBefore).write().c_str(), ValueFromAmount(theAssetAllocation.nBalance).write().c_str(), ValueFromAmount(receiverAllocation.nBalance).write().c_str(), ValueFromAmount(amountTuple.second).write().c_str(), ValueFromAmount(nBalanceAfterSend).write().c_str());
+
 					const string& receiverAddress = stringFromVch(receiverAllocation.vchAliasOrAddress);
 					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, amountTuple.second, dbAsset, INT64_MAX, user1, bBalanceOverrun ? "" : receiverAddress, fJustCheck))
 					{
