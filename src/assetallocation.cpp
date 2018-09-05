@@ -275,12 +275,18 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
 	}
+	static int count = 0;
 	const int &nInterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
 	const int &nBlockDifference = nHeight - assetAllocation.nLastInterestClaimHeight;
+
 	// apply compound annual interest to get total interest since last time interest was collected
 	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
 	const long double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	return (((long double)nBalanceOverTimeDifference*powl((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), nBlockDifference))) - nBalanceOverTimeDifference;
+	long double &nInterest = (((long double)nBalanceOverTimeDifference*pow((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), (long double)nBlockDifference))) - nBalanceOverTimeDifference;
+	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
+		LogPrintf("count %d nInterest %lld assetAllocation.nAccumulatedBalanceSinceLastInterestClaim %lld nBalanceOverTimeDifference %lld nInterestBlockTerm %d nInterestBlockTerm %d\n", count++, nInterest, assetAllocation.nAccumulatedBalanceSinceLastInterestClaim, nBalanceOverTimeDifference, nBlockDifference, nInterestBlockTerm);
+	}
+	return (CAmount)nInterest;
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
 	CAmount nInterest = GetAssetAllocationInterest(assetAllocation, nHeight, errorMessage);
