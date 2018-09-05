@@ -282,7 +282,7 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 	// apply compound annual interest to get total interest since last time interest was collected
 	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
 	const long double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	long double &nInterest = (((long double)nBalanceOverTimeDifference*pow((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), (long double)nBlockDifference))) - nBalanceOverTimeDifference;
+	long double nInterest = ((((long double)nBalanceOverTimeDifference*pow((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), (long double)nBlockDifference))) - nBalanceOverTimeDifference);
 	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
 		LogPrintf("count %d nInterest %lld assetAllocation.nAccumulatedBalanceSinceLastInterestClaim %lld nBalanceOverTimeDifference %lld nInterestBlockTerm %d nInterestBlockTerm %d\n", count++, nInterest, assetAllocation.nAccumulatedBalanceSinceLastInterestClaim, nBalanceOverTimeDifference, nBlockDifference, nInterestBlockTerm);
 	}
