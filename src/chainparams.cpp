@@ -294,9 +294,9 @@ public:
 
 		chainTxData = ChainTxData{
 			// Data from rpc: getchaintxstats 4096 92025d074fdd503b0f0f4d4a11dcfbc8a57509d0a196bb400ebdb19556d61b0d
-			0,
-			0,
-			0
+			/* nTime    */ 1536219041,
+			/* nTxCount */ 307792,
+			/* dTxRate  */ 0.019
 		};
     }
 };
