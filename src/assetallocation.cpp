@@ -283,10 +283,11 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
 	const long double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
 	long double nInterest = ((((long double)nBalanceOverTimeDifference*pow((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), (long double)nBlockDifference))) - nBalanceOverTimeDifference);
+	const CAmount &nInterestOut = (CAmount)nInterest;
 	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
-		LogPrintf("count %d nInterest %lld assetAllocation.nAccumulatedBalanceSinceLastInterestClaim %lld nBalanceOverTimeDifference %lld nInterestBlockTerm %d nInterestBlockTerm %d\n", count++, nInterest, assetAllocation.nAccumulatedBalanceSinceLastInterestClaim, nBalanceOverTimeDifference, nBlockDifference, nInterestBlockTerm);
+		LogPrintf("count %d nInterest %f nInterestOut %lld assetAllocation.nAccumulatedBalanceSinceLastInterestClaim %f nBalanceOverTimeDifference %lld nBlockDifference %d nInterestBlockTerm %d\n", count++, nInterest, nInterestOut, assetAllocation.nAccumulatedBalanceSinceLastInterestClaim, nBalanceOverTimeDifference, nBlockDifference, nInterestBlockTerm);
 	}
-	return (CAmount)nInterest;
+	return nInterestOut;
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
 	CAmount nInterest = GetAssetAllocationInterest(assetAllocation, nHeight, errorMessage);
