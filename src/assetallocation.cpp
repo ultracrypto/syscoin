@@ -275,19 +275,16 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
 	}
-	static int count = 0;
 	const int &nInterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
 	const int &nBlockDifference = nHeight - assetAllocation.nLastInterestClaimHeight;
 
 	// apply compound annual interest to get total interest since last time interest was collected
 	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
-	const long double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	long double nInterest = ((((long double)nBalanceOverTimeDifference*pow((1.0 + (fInterestOverTimeDifference / nInterestBlockTerm)), (long double)nBlockDifference))) - nBalanceOverTimeDifference);
-	const CAmount &nInterestOut = (CAmount)nInterest;
-	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
-		LogPrintf("count %d nInterest %f nInterestOut %lld assetAllocation.nAccumulatedBalanceSinceLastInterestClaim %f nBalanceOverTimeDifference %lld nBlockDifference %d nInterestBlockTerm %d\n", count++, nInterest, nInterestOut, assetAllocation.nAccumulatedBalanceSinceLastInterestClaim, nBalanceOverTimeDifference, nBlockDifference, nInterestBlockTerm);
-	}
-	return nInterestOut;
+	const double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
+	const long double &nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
+	const long double &powcalc = pow(1.0 + nInterestPerBlock, (long double)nBlockDifference);
+	const CAmount &nInterest = nBalanceOverTimeDifference*powcalc;
+	return nInterest - nBalanceOverTimeDifference;
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
 	CAmount nInterest = GetAssetAllocationInterest(assetAllocation, nHeight, errorMessage);
@@ -307,9 +304,6 @@ bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocat
 	}
 	assetAllocation.nBalance += nInterest;
 	asset.nTotalSupply += nInterest;
-	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
-		LogPrintf("new asset.nTotalSupply %lld\n", asset.nTotalSupply);
-	}
 	assetAllocation.nLastInterestClaimHeight = nHeight;
 	// set accumulators to 0 again since we have claimed
 	assetAllocation.nAccumulatedBalanceSinceLastInterestClaim = 0;
