@@ -307,6 +307,9 @@ bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocat
 	}
 	assetAllocation.nBalance += nInterest;
 	asset.nTotalSupply += nInterest;
+	if (assetAllocation.vchAliasOrAddress == vchFromString("talavin")) {
+		LogPrintf("new asset.nTotalSupply %lld\n", asset.nTotalSupply);
+	}
 	assetAllocation.nLastInterestClaimHeight = nHeight;
 	// set accumulators to 0 again since we have claimed
 	assetAllocation.nAccumulatedBalanceSinceLastInterestClaim = 0;
