@@ -26,6 +26,7 @@
 #include <boost/algorithm/string.hpp>
 #include "thread_pool/thread_pool.hpp"
 #include <future>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 using namespace std;
 vector<pair<uint256, int64_t> > vecTPSTestReceivedTimes;
 AssetAllocationIndexItemMap AssetAllocationIndex;
@@ -276,15 +277,17 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		return 0;
 	}
 	const int &nInterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
-	const int &nBlockDifference = nHeight - assetAllocation.nLastInterestClaimHeight;
+	const CAmount &nBlockDifference = nHeight - assetAllocation.nLastInterestClaimHeight;
 
 	// apply compound annual interest to get total interest since last time interest was collected
-	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
+	const boost::multiprecision::cpp_dec_float_50& nBalanceOverTimeDifference = boost::multiprecision::cpp_dec_float_50(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference);
 	const double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	const long double &nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
-	const long double &powcalc = pow(1.0 + nInterestPerBlock, (long double)nBlockDifference);
-	const CAmount &nInterest = nBalanceOverTimeDifference*powcalc;
-	return nInterest - nBalanceOverTimeDifference;
+	const double &nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
+	const boost::multiprecision::cpp_dec_float_50& powcalc = boost::multiprecision::pow(boost::multiprecision::cpp_dec_float_50(1.0 + nInterestPerBlock), boost::multiprecision::cpp_dec_float_50(nBlockDifference));
+	const boost::multiprecision::cpp_dec_float_50& result = (powcalc*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
+	if(assetAllocation.vchAliasOrAddress == vchFromString("talavin"))
+	printf("result %s a %.10f b %d powcalc %.10f\n", ValueFromAmount(result.convert_to<CAmount>()).write().c_str(), boost::multiprecision::cpp_dec_float_50(1.0 + nInterestPerBlock).convert_to<float>(), nInterestBlockTerm, powcalc.convert_to<float>());
+	return result.convert_to<CAmount>();
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
 	CAmount nInterest = GetAssetAllocationInterest(assetAllocation, nHeight, errorMessage);
@@ -303,6 +306,8 @@ bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocat
 		}
 	}
 	assetAllocation.nBalance += nInterest;
+	if(assetAllocation.vchAliasOrAddress == vchFromString("talavin"))
+	printf("new balance %s\n", ValueFromAmount(assetAllocation.nBalance).write().c_str());
 	asset.nTotalSupply += nInterest;
 	assetAllocation.nLastInterestClaimHeight = nHeight;
 	// set accumulators to 0 again since we have claimed
