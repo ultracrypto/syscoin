@@ -549,13 +549,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest)
 	AssetClaimInterest("node1", guid, "jagassetcollectionreceiver");
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectionreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectionreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectionreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);	
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 
 }
 /*BOOST_AUTO_TEST_CASE(generate_asset_allocation_interest_overflow)
@@ -605,13 +605,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_address)
 	AssetClaimInterest("node1", guid, newaddress2);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress2 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " " + newaddress2 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " " + newaddress2 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837095);		
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875846664);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_maxsenders)
 {
@@ -710,33 +710,33 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_checktotalsupply)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
 	CAmount nBalance1 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance1, 2213841452);
+	BOOST_CHECK_EQUAL(nBalance1, 2213841445);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
 	nBalance1 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance1, 2213841452);
+	BOOST_CHECK_EQUAL(nBalance1, 2213841445);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver false"));
 	balance = find_value(r.get_obj(), "balance");
 	nBalance1 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance1, 2213841452);
+	BOOST_CHECK_EQUAL(nBalance1, 2213841445);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
 	CAmount nBalance2 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance2, 3326296782);
+	BOOST_CHECK_EQUAL(nBalance2, 3326296793);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
 	nBalance2 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance2, 3326296782);
+	BOOST_CHECK_EQUAL(nBalance2, 3326296793);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectioncheckreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
 	nBalance2 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance2, 3326296782);
+	BOOST_CHECK_EQUAL(nBalance2, 3326296793);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());		
 
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetinfo " + guid + " false"));
@@ -798,13 +798,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_checktotalsupply_address)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
 	CAmount nBalance1 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance1, 2213841452);
+	BOOST_CHECK_EQUAL(nBalance1, 2213841445);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress2 + " false"));
 	balance = find_value(r.get_obj(), "balance");
 	CAmount nBalance2 = AssetAmountFromValue(balance, 8, false);
-	BOOST_CHECK_EQUAL(nBalance2, 3326296782);
+	BOOST_CHECK_EQUAL(nBalance2, 3326296793);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "interest_claim_height").get_int(), find_value(r.get_obj(), "height").get_int());
 
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetinfo " + guid + " false"));
@@ -872,13 +872,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_average_balance)
 	AssetClaimInterest("node1", guid, "jagassetcollectionrcveravg");
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectionrcveravg false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectionrcveravg false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectionrcveravg false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);		
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_average_balance_address)
 {
@@ -922,13 +922,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_average_balance_address)
 	AssetClaimInterest("node1", guid, newaddress1);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250716124);		
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 593250714517);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_update_with_average_balance)
 {
@@ -978,13 +978,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_update_with_average_balance
 	AssetClaimInterest("node1", guid, "jagassetcollectionrcveravgu");
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectionrcveravgu false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectionrcveravgu false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectionrcveravgu false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);		
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_update_with_average_balance_address)
 {
@@ -1034,13 +1034,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_update_with_average_balance
 	AssetClaimInterest("node1", guid, newaddress1);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064931803);		
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 631064923515);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_every_block)
 {
@@ -1065,13 +1065,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_every_block)
 	}
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " jagassetcollectionreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " jagassetcollectionreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " jagassetcollectionreceiver1 false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);	
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 }
 BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_every_block_address)
 {
@@ -1096,13 +1096,13 @@ BOOST_AUTO_TEST_CASE(generate_asset_collect_interest_every_block_address)
 	}
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 	BOOST_CHECK_NO_THROW(r = CallRPC("node3", "assetallocationinfo " + guid + " " + newaddress1 + " false"));
 	balance = find_value(r.get_obj(), "balance");
-	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875837081);	
+	BOOST_CHECK_EQUAL(AssetAmountFromValue(balance, 8, false), 824875830937);
 }
 BOOST_AUTO_TEST_CASE(generate_assetupdate)
 {
