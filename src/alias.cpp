@@ -186,7 +186,7 @@ int getFeePerByte(const uint64_t &paymentOptionMask)
 {   
 	if (IsPaymentOptionInMask(paymentOptionMask, PAYMENTOPTION_BTC))
 		return 250;
-	else  if (IsPaymentOptionInMask(paymentOptionMask, PAYMENTOPTION_SYS))
+	else  if (IsPaymentOptionInMask(paymentOptionMask, PAYMENTOPTION_SYS) || IsPaymentOptionInMask(paymentOptionMask, PAYMENTOPTION_SYSASSET))
 		return 25;
 	else  if (IsPaymentOptionInMask(paymentOptionMask, PAYMENTOPTION_ZEC))
 		return 25;
