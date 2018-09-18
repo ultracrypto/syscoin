@@ -2180,8 +2180,8 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew true " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 		string escrowaddress = find_value(r.get_obj(), "address").get_str();
 		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
-		printf("escrow address %s escrow amount %s\n", escrowaddress, escrowamount);
-		exttxid = AssetAllocationTransfer(true, "node1", assetguid, "jagassetallocationsend1", "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + " \\\",\\\"amount\\\":" + escrowamount + "}]\"", "allocationsendmemo");
+		printf("escrow address %s escrow amount %s\n", escrowaddress.c_str(), escrowamount.c_str());
+		exttxid = AssetAllocationTransfer(true, "node1", assetguid, buyeralias, "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + " \\\",\\\"amount\\\":" + escrowamount + "}]\"", "allocationsendmemo");
 	}
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
