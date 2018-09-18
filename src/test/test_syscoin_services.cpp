@@ -2734,6 +2734,7 @@ SyscoinTestingSetup::SyscoinTestingSetup()
 	pegRates["BTC"] = 100000.0;
 	pegRates["ZEC"] = 10000.0;
 	pegRates["SYS"] = 1.0;
+	pegRates["asset1"] = 1.0;
 }
 SyscoinTestingSetup::~SyscoinTestingSetup()
 {
