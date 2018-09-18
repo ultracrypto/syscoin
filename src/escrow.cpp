@@ -1156,10 +1156,7 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 
 	return syscointxfund_helper(bidderalias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
-string VerifyAssetPayment(const vector<unsigned char>& vchAsset, const string& extTxIdStr, const string& strBuyerAddress, const string& strAddress, const CAmount& nAmountWithFee){
-	CAsset dbAsset;
-	if (vchAsset.empty() || !GetAsset( vchAsset, dbAsset))
-		return  _("Could not find asset associated as the payment option for the offer you are purchasing");	
+string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const string& strBuyerAddress, const string& strAddress, const CAmount& nAmountWithFee){
 	// get transaction from extTxId which should be the asset transfer tx
 	const uint256& hash = uint256S(extTxIdStr.c_str());
 	uint256 block;
@@ -1414,7 +1411,7 @@ UniValue escrownew(const JSONRPCRequest& request) {
 		vecSend.push_back(recipientEscrow);
 		// verify asset payment if its supposed to pay out, make sure asset actually did transfer
 		if(theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow){
-			string strMessage = VerifyAssetPayment(theOffer.vchAsset, extTxIdStr, stringFromVch(buyeralias.vchAddress), strAddress, nAmountWithFee);
+			string strMessage = VerifyAssetPayment(dbAsset, extTxIdStr, stringFromVch(buyeralias.vchAddress), strAddress, nAmountWithFee);
 			if(strMessage != "")
 				throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not verify Asset payment: ") + strMessage.c_str());
 		}
