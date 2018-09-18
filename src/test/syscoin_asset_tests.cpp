@@ -307,6 +307,24 @@ BOOST_AUTO_TEST_CASE(generate_big_assetdata)
 	BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid1);
 	BOOST_CHECK(find_value(r.get_obj(), "symbol").get_str() == "USD");
 }
+BOOST_AUTO_TEST_CASE(generate_asset_with_escrow)
+{
+	UniValue r;
+	printf("Running generate_asset_with_escrow...\n");
+	GenerateBlocks(5);
+	GenerateBlocks(5, "node2");
+	GenerateBlocks(5, "node3");
+	AliasNew("node1", "aliasescrow", "pubdata");
+	AliasNew("node1", "aliasescrow1", "pubdata");
+	AliasNew("node2", "aliasescrow2", "pubdata");
+	AliasNew("node2", "aliasescrow3", "pubdata");
+	string assetguid = AssetNew("node1", "asset1", "aliasescrow", "pubdata");
+	AssetSend("node1", assetguid, "\"[{\\\"ownerto\\\":\\\"aliasescrow2\\\",\\\"amount\\\":0.5}]\"", "memoassetinterest");
+	string offerguid = OfferNew("node1", "aliasescrow", "category", "title", "1", "0.05", "description", "asset1", assetguid, "SYS|SYSASSET");
+	string escrowguid = EscrowNewBuyItNow("node2", "node1", "aliasescrow2", offerguid, "2", "aliasescrow3", "SYSASSET");
+	EscrowRelease("node2", "buyer", escrowguid);
+	EscrowClaimRelease("node1", escrowguid);
+}
 BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 {
 	UniValue r;

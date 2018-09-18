@@ -1658,7 +1658,7 @@ const string OfferLink(const string& node, const string& alias, const string& gu
 
 	return linkedguid;
 }
-const string OfferNew(const string& node, const string& aliasname, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string& certguid, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness)
+const string OfferNew(const string& node, const string& aliasname, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string& assetguid, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness)
 {
 	string otherNode1, otherNode2;
 	UniValue r;
@@ -1667,8 +1667,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	string units = "1";
 	int qty = atoi(qtyStr.c_str());
 
-	//						"offernew <alias> <category> <title> <quantity> <price> <description> <currency> [cert. guid] [payment options=SYS] [private=false] [units] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
-	string offercreatestr = "offernew " + aliasname + " " + category + " " + title + " " + qtyStr + " " + price + " " + description + " " + currency + " " + certguid + " " + paymentoptions + " " + pvt + " " + units + " " + offerType + " " + auction_expires + " " + auction_reserve + " " + auction_require_witness + " " + auction_deposit + " " + witness;
+	//						"offernew <alias> <category> <title> <quantity> <price> <description> <currency> [payment options=SYS] [asset guid] [private=false] [units] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+	string offercreatestr = "offernew " + aliasname + " " + category + " " + title + " " + qtyStr + " " + price + " " + description + " " + currency + " " + paymentoptions + " " + assetguid + " " + pvt + " " + units + " " + offerType + " " + auction_expires + " " + auction_reserve + " " + auction_require_witness + " " + auction_deposit + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, offercreatestr));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
@@ -1768,7 +1768,7 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	return guid;
 }
 
-void OfferUpdate(const string& node, const string& aliasname, const string& offerguid, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string &isprivateStr, const string& certguid, const string& commissionStr, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness) {
+void OfferUpdate(const string& node, const string& aliasname, const string& offerguid, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string &isprivateStr, const string& assetguid, const string& commissionStr, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness) {
 	string otherNode1, otherNode2;
 	GetOtherNodes(node, otherNode1, otherNode2);
 	UniValue r;
@@ -1801,7 +1801,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newdescription = description == "''" ? olddescription : description;
 	string newcurrency = currency == "''" ? oldcurrency : currency;
 	string newisprivate = isprivateStr == "''" ? oldprivateStr : isprivateStr;
-	string newcertguid = certguid == "''" ? "''" : certguid;
+	string newassetguid = assetguid == "''" ? "''" : assetguid;
 	string newcommission = commissionStr == "''" ? boost::lexical_cast<string>(oldcommission) : commissionStr;
 	string newpaymentoptions = paymentoptions == "''" ? oldpaymentoptions : paymentoptions;
 	string newoffertype = offerType == "''" ? oldoffertype : offerType;
@@ -1809,8 +1809,8 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newauction_reserve = auction_reserve == "''" ? oldauctionreserve : auction_reserve;
 	string newauction_require_witness = auction_require_witness == "''" ? oldauctionrequirewitness : auction_require_witness;
 	string newauction_deposit = auction_deposit == "''" ? oldauctiondeposit : auction_deposit;
-	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [cert. guid] [commission] [paymentOptions] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
-	string offerupdatestr = "offerupdate " + aliasname + " " + offerguid + " " + newcategory + " " + newtitle + " " + newqty + " " + newprice + " " + newdescription + " " + newcurrency + " " + newisprivate + " " + newcertguid + " " + newcommission + " " + newpaymentoptions + " " + newoffertype + " " + newauction_expires + " " + newauction_reserve + " " + newauction_require_witness + " " + newauction_deposit + " " + witness;
+	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [commission] [paymentOptions] [asset guid] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+	string offerupdatestr = "offerupdate " + aliasname + " " + offerguid + " " + newcategory + " " + newtitle + " " + newqty + " " + newprice + " " + newdescription + " " + newcurrency + " " + newisprivate + " " + newcommission + " " + newpaymentoptions + " " + newassetguid + " " + newoffertype + " " + newauction_expires + " " + newauction_reserve + " " + newauction_require_witness + " " + newauction_deposit + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, offerupdatestr));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
@@ -2127,7 +2127,7 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 
 	return guid;
 }
-const string EscrowNewBuyItNow(const string& node, const string& sellernode, const string& buyeralias, const string& offerguid, const string& qtyStr, const string& arbiteralias, const string& shipping, const string& networkFee, const string& arbiterFee, const string& witnessFee, const string &witness)
+const string EscrowNewBuyItNow(const string& node, const string& sellernode, const string& buyeralias, const string& offerguid, const string& qtyStr, const string& arbiteralias, const string& paymentoptions, const string& shipping, const string& networkFee, const string& arbiterFee, const string& witnessFee, const string &witness)
 {
 	string otherNode1, otherNode2;
 	GetOtherNodes(node, otherNode1, otherNode2);
@@ -2164,7 +2164,6 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		nCommissionCompare = nTotalOfferPrice*(markup / 100);
 
 	string exttxid = "''";
-	string paymentoptions = "SYS";
 	string buyNowStr = "true";
 	string strBidInOfferCurrency = "0";
 	string strBidInPaymentOption = "0";

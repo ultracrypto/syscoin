@@ -941,55 +941,54 @@ BOOST_AUTO_TEST_CASE (generate_aliasprunewithoffer)
 	// node3 shouldn't find the service at all (meaning node3 doesn't sync the data)
 	BOOST_CHECK_THROW(CallRPC("node3", "escrowinfo " + escrowguid), runtime_error);
 }
-BOOST_AUTO_TEST_CASE (generate_aliasprunewithcertoffer)
+BOOST_AUTO_TEST_CASE (generate_aliasprunewithassetoffer)
 {
-	printf("Running generate_aliasprunewithcertoffer...\n");
+	printf("Running generate_aliasprunewithassetoffer...\n");
 	UniValue r;
 	
 	GenerateBlocks(5);
 	GenerateBlocks(5, "node2");
 	GenerateBlocks(5, "node3");
-	AliasNew("node3", "aliasprunewithcertofferarbiter", "pubdata");
+	AliasNew("node3", "aliasprunewithassetofferarbiter", "pubdata");
 	StopNode("node3");
-	AliasNew("node1", "aliasprunewithcertoffer", "pubdata");
-	AliasNew("node2", "aliasprunewithcertoffer2", "pubdata");
-	
-	string certguid = CertNew("node1", "aliasprunewithcertoffer", "jag1", "pubdata");
-	string certofferguid = OfferNew("node1", "aliasprunewithcertoffer", "certificates", "title", "1", "0.05", "description", "SYS", certguid);	
-	string offerguid = OfferNew("node1", "aliasprunewithcertoffer", "category", "title", "1", "0.05", "description", "SYS");
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress aliasprunewithcertoffer2 300"), runtime_error);
+	AliasNew("node1", "aliasprunewithassetoffer", "pubdata");
+	AliasNew("node2", "aliasprunewithassetoffer2", "pubdata");
+	string assetguid = AssetNew("node1", "asset1", "aliasprunewithassetoffer", "pubdata");
+	string assetofferguid = OfferNew("node1", "aliasprunewithassetoffer", "certificates", "title", "1", "0.05", "description", "SYS", assetguid);
+	string offerguid = OfferNew("node1", "aliasprunewithassetoffer", "category", "title", "1", "0.05", "description", "SYS");
+	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress aliasprunewithassetoffer2 300"), runtime_error);
 	GenerateBlocks(10);	
-	OfferUpdate("node1", "aliasprunewithcertoffer", offerguid, "category", "titlenew", "1", "0.05", "descriptionnew", "USD");
-	OfferUpdate("node1", "aliasprunewithcertoffer", certofferguid, "certificates", "titlenew", "1", "0.05", "descriptionnew", "USD", "false", certguid);
-	OfferAccept("node1", "node2", "aliasprunewithcertoffer2", "aliasprunewithcertofferarbiter", certofferguid, "1");
-	OfferAccept("node1", "node2", "aliasprunewithcertoffer2", "aliasprunewithcertofferarbiter", offerguid, "1");
-	ExpireAlias("aliasprunewithcertoffer2");
+	OfferUpdate("node1", "aliasprunewithassetoffer", offerguid, "category", "titlenew", "1", "0.05", "descriptionnew", "USD");
+	OfferUpdate("node1", "aliasprunewithassetoffer", assetofferguid, "assets", "titlenew", "1", "0.05", "descriptionnew", "USD", "false", assetguid);
+	OfferAccept("node1", "node2", "aliasprunewithassetoffer2", "aliasprunewithassetofferarbiter", assetofferguid, "1");
+	OfferAccept("node1", "node2", "aliasprunewithassetoffer2", "aliasprunewithassetofferarbiter", offerguid, "1");
+	ExpireAlias("aliasprunewithassetoffer2");
 	StartNode("node3");
 	GenerateBlocks(5, "node3");
 	// node3 shouldn't find the service at all (meaning node3 doesn't sync the data)
 	BOOST_CHECK_THROW(CallRPC("node3", "offerinfo " + offerguid), runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE (generate_aliasprunewithcert)
+BOOST_AUTO_TEST_CASE (generate_aliasprunewithasset)
 {
-	printf("Running generate_aliasprunewithcert...\n");
+	printf("Running generate_aliasprunewithasset...\n");
 	UniValue r;
 	
 	GenerateBlocks(5);
 	GenerateBlocks(5, "node2");
 	GenerateBlocks(5, "node3");
 	StopNode("node3");
-	AliasNew("node1", "aliasprunewithcert", "pubdata");
-	AliasNew("node2", "aliasprunewithcert2", "pubdata");
-	string certguid = CertNew("node1", "aliasprunewithcert", "jag1", "pubdata");
-	CertUpdate("node1", certguid, "''", "newdata");
-	CertTransfer("node1", "node2", certguid, "aliasprunewithcert2");
+	AliasNew("node1", "aliasprunewithasset", "pubdata");
+	AliasNew("node2", "aliasprunewithasset2", "pubdata");
+	string assetguid = AssetNew("node1", "asset1", "aliasprunewithasset", "pubdata");
+	AssetUpdate("node1", assetguid, "pub", "''", "0.1");
+	AssetTransfer("node1", "node2", assetguid, "aliasprunewithasset2");
 	GenerateBlocks(5, "node1");
-	ExpireAlias("aliasprunewithcert2");
+	ExpireAlias("aliasprunewithasset2");
 	StartNode("node3");
 	GenerateBlocks(5, "node3");
 	// node3 shouldn't find the service at all (meaning node3 doesn't sync the data)
-	BOOST_CHECK_THROW(CallRPC("node3", "certinfo " + certguid), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node3", "assetinfo " + assetguid), runtime_error);
 }
 BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 {
