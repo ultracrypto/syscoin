@@ -1406,7 +1406,7 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	CRecipient recipientEscrow  = {scriptPubKey, bBuyNow? nAmountWithFee: nFees, false};
 	CAsset dbAsset;
 	if(paymentOptionMask == PAYMENTOPTION_SYSASSET){
-		if (!GetAsset(vchAsset, dbAsset))
+		if (!GetAsset(theOffer.vchAsset, dbAsset))
 			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not find asset associated as the payment option for the offer you are purchasing"));
 		nNetworkFee *= 2;	
 		// if paying with an asset just pay sys network fees to the escrow address
