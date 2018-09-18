@@ -5,7 +5,7 @@
 #include "offer.h"
 #include "alias.h"
 #include "escrow.h"
-#include "asset.h"
+#include "cert.h"
 #include "init.h"
 #include "validation.h"
 #include "util.h"
@@ -36,12 +36,12 @@ bool IsOfferOp(int op) {
 }
 
 bool ValidatePaymentOptionsMask(const uint64_t &paymentOptionsMask) {
-	uint64_t maxVal =  PAYMENTOPTION_SYS | PAYMENTOPTION_SYSASSET | PAYMENTOPTION_BTC | PAYMENTOPTION_ZEC;
+	uint64_t maxVal = PAYMENTOPTION_SYS | PAYMENTOPTION_BTC | PAYMENTOPTION_ZEC;
 	return !(paymentOptionsMask < 1 || paymentOptionsMask > maxVal);
 }
 
 bool IsValidPaymentOption(const uint64_t &paymentOptionsMask) {
-	return (paymentOptionsMask == PAYMENTOPTION_SYS || paymentOptionsMask == PAYMENTOPTION_SYSASSET ||paymentOptionsMask == PAYMENTOPTION_BTC || paymentOptionsMask == PAYMENTOPTION_ZEC);
+	return (paymentOptionsMask == PAYMENTOPTION_SYS || paymentOptionsMask == PAYMENTOPTION_BTC || paymentOptionsMask == PAYMENTOPTION_ZEC);
 }
 
 bool ValidatePaymentOptionsString(const std::string &paymentOptionsString) {
@@ -62,12 +62,9 @@ uint64_t GetPaymentOptionsMaskFromString(const std::string &paymentOptionsString
 	uint64_t retval = 0;
 	boost::split(strs, paymentOptionsString, boost::is_any_of("+"));
 	for (size_t i = 0; i < strs.size(); i++) {
-		if(!strs[i].compare("SYSASSET")) {
-			retval |= PAYMENTOPTION_SYSASSET;
-		}	
 		if(!strs[i].compare("SYS")) {
 			retval |= PAYMENTOPTION_SYS;
-		}	
+		}
 		else if(!strs[i].compare("BTC")) {
 			retval |= PAYMENTOPTION_BTC;
 		}
@@ -375,6 +372,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 	// unserialize offer from txn, check for valid
 	COffer linkOffer;
 	COffer myOffer;
+	CCert theCert;
 	CAliasIndex theAlias, alias;
 	vector<string> categories;
 	string retError = "";
@@ -457,6 +455,11 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 				errorMessage = "SYSCOIN_OFFER_CONSENSUS_ERROR: ERRCODE: 1023 - " + _("Quantity must be greater than or equal to -1");
 				return error(errorMessage.c_str());
 			}
+			if(!theOffer.vchCert.empty() && theOffer.nQty != 1)
+			{
+				errorMessage = "SYSCOIN_OFFER_CONSENSUS_ERROR: ERRCODE: 1024 - " + _("Quantity must be 1 for a digital offer");
+				return error(errorMessage.c_str());
+			}
 
 			if (IsOfferTypeInMask(theOffer.offerType, OFFERTYPE_AUCTION))
 			{
@@ -492,6 +495,11 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 			if(theOffer.nQty < -1)
 			{
 				errorMessage = "SYSCOIN_OFFER_CONSENSUS_ERROR: ERRCODE: 1031 - " + _("Quantity must be greater than or equal to -1");
+				return error(errorMessage.c_str());
+			}
+			if(!theOffer.vchCert.empty() && theOffer.nQty != 1)
+			{
+				errorMessage = "SYSCOIN_OFFER_CONSENSUS_ERROR: ERRCODE: 1032 - " + _("Quantity must be 1 for a digital offer");
 				return error(errorMessage.c_str());
 			}
 			if(theOffer.nCommission > 100 || theOffer.nCommission < -90)
@@ -548,8 +556,8 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 			theOffer.sTitle = dbOffer.sTitle;
 		if (theOffer.sDescription.empty())
 			theOffer.sDescription = dbOffer.sDescription;
-		if (theOffer.vchAsset.empty())
-			theOffer.vchAsset = dbOffer.vchAsset;
+		if (theOffer.vchCert.empty())
+			theOffer.vchCert = dbOffer.vchCert;
 		if (theOffer.sCurrencyCode.empty())
 			theOffer.sCurrencyCode = dbOffer.sCurrencyCode;
 		if (theOffer.paymentOptions <= 0)
@@ -634,7 +642,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 			}
 			// if creating a linked offer we set some mandatory fields from the parent
 			theOffer.nQty = linkOffer.nQty;
-			theOffer.vchAsset = linkOffer.vchAsset;
+			theOffer.vchCert = linkOffer.vchCert;
 			theOffer.fPrice = linkOffer.fPrice;
 			theOffer.paymentOptions = linkOffer.paymentOptions;
 			theOffer.fUnits = linkOffer.fUnits;
@@ -655,7 +663,7 @@ bool CheckOfferInputs(const CTransaction &tx, int op, const vector<vector<unsign
 				return true;
 			}
 			theOffer.nQty = linkOffer.nQty;
-			theOffer.vchAsset = linkOffer.vchAsset;
+			theOffer.vchCert = linkOffer.vchCert;
 			theOffer.paymentOptions = linkOffer.paymentOptions;
 			theOffer.offerType = linkOffer.offerType;
 			theOffer.fUnits = linkOffer.fUnits;
@@ -694,7 +702,7 @@ UniValue offernew(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
 	if (request.fHelp || params.size() != 17)
 		throw runtime_error(
-			"offernew [alias] [category] [title] [quantity] [price] [description] [currency] [payment options=SYS] [asset guid] [private=false] [units=1] [offertype=BUYNOW] [auction_expires=0] [auction_reserve=0] [auction_require_witness=false] [auction_deposit=0] [witness]\n"
+			"offernew [alias] [category] [title] [quantity] [price] [description] [currency] [cert. guid] [payment options=SYS] [private=false] [units=1] [offertype=BUYNOW] [auction_expires=0] [auction_reserve=0] [auction_require_witness=false] [auction_deposit=0] [witness]\n"
 						"<alias> An alias you own.\n"
 						"<category> category, 256 characters max.\n"
 						"<title> title, 256 characters max.\n"
@@ -702,8 +710,8 @@ UniValue offernew(const JSONRPCRequest& request) {
 						"<price> price in <currency>\n"
 						"<description> description, 512 characters max.\n"
 						"<currency> The currency code that you want your offer to be in ie: USD.\n"
-						"<paymentoptions> 'SYS' to accept SYS only, 'BTC' for BTC only, 'ZEC' for zcash only, or a |-delimited string to accept multiple currencies (e.g. 'BTC|SYS' to accept BTC or SYS). Leave empty for default. Defaults to 'SYS'.\n"		
-						"<asset guid> Set this to the guid of the asset you wish to accept for payment if paymentoption is set to 'SYSASSET'\n"
+						"<cert. guid> Set this to the guid of a certificate you wish to sell\n"
+						"<paymentOptions> 'SYS' to accept SYS only, 'BTC' for BTC only, 'ZEC' for zcash only, or a |-delimited string to accept multiple currencies (e.g. 'BTC|SYS' to accept BTC or SYS). Leave empty for default. Defaults to 'SYS'.\n"		
 						"<private> set to Yes if this offer should be private not be searchable. Defaults to No.\n"
 						"<units> Units that 1 qty represents. For example if selling 1 BTC. Default is 1.\n"
 						"<offertype> Options of how an offer is sold. 'BUYNOW' for regular Buy It Now offer, 'AUCTION' to auction this offer while providing auction_expires/auction_reserve/auction_require_witness parameters, 'COIN' for offers selling cryptocurrency, or a | -delimited string to create an offer with multiple options(e.g. 'BUYNOW|AUCTION' to create an offer that is sold through an auction but has Buy It Now enabled as well).Leave empty for default. Defaults to 'BUYNOW'.\n"
@@ -724,7 +732,7 @@ UniValue offernew(const JSONRPCRequest& request) {
 
 	vector<unsigned char> vchCategory =  vchFromValue(params[1]);
 	vector<unsigned char> vchTitle =  vchFromValue(params[2]);
-	vector<unsigned char> vchAsset;
+	vector<unsigned char> vchCert;
 
 	int nQty;
 	nQty =  params[3].get_int();
@@ -734,10 +742,10 @@ UniValue offernew(const JSONRPCRequest& request) {
 	vector<unsigned char> vchCurrency = vchFromValue(params[6]);
 	CScript scriptPubKeyOrig;
 	CScript scriptPubKey;
-	
+	vchCert = vchFromValue(params[7]);
 	// payment options - get payment options string if specified otherwise default to SYS
 	string paymentOptions = "SYS";
-	paymentOptions = params[7].get_str();		
+	paymentOptions = params[8].get_str();		
 	boost::algorithm::to_upper(paymentOptions);
 	// payment options - validate payment options string
 	if(!ValidatePaymentOptionsString(paymentOptions))
@@ -747,9 +755,6 @@ UniValue offernew(const JSONRPCRequest& request) {
 	}
 	// payment options - and convert payment options string to a bitmask for the txn
 	uint64_t paymentOptionsMask = GetPaymentOptionsMaskFromString(paymentOptions);
-
-	vchAsset = vchFromValue(params[8]);
-
 	bool bPrivate = false;
 	bPrivate = params[9].get_bool();
 	float fUnits;
@@ -782,14 +787,26 @@ UniValue offernew(const JSONRPCRequest& request) {
 	vchWitness = vchFromValue(params[16]);
 
 
-	// if we are selling an asset ensure it exists and pubkey's match (to ensure it doesnt get transferred prior to accepting by user)
-	CAsset theAsset;
-	if(!vchAsset.empty())
+	// if we are selling a cert ensure it exists and pubkey's match (to ensure it doesnt get transferred prior to accepting by user)
+	CCert theCert;
+	if(!vchCert.empty())
 	{
-		if (!GetAsset( vchAsset, theAsset))
+		if (!GetCert( vchCert, theCert))
 		{
-			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1506 - " + _("Creating an offer accepting an asset that does not exist"));
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1506 - " + _("Creating an offer with a cert that does not exist"));
 		}
+		else if(!boost::algorithm::istarts_with(stringFromVch(vchCategory), "certificates"))
+		{
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1507 - " + _("Offer selling a certificate must use a certificate category"));
+		}
+		else if(theCert.vchAlias != vchAlias)
+		{
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1508 - " + _("Cannot create this offer because the certificate alias does not match the offer alias"));
+		}
+	}
+	else if(boost::algorithm::istarts_with(stringFromVch(vchCategory), "certificates"))
+	{
+		throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1509 - " + _("Offer not selling a certificate cannot use a certificate category"));
 	}
 
 	// this is a syscoin transaction
@@ -809,8 +826,8 @@ UniValue offernew(const JSONRPCRequest& request) {
 	newOffer.sTitle = vchTitle;
 	newOffer.sDescription = vchDescription;
 	newOffer.nQty = nQty;
-	if (!vchAsset.empty())
-		newOffer.vchAsset = theAsset.vchAsset;
+	if (!vchCert.empty())
+		newOffer.vchCert = theCert.vchCert;
 	newOffer.sCurrencyCode = vchCurrency;
 	newOffer.bPrivate = bPrivate;
 	newOffer.paymentOptions = paymentOptionsMask;
@@ -952,7 +969,7 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
 	if (request.fHelp || params.size() != 18)
 		throw runtime_error(
-			"offerupdate [alias] [guid] [category] [title] [quantity] [price] [description] [currency] [private=false] [commission] [paymentoptions] [asset guid] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+			"offerupdate [alias] [guid] [category] [title] [quantity] [price] [description] [currency] [private=false] [cert. guid] [commission] [paymentOptions] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
 						"Perform an update on an offer you control.\n"
 						+ HelpRequiringPassphrase());
 	// gather & validate inputs
@@ -961,7 +978,7 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	string strCategory = "";
 	string strDescription = "";
 	string strTitle = "";
-	string strAsset = "";
+	string strCert = "";
 	string strCurrency = "";
 	string paymentOptions = "";
 	strCategory = params[2].get_str();
@@ -971,9 +988,9 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	strDescription = params[6].get_str();
 	strCurrency = params[7].get_str();
 	bool bPrivate = params[8].get_bool();
-	
-	int nCommission = params[9].get_int();
-	paymentOptions = params[10].get_str();	
+	strCert = params[9].get_str();
+	int nCommission = params[10].get_int();
+	paymentOptions = params[11].get_str();	
 	boost::algorithm::to_upper(paymentOptions);
 	
 	
@@ -982,8 +999,6 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 		throw runtime_error("SYSCOIN_OFFER_RPC_ERROR ERRCODE: 1532 - " + _("Could not validate payment options string"));
 	}
 	uint64_t paymentOptionsMask = GetPaymentOptionsMaskFromString(paymentOptions);
-
-	strAsset = params[11].get_str();
 
 	string strOfferType = "";
 	strOfferType = params[12].get_str();
@@ -1035,15 +1050,26 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	if (!GetAlias(vchAlias, alias))
 		throw runtime_error("SYSCOIN_OFFER_RPC_ERROR ERRCODE: 1536 - " + _("Could not find an alias with this name"));
 
-	CAsset theAsset;
-	if(!strAsset.empty())
+	CCert theCert;
+	if(!strCert.empty())
 	{
-		if (!GetAsset( vchFromString(strAsset), theAsset))
+		if (!GetCert( vchFromString(strCert), theCert))
 		{
-			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1538 - " + _("Accepting payment in an asset that does not exist"));
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1538 - " + _("Updating an offer with a cert that does not exist"));
+		}
+		else if(theOffer.vchLinkOffer.empty() && theCert.vchAlias != theOffer.vchAlias)
+		{
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1539 - " + _("Cannot update this offer because the certificate alias does not match the offer alias"));
+		}
+		if(!boost::algorithm::istarts_with(strCategory, "certificates"))
+		{
+			throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1540 - " + _("Offer selling a certificate must use a certificate category"));
 		}
 	}
-
+	else if(boost::algorithm::istarts_with(strCategory, "certificates"))
+	{
+		throw runtime_error("SYSCOIN_OFFER_RPC_ERROR: ERRCODE: 1541 - " + _("Offer not selling a certificate cannot use a certificate category"));
+	}
 	if(!theOffer.vchLinkOffer.empty())
 	{
 		COffer linkOffer;
@@ -1085,8 +1111,8 @@ UniValue offerupdate(const JSONRPCRequest& request) {
 	// linked offers can't change these settings, they are overrided by parent info
 	if(offerCopy.vchLinkOffer.empty())
 	{
-		if(!strAsset.empty())
-			theOffer.vchAsset = theAsset.vchAsset;
+		if(!strCert.empty())
+			theOffer.vchCert = theCert.vchCert;
 
 		theOffer.fPrice = fPrice;
 	}
@@ -1177,8 +1203,11 @@ bool BuildOfferJson(const COffer& theOffer, UniValue& oOffer)
 	bool expired = false;
 
 
+	vector<unsigned char> vchCert;
+	if(!theOffer.vchCert.empty())
+		vchCert = theOffer.vchCert;
 	oOffer.push_back(Pair("_id", stringFromVch(theOffer.vchOffer)));
-	oOffer.push_back(Pair("paymentoptions_asset", stringFromVch(theOffer.vchAsset)));
+	oOffer.push_back(Pair("cert", stringFromVch(vchCert)));
 	oOffer.push_back(Pair("txid", theOffer.txHash.GetHex()));
 	int64_t expired_time =  GetOfferExpiration(theOffer);
     if(expired_time <= chainActive.Tip()->GetMedianTimePast())
@@ -1241,8 +1270,11 @@ bool BuildOfferIndexerJson(const COffer& theOffer, UniValue& oOffer)
 		if (!GetOffer(theOffer.vchLinkOffer, linkOffer))
 			return false;
 	}
+	vector<unsigned char> vchCert;
+	if (!theOffer.vchCert.empty())
+		vchCert = theOffer.vchCert;
 	oOffer.push_back(Pair("_id", stringFromVch(theOffer.vchOffer)));
-	oOffer.push_back(Pair("paymentoptions_asset", stringFromVch(theOffer.vchAsset)));
+	oOffer.push_back(Pair("cert", stringFromVch(vchCert)));
 	oOffer.push_back(Pair("height", (int)theOffer.nHeight));
 	oOffer.push_back(Pair("category", stringFromVch(theOffer.sCategory)));
 	oOffer.push_back(Pair("title", stringFromVch(theOffer.sTitle)));
@@ -1299,9 +1331,6 @@ std::string GetPaymentOptionsString(const uint64_t &paymentOptions)
 	if (IsPaymentOptionInMask(paymentOptions, PAYMENTOPTION_SYS)) {
 		currencies.push_back(std::string("SYS"));
 	}
-	if (IsPaymentOptionInMask(paymentOptions, PAYMENTOPTION_SYSASSET)) {
-		currencies.push_back(std::string("SYSASSET"));
-	}	
 	if (IsPaymentOptionInMask(paymentOptions, PAYMENTOPTION_BTC)) {
 		currencies.push_back(std::string("BTC"));
 	}
@@ -1312,7 +1341,7 @@ std::string GetPaymentOptionsString(const uint64_t &paymentOptions)
 }
 CChainParams::AddressType PaymentOptionToAddressType(const uint64_t &paymentOption)
 {
-	if (paymentOption == PAYMENTOPTION_SYS || paymentOption == PAYMENTOPTION_SYSASSET)
+	if (paymentOption == PAYMENTOPTION_SYS)
 		return CChainParams::ADDRESS_SYS;
 	else if (paymentOption == PAYMENTOPTION_BTC)
 		return CChainParams::ADDRESS_BTC;
@@ -1332,8 +1361,8 @@ void OfferTxToJSON(const int op, const std::vector<unsigned char> &vchData, cons
 	GetOffer(offer.vchOffer, dbOffer);
 
 	entry.push_back(Pair("_id", stringFromVch(offer.vchOffer)));
-	if(!offer.vchAsset.empty() && offer.vchAsset != dbOffer.vchAsset)
-		entry.push_back(Pair("paymentoptions_asset", stringFromVch(offer.vchAsset)));
+	if(!offer.vchCert.empty() && offer.vchCert != dbOffer.vchCert)
+		entry.push_back(Pair("cert", stringFromVch(offer.vchCert)));
 
 	if(!offer.vchAlias.empty() && offer.vchAlias != dbOffer.vchAlias)
 		entry.push_back(Pair("alias", stringFromVch(offer.vchAlias)));

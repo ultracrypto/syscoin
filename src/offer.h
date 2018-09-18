@@ -34,7 +34,6 @@ bool RemoveOfferScriptPrefix(const CScript& scriptIn, CScript& scriptOut);
 #define PAYMENTOPTION_SYS 0x01
 #define PAYMENTOPTION_BTC 0x02
 #define PAYMENTOPTION_ZEC 0x04
-#define PAYMENTOPTION_SYSASSET 0x08
 
 #define OFFERTYPE_BUYNOW 0x01
 #define OFFERTYPE_COIN 0x02
@@ -111,7 +110,7 @@ public:
 	int nQty;
 	std::vector<unsigned char> vchLinkOffer;
 	std::vector<unsigned char> sCurrencyCode;
-	std::vector<unsigned char> vchAsset;
+	std::vector<unsigned char> vchCert;
 	bool bPrivate;
 	uint32_t offerType;
 	uint64_t paymentOptions;
@@ -134,7 +133,7 @@ public:
 		sTitle.clear();
 		sDescription.clear();
 		vchLinkOffer.clear();
-		vchAsset.clear();
+		vchCert.clear();
 		sCurrencyCode.clear();
 		auctionOffer.SetNull();
 		vchAlias.clear();
@@ -155,7 +154,7 @@ public:
 			READWRITE(sCurrencyCode);
 			READWRITE(nCommission);
 			READWRITE(vchAlias);
-			READWRITE(vchAsset);
+			READWRITE(vchCert);
 			READWRITE(bPrivate);
 			READWRITE(VARINT(offerType));
 			READWRITE(VARINT(paymentOptions));
@@ -180,8 +179,8 @@ public:
 		vchLinkOffer = b.vchLinkOffer;
 		sCurrencyCode = b.sCurrencyCode;
 		nCommission = b.nCommission;
-		vchAsset = b.vchAsset;
-		vchAsset = b.vchAsset;
+		vchAlias = b.vchAlias;
+		vchCert = b.vchCert;
 		bPrivate = b.bPrivate;
 		offerType = b.offerType;
 		paymentOptions = b.paymentOptions;
@@ -194,7 +193,7 @@ public:
         return !(a == b);
     }
 
-	inline void SetNull() { auctionOffer.SetNull();  sCategory.clear(); sTitle.clear(); vchOffer.clear(); sDescription.clear(); offerType = 0; fPrice = 0; fUnits = 1; nHeight = nQty = paymentOptions = 0; txHash.SetNull(); bPrivate = false; vchLinkOffer.clear(); vchAlias.clear(); sCurrencyCode.clear(); nCommission = 0; vchAlias.clear(); vchAsset.clear(); }
+	inline void SetNull() { auctionOffer.SetNull();  sCategory.clear(); sTitle.clear(); vchOffer.clear(); sDescription.clear(); offerType = 0; fPrice = 0; fUnits = 1; nHeight = nQty = paymentOptions = 0; txHash.SetNull(); bPrivate = false; vchLinkOffer.clear(); vchAlias.clear(); sCurrencyCode.clear(); nCommission = 0; vchAlias.clear(); vchCert.clear(); }
     inline bool IsNull() const { return (vchOffer.empty()); }
 
     bool UnserializeFromTx(const CTransaction &tx);
