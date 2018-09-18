@@ -49,7 +49,7 @@ bool ValidatePaymentOptionsString(const std::string &paymentOptionsString) {
 	vector<string> strs;
 	boost::split(strs, paymentOptionsString, boost::is_any_of("+"));
 	for (size_t i = 0; i < strs.size(); i++) {
-		if(strs[i].compare("BTC") != 0 && strs[i].compare("SYS") != 0 && strs[i].compare("ZEC") != 0) {
+		if(strs[i].compare("BTC") != 0 && strs[i].compare("SYS") != 0 && strs[i].compare("SYSASSET") != 0 && strs[i].compare("ZEC") != 0) {
 			retval = false;
 			break;
 		}
