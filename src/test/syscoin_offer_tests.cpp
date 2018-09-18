@@ -78,12 +78,9 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	// should fail: generate a cert offer using a zero quantity
 	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew  node1alias certificates title 0 0.05 description USD SYS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 
-	// should fail: generate a cert offer using an unlimited quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title -1 0.05 description USD SYS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	OfferNew("node1", "node1alias", "certificates", "title", "-1", "0.05", "description", "USD", assetguid1, "SYS+SYSASSET+BTC");
 
-	// should fail: generate a cert offer using a cert guid you don't own
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD SYS " + assetguid2 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid2, "SYSASSET+BTC");
 
 	// update cert category to sub category of certificates
 	OfferUpdate("node1", "node1alias", offerguid, "certificates-music", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", assetguid1);
@@ -98,8 +95,7 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	// generate a cert offer if accepting BTC OR SYS
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "SYS+BTC");
 
-	// should fail: generate a cert offer using different alias for asset and offer
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD SYS " + assetguid1a + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1a, "SYS+BTC");
 
 	// should fail: generate a cert offer with invalid payment option
 	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD BTC+SSS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);

@@ -443,7 +443,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4007 - " + _("escrow hex guid too long");
 					return error(errorMessage.c_str());
 				}
-				if(!IsValidPaymentOption(theEscrow.nPaymentOption))
+				if(/*tx.nVersion >= SYSCOIN_TX_VERSION3 && */!IsValidPaymentOption(theEscrow.nPaymentOption))
 				{
 					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4008 - " + _("Invalid payment option");
 					return error(errorMessage.c_str());
