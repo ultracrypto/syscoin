@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_with_escrow)
 	AliasNew("node2", "aliasescrow3", "pubdata");
 	string assetguid = AssetNew("node1", "asset1", "aliasescrow", "pubdata");
 	AssetSend("node1", assetguid, "\"[{\\\"ownerto\\\":\\\"aliasescrow2\\\",\\\"amount\\\":0.5}]\"", "memoassetinterest");
-	string offerguid = OfferNew("node1", "aliasescrow", "category", "title", "1", "0.05", "description", "asset1", assetguid, "SYS|SYSASSET");
+	string offerguid = OfferNew("node1", "aliasescrow", "category", "title", "1", "0.05", "description", "asset1", assetguid, "SYS+SYSASSET");
 	string escrowguid = EscrowNewBuyItNow("node2", "node1", "aliasescrow2", offerguid, "2", "aliasescrow3", "SYSASSET");
 	EscrowRelease("node2", "buyer", escrowguid);
 	EscrowClaimRelease("node1", escrowguid);
