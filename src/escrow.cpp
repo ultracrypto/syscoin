@@ -1403,14 +1403,14 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	CRecipient recipientEscrow  = {scriptPubKey, bBuyNow? nAmountWithFee: nFees, false};
 	CAsset dbAsset;
 	if(paymentOptionMask == PAYMENTOPTION_SYSASSET){
-		if (!GetAsset(theOffer.vchAsset, dbAsset))
+		if (!bGetAmountAndAddress && !GetAsset(theOffer.vchAsset, dbAsset))
 			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not find asset associated as the payment option for the offer you are purchasing"));
 		nNetworkFee *= 2;	
 		// if paying with an asset just pay sys network fees to the escrow address
 		recipientEscrow.nAmount = nNetworkFee;
 		vecSend.push_back(recipientEscrow);
 		// verify asset payment if its supposed to pay out, make sure asset actually did transfer
-		if(theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow){
+		if(!bGetAmountAndAddress && (theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow)){
 			string strMessage = VerifyAssetPayment(dbAsset, extTxIdStr, stringFromVch(buyeralias.vchAddress), strAddress, nAmountWithFee);
 			if(strMessage != "")
 				throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not verify Asset payment: ") + strMessage.c_str());
