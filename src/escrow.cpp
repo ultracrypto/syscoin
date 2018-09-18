@@ -1172,8 +1172,8 @@ string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const
 	if(txtype != "assetallocationsend")
 		return  _("Invalid transaction type expected 'assetallocationsend' got: ") + txtype ;
 	const string& strOwner = find_value(decodedRawTx.get_obj(), "owner").get_str();
-	if(strOwner != strBuyerAddress && strOwner != strBuyerAddress)
-		return _("Ttransaction was not sent from the buyer");
+	if(strOwner != strBuyerAddress && strOwner != strAddress)
+		return _("Transaction was not sent from the buyer");
 	// ensure that the requested nAmountWithFee amount was transferred to escrow address as a recipeint
 	const UniValue& allocations = find_value(decodedRawTx.get_obj(), "allocations").get_array();
 	if(allocations.empty())
