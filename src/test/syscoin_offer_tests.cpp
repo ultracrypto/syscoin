@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	AliasNew("node2", "node2alias", "node2aliasdata");
 
 	string assetguid1  = AssetNew("node1", "node1alias", "title", "pubdata");
-	string assetguid2  = AssettNew("node2", "node2alias", "title", "pubdata");
+	string assetguid1a = AssetNew("node1", "node1aliasa", "title", "pubdata");
+	string assetguid2  = AssetNew("node2", "node2alias", "title", "pubdata");
 
 	// generate a good cert offer
 	string offerguidnoncert = OfferNew("node1", "node1alias", "category", "title", "10", "0.05", "description", "USD");
@@ -97,7 +98,7 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	// generate a cert offer if accepting BTC OR SYS
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "SYS+BTC");
 
-	// should fail: generate a cert offer using different alias for cert and offer
+	// should fail: generate a cert offer using different alias for asset and offer
 	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD SYS " + assetguid1a + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 
 	// should fail: generate a cert offer with invalid payment option
