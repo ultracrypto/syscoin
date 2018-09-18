@@ -1156,7 +1156,7 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 
 	return syscointxfund_helper(bidderalias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
-string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const string& strBuyerAddress, const string& strAddress, const CAmount& nAmountWithFee){
+string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const CAliasIndex& buyeralias, const string& strAddress, const CAmount& nAmountWithFee){
 	// get transaction from extTxId which should be the asset transfer tx
 	const uint256& hash = uint256S(extTxIdStr.c_str());
 	uint256 block;
@@ -1172,7 +1172,7 @@ string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const
 	if(txtype != "assetallocationsend")
 		return  _("Invalid transaction type expected 'assetallocationsend' got: ") + txtype ;
 	const string& strOwner = find_value(decodedRawTx.get_obj(), "owner").get_str();
-	if(strOwner != strBuyerAddress && strOwner != strAddress)
+	if(strOwner != EncodeBase58(buyeralias.vchAddress) && strOwner != stringFromVch(buyeralias.vchAlias))
 		return _("Transaction was not sent from the buyer");
 	// ensure that the requested nAmountWithFee amount was transferred to escrow address as a recipeint
 	const UniValue& allocations = find_value(decodedRawTx.get_obj(), "allocations").get_array();
@@ -1411,7 +1411,7 @@ UniValue escrownew(const JSONRPCRequest& request) {
 		vecSend.push_back(recipientEscrow);
 		// verify asset payment if its supposed to pay out, make sure asset actually did transfer
 		if(!bGetAmountAndAddress && (theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow)){
-			string strMessage = VerifyAssetPayment(dbAsset, extTxIdStr, stringFromVch(buyeralias.vchAddress), strAddress, nAmountWithFee);
+			string strMessage = VerifyAssetPayment(dbAsset, extTxIdStr, buyeralias, strAddress, nAmountWithFee);
 			if(strMessage != "")
 				throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not verify Asset payment: ") + strMessage.c_str());
 		}
