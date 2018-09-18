@@ -1404,7 +1404,10 @@ UniValue escrownew(const JSONRPCRequest& request) {
 		nFees += nDepositFee;
 	CAmount nAmountWithFee = nTotalOfferPrice+nFees;
 	CRecipient recipientEscrow  = {scriptPubKey, bBuyNow? nAmountWithFee: nFees, false};
+	CAsset dbAsset;
 	if(paymentOptionMask == PAYMENTOPTION_SYSASSET){
+		if (!GetAsset(vchAsset, dbAsset))
+			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not find asset associated as the payment option for the offer you are purchasing"));
 		nNetworkFee *= 2;	
 		// if paying with an asset just pay sys network fees to the escrow address
 		recipientEscrow.nAmount = nNetworkFee;
@@ -1423,9 +1426,18 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	}
 
 	if (bGetAmountAndAddress) {
+		UniValue amountValue, feeValue;
+		if (paymentOptionMask == PAYMENTOPTION_SYSASSET) {
+			amountValue = ValueFromAssetAmount(nAmountWithFee, dbAsset.nPrecision, dbAsset.bUseInputRanges);
+			feeValue = ValueFromAssetAmount(nFees, dbAsset.nPrecision, dbAsset.bUseInputRanges);
+		}
+		else {
+			amountValue = ValueFromAmount(nAmountWithFee);
+			feeValue = ValueFromAmount(nFees);
+		}
 		UniValue res(UniValue::VOBJ);
-		res.push_back(Pair("totalwithfees", ValueFromAmount(nAmountWithFee)));
-		res.push_back(Pair("fees", ValueFromAmount(nFees)));
+		res.push_back(Pair("totalwithfees", amountValue));
+		res.push_back(Pair("fees", feeValue));
 		res.push_back(Pair("networkfee", ValueFromAmount(nNetworkFee)));
 		res.push_back(Pair("address", strAddress));
 		return res;
