@@ -1683,8 +1683,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 
 
 	BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-	if (certguid != "''")
-		BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
+	if (assetguid != "''")
+		BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
 
 	bool auctionreqwitness = (auction_require_witness == "true") ? true : false;
 	BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
@@ -1712,8 +1712,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode1, "offerinfo " + guid));
 		BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-		if (certguid != "''")
-			BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
+		if (assetguid != "''")
+			BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
 
 		BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
 		BOOST_CHECK(find_value(r.get_obj(), "title").get_str() == title);
@@ -1740,8 +1740,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode2, "offerinfo " + guid));
 		BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-		if (certguid != "''")
-			BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
+		if (assetguid != "''")
+			BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
 		BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
 		BOOST_CHECK(find_value(r.get_obj(), "title").get_str() == title);
 		BOOST_CHECK(find_value(r.get_obj(), "description").get_str() == description);
@@ -1781,7 +1781,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	bool oldprivate = find_value(r.get_obj(), "private").get_bool();
 	string oldprivateStr = oldprivate ? "true" : "false";
 	bool isprivate = isprivateStr == "true";
-	string oldcert = find_value(r.get_obj(), "cert").get_str();
+	string oldasset = find_value(r.get_obj(), "paymenoptions_asset").get_str();
 	int oldcommission = find_value(r.get_obj(), "commission").get_int();
 	int commission = atoi(commissionStr.c_str());
 	string oldpaymentoptions = find_value(r.get_obj(), "paymentoptions").get_str();
@@ -1825,7 +1825,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 
 
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
+	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 	float compareprice = 0;
@@ -1857,7 +1857,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode1, "offerinfo " + offerguid));
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
+		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 		float compareprice = 0;
@@ -1889,7 +1889,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode2, "offerinfo " + offerguid));
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
+		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 		float compareprice = 0;
