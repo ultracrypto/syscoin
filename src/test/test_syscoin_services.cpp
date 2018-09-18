@@ -2138,6 +2138,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "offerinfo " + offerguid));
 	int nQtyBefore = find_value(r.get_obj(), "quantity").get_int();
 	string selleralias = find_value(r.get_obj(), "alias").get_str();
+	string assetguid = find_value(r.get_obj(), "paymentoptions_asset").get_str();
 	int icommission = find_value(r.get_obj(), "commission").get_int();
 	string currency = find_value(r.get_obj(), "currency").get_str();
 	BOOST_CHECK(pegRates.count(currency) > 0 && pegRates[currency] > 0);
@@ -2180,7 +2181,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		string escrowaddress = find_value(r.get_obj(), "address").get_str();
 		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
 		printf("escrow address %s escrow amount %s\n", escrowaddress, escrowamount);
-		exttxid = AssetAllocationTransfer(true, "node1", guid, "jagassetallocationsend1", "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + " \\\",\\\"amount\\\":" + escrowamount + "}]\"", "allocationsendmemo");
+		exttxid = AssetAllocationTransfer(true, "node1", assetguid, "jagassetallocationsend1", "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + " \\\",\\\"amount\\\":" + escrowamount + "}]\"", "allocationsendmemo");
 	}
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
