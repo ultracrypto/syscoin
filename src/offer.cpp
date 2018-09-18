@@ -65,7 +65,7 @@ uint64_t GetPaymentOptionsMaskFromString(const std::string &paymentOptionsString
 		if(!strs[i].compare("SYSASSET")) {
 			retval |= PAYMENTOPTION_SYSASSET;
 		}	
-		if(!strs[i].compare("SYS")) {
+		else if(!strs[i].compare("SYS")) {
 			retval |= PAYMENTOPTION_SYS;
 		}	
 		else if(!strs[i].compare("BTC")) {
@@ -702,7 +702,7 @@ UniValue offernew(const JSONRPCRequest& request) {
 						"<price> price in <currency>\n"
 						"<description> description, 512 characters max.\n"
 						"<currency> The currency code that you want your offer to be in ie: USD.\n"
-						"<paymentoptions> 'SYS' to accept SYS only, 'BTC' for BTC only, 'ZEC' for zcash only, or a |-delimited string to accept multiple currencies (e.g. 'BTC|SYS' to accept BTC or SYS). Leave empty for default. Defaults to 'SYS'.\n"		
+						"<paymentoptions> 'SYS' to accept SYS only, 'SYSASSET' to accept Syscoin asset only, 'BTC' for BTC only, 'ZEC' for zcash only, or a |-delimited string to accept multiple currencies (e.g. 'BTC|SYS' to accept BTC or SYS). Leave empty for default. Defaults to 'SYS'.\n"		
 						"<asset guid> Set this to the guid of the asset you wish to accept for payment if paymentoption is set to 'SYSASSET'\n"
 						"<private> set to Yes if this offer should be private not be searchable. Defaults to No.\n"
 						"<units> Units that 1 qty represents. For example if selling 1 BTC. Default is 1.\n"
