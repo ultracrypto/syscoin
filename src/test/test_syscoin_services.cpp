@@ -2177,6 +2177,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	const string& sellerpubkey = aliasPubKeysInt[0][selleralias];
 	const string& arbiterpubkey = aliasPubKeysInt[0][arbiteralias];
 	if (paymentoptions.find("SYSASSET") != std::string::npos) {
+		nNetworkFee *= 2;
 		BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew true " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 		string escrowaddress = find_value(r.get_obj(), "address").get_str();
 		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
