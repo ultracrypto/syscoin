@@ -1301,6 +1301,7 @@ string AssetAllocationTransfer(const bool usezdag, const string& node, const str
 	BOOST_CHECK(valueTo.isArray());
 	UniValue receivers = valueTo.get_array();
 	CAmount inputamount = 0;
+	BOOST_CHECK(receivers.size() > 0);
 	for (unsigned int idx = 0; idx < receivers.size(); idx++) {
 		const UniValue& receiver = receivers[idx];
 		BOOST_CHECK(receiver.isObject());
