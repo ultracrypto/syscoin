@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_with_escrow)
 	// send some asset to aliasescrow2 to create an allocation
 	AssetSend("node1", assetguid, "\"[{\\\"ownerto\\\":\\\"aliasescrow2\\\",\\\"amount\\\":0.5}]\"", "memoassetinterest");
 	// create an offer and allow payment in SYS or SYSASSET (assetguid if SYSASSET is used to pay). The currency is asset1 which is the sys asset.
-	string offerguid = OfferNew("node1", "aliasescrow", "category", "title", "1", "0.05", "description", "asset1", assetguid, "SYS+SYSASSET");
+	string offerguid = OfferNew("node1", "aliasescrow", "category", "title", "2", "0.05", "description", "asset1", assetguid, "SYS+SYSASSET");
 	// as a buyer purchase this offer with my asset (payment option is set to SYSASSET), qty = 2
 	string escrowguid = EscrowNewBuyItNow("node2", "node1", "aliasescrow2", offerguid, "2", "aliasescrow3", "SYSASSET");
 	// buyer releases asset to seller
