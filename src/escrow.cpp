@@ -1733,8 +1733,10 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		UniValue emptyStr(UniValue::VSTR);
 		arrayCreateParams.push_back(emptyStr);
 		request1.params = arrayCreateParams;	
+		printf("before allocation\n");
 		resCreate = assetallocationsend(request1);
 		const UniValue &resArray = resCreate.get_array();
+		printf("result %s\n", resArray.write().c_str());
 		strRawTx = resArray[0].get_str();
 	}
 	else
