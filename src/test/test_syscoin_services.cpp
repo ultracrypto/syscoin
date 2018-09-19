@@ -2182,6 +2182,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew true " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 		string escrowaddress = find_value(r.get_obj(), "address").get_str();
 		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
+		boost::replace_all(escrowamount, "\"", "");
 		string inputs = "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + "\\\",\\\"amount\\\":" + escrowamount + "}]\"";
 		printf("inputs %s\n", inputs.c_str());
 		exttxid = AssetAllocationTransfer(true, node, assetguid, buyeralias, inputs, "allocationsendmemo");
