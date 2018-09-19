@@ -1585,17 +1585,13 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 			"escrowcreaterawtransaction [type] [escrow guid] [{\"txid\":\"id\",\"vout\":n, \"satoshis\":n},...] [user role]\n"
 			"Creates raw transaction for escrow refund or release, sign the output raw transaction and pass it via the rawtx parameter to escrowrelease. Type is 'refund' or 'release'. Third parameter is array of input (txid, vout, amount) pairs to be used to fund escrow payment. User role represents either 'seller', 'buyer' or 'arbiter', represents who signed for the payment of the escrow. 'seller' or 'arbiter' is valid for type 'refund' (if you are the buyer during refund leave this empty), while 'buyer' or 'arbiter' is valid for type 'release' (if you are the seller during release leave this empty). You only need to provide this parameter when calling escrowrelease or escrowrefund. \n"
 			+ HelpRequiringPassphrase());
-			printf("1\n");
 	// gather & validate inputs
 	string type = params[0].get_str();
-	printf("2\n");
 	vector<unsigned char> vchEscrow = vchFromValue(params[1]);
-	printf("3\n");
 	const UniValue &inputs = params[2].get_array();
 	string role = "";
-	printf("4\n");
 	role = params[3].get_str();
- printf("5\n");
+
 	// this is a syscoin transaction
 	CWalletTx wtx;
 
@@ -1651,11 +1647,10 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		const UniValue& inputsObj = inputs[i].get_obj();
 		nBalance += find_value(inputsObj, "satoshis").get_int64();
 	}
-	printf("6\n");
 	CAmount nTotalWithFee = (escrow.nAmountOrBidPerUnit*escrow.nQty) + nEscrowFees;
 	CScriptID innerID(CScript(escrow.vchRedeemScript.begin(), escrow.vchRedeemScript.end()));
 	CSyscoinAddress escrowaddress(innerID, PaymentOptionToAddressType(escrow.nPaymentOption));	
-printf("7\n");
+
 	// if paid with sys asset then check balance is good minus network fee (network fee should be accounted for in the syscoin balance of escrow address)
 	if(escrow.nPaymentOption == PAYMENTOPTION_SYSASSET){
 		nTotalWithFee -= escrow.nNetworkFee;
@@ -1708,7 +1703,6 @@ printf("7\n");
 		createAddressUniValue.push_back(Pair(sellerPaymentAddress.ToString(), ValueFromAmount(nBalanceTmp)));
 
 	}
-	printf("8\n");
 	if (!ValidateArbiterFee(escrow)) {
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4522 - " + _("Could not validate arbiter fee in escrow"));
 	}
@@ -1725,27 +1719,22 @@ printf("7\n");
 	UniValue resCreate;
 	if(escrow.nPaymentOption == PAYMENTOPTION_SYSASSET){
 		JSONRPCRequest request1;
-		printf("9\n");
 		arrayCreateParams.push_back(stringFromVch(theOffer.vchAsset));
 		arrayCreateParams.push_back(escrowaddress.ToString());
 		UniValue recpArray(UniValue::VARR);
 		UniValue recpObj(UniValue::VOBJ);
-		printf("10\n");
 		for(const string& name: createAddressUniValue.getKeys()){
-			recpObj.push_back(Pair("owner", name));
+			recpObj.push_back(Pair("ownerto", name));
 			recpObj.push_back(Pair("amount", createAddressUniValue[name]));
 			recpArray.push_back(recpObj);
 		}
-		printf("11\n");
 		arrayCreateParams.push_back(recpArray);
 		arrayCreateParams.push_back("memo");
 		UniValue emptyStr(UniValue::VSTR);
 		arrayCreateParams.push_back(emptyStr);
 		request1.params = arrayCreateParams;	
-		printf("before allocation\n");
 		resCreate = assetallocationsend(request1);
 		const UniValue &resArray = resCreate.get_array();
-		printf("result %s\n", resArray.write().c_str());
 		strRawTx = resArray[0].get_str();
 	}
 	else
