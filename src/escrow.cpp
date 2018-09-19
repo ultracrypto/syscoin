@@ -1730,7 +1730,7 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		}
 		arrayCreateParams.push_back(recpArray);
 		arrayCreateParams.push_back("memo");
-		arrayCreateParams.push_back("");
+		arrayCreateParams.push_back(UniValue::VNULL);
 		request1.params = arrayCreateParams;	
 		resCreate = assetallocationsend(request1);
 		const UniValue &resArray = resCreate.get_array();
