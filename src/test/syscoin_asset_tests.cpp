@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_with_escrow)
 	AliasNew("node1", "aliasescrow", "pubdata");
 	AliasNew("node1", "aliasescrow1", "pubdata");
 	AliasNew("node2", "aliasescrow2", "pubdata");
-	AliasNew("node2", "aliasescrow3", "pubdata");
+	AliasNew("node3", "aliasescrow3", "pubdata");
 	// create a new asset to be used in an offer
 	string assetguid = AssetNew("node1", "asset1", "aliasescrow", "pubdata");
 	// send some asset to aliasescrow2 to create an allocation
