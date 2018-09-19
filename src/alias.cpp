@@ -1249,7 +1249,7 @@ UniValue SyscoinListReceived(bool includeempty=true)
 	}
 	return ret;
 }
-UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vector<unsigned char> &vchWitness,const CRecipient &addressRecipient, vector<CRecipient> &vecSend) {
+UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vector<unsigned char> &vchWitness,const CRecipient &addressRecipient, vector<CRecipient> &vecSend, bool bEscrowSpending) {
 	CMutableTransaction txNew;
 	txNew.nVersion = SYSCOIN_TX_VERSION2;
 	// set an address for syscointxfund so it uses that address to fund (alias passed in)
@@ -1263,7 +1263,7 @@ UniValue syscointxfund_helper(const vector<unsigned char> &vchAlias, const vecto
 	
 	COutPoint addressOutPoint;
 	unsigned int unspentcount = addressunspent(strAddress, addressOutPoint);
-	if (unspentcount <= 1)
+	if (unspentcount <= 1 && !bEscrowSpending)
 	{
 		for (unsigned int i = 0; i < MAX_ALIAS_UPDATES_PER_BLOCK; i++)
 			vecSend.push_back(addressRecipient);

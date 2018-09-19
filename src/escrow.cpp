@@ -1728,9 +1728,10 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 			recpObj.push_back(Pair("amount", createAddressUniValue[name]));
 			recpArray.push_back(recpObj);
 		}
-		arrayCreateParams.push_back(recpArray);
-		arrayCreateParams.push_back("memo");
 		UniValue emptyStr(UniValue::VSTR);
+		arrayCreateParams.push_back(recpArray);
+		arrayCreateParams.push_back(emptyStr);
+		arrayCreateParams.push_back(emptyStr);
 		arrayCreateParams.push_back(emptyStr);
 		request1.params = arrayCreateParams;	
 		resCreate = assetallocationsend(request1);
