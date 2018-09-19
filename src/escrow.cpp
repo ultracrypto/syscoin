@@ -1187,7 +1187,7 @@ string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const
 		const string& ownerReceiver = find_value(allocations[0].get_obj(), "owner").get_str();
 		UniValue amountValue = find_value(allocations[0].get_obj(), "amount");
 		const CAmount& recieverAmount = AssetAmountFromValue(amountValue, dbAsset.nPrecision, dbAsset.bUseInputRanges);
-		printf("recieverAmount %lld vs nAmountWithFee %lld\n", recieverAmount, nAmountWithFee);
+		printf("ownerReceiver %s strAddress %s recieverAmount %lld vs nAmountWithFee %lld\n", recieverAmount, nAmountWithFee, ownerReceiver.c_str(), strAddress.c_str());
 		if(ownerReceiver == strAddress && recieverAmount >= nAmountWithFee){
 			foundPayment = true;
 			break;
