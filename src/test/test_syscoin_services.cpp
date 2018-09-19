@@ -1331,7 +1331,6 @@ string AssetAllocationTransfer(const bool usezdag, const string& node, const str
 		}
 		else if (amountObj.isNum()) {
 			const CAmount &amount = AssetAmountFromValue(amountObj, nprecision, binputranges);
-			printf("found amount %lld\n", amount);
 			inputamount += amount;
 			BOOST_CHECK(amount > 0);
 			theAssetAllocation.listSendingAllocationAmounts.push_back(make_pair(vchAliasTo, amount));
@@ -2183,8 +2182,9 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew true " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 		string escrowaddress = find_value(r.get_obj(), "address").get_str();
 		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
-		escrowamount.erase(std::remove(escrowamount.begin(), escrowamount.end(), '\n'), escrowamount.end());
-		exttxid = AssetAllocationTransfer(true, node, assetguid, buyeralias, "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + "\\\",\\\"amount\\\":" + escrowamount + "}]\"", "allocationsendmemo");
+		string inputs = "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + "\\\",\\\"amount\\\":" + escrowamount + "}]\"";
+		printf("inputs %s\n", inputs.c_str());
+		exttxid = AssetAllocationTransfer(true, node, assetguid, buyeralias, inputs, "allocationsendmemo");
 	}
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
