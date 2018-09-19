@@ -1802,7 +1802,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newdescription = description == "''" ? olddescription : description;
 	string newcurrency = currency == "''" ? oldcurrency : currency;
 	string newisprivate = isprivateStr == "''" ? oldprivateStr : isprivateStr;
-	string newassetguid = assetguid == "''" ? "''" : assetguid;
+	string newassetguid = assetguid == "''" ? oldasset : assetguid;
 	string newcommission = commissionStr == "''" ? boost::lexical_cast<string>(oldcommission) : commissionStr;
 	string newpaymentoptions = paymentoptions == "''" ? oldpaymentoptions : paymentoptions;
 	string newoffertype = offerType == "''" ? oldoffertype : offerType;

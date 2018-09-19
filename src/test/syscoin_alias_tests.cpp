@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE (generate_aliaspay)
 }
 BOOST_AUTO_TEST_CASE (generate_alias_offerexpiry_resync)
 {
-	printf("Running generate_offer_aliasexpiry_resync...\n");
+	printf("Running generate_alias_offerexpiry_resync...\n");
 	UniValue r;
 	GenerateBlocks(5);
 	GenerateBlocks(5, "node2");
@@ -981,7 +981,7 @@ BOOST_AUTO_TEST_CASE (generate_aliasprunewithasset)
 	AliasNew("node1", "aliasprunewithasset", "pubdata");
 	AliasNew("node2", "aliasprunewithasset2", "pubdata");
 	string assetguid = AssetNew("node1", "asset1", "aliasprunewithasset", "pubdata");
-	AssetUpdate("node1", assetguid, "pub", "''", "0.1");
+	AssetUpdate("node1", assetguid, "pub");
 	AssetTransfer("node1", "node2", assetguid, "aliasprunewithasset2");
 	GenerateBlocks(5, "node1");
 	ExpireAlias("aliasprunewithasset2");
