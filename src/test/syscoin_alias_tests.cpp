@@ -1054,7 +1054,7 @@ BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 	BOOST_CHECK_THROW(CallRPC("node2", "offerlink aliasexpirednode2 " + offerguid + " 5 newdetails ''"), runtime_error);
 	// should fail: generate an offer using expired alias
 	
-	BOOST_CHECK_THROW(CallRPC("node2", "offernew aliasexpirednode2 category title 1 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node2", "offernew aliasexpirednode2 category title 1 0.05 description USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 	// should fail: new escrow with expired arbiter alias
 
 	buyerpubkey = aliasPubKeysAlias["aliasexpirednode2"];
@@ -1070,7 +1070,7 @@ BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 	GenerateBlocks(5, "node1");
 	// should pass: offer alias expired and was renewed
-	BOOST_CHECK_NO_THROW(CallRPC("node1", "offerupdate aliasexpire0 " + offerguid + " category title 100 0.05 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"));
+	BOOST_CHECK_NO_THROW(CallRPC("node1", "offerupdate aliasexpire0 " + offerguid + " category title 100 0.05 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"));
 	GenerateBlocks(5, "node1");
 	// update cert after alias was renewed
 	BOOST_CHECK_NO_THROW(CallRPC("node1", "certupdate " + certguid + " aliasexpire pubdata certificates ''"));

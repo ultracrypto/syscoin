@@ -52,9 +52,9 @@ BOOST_AUTO_TEST_CASE (generate_offernew)
 	// TODO test payment options
 }
 
-BOOST_AUTO_TEST_CASE (generate_certoffer)
+BOOST_AUTO_TEST_CASE (generate_assetoffer)
 {
-	printf("Running generate_certoffer...\n");
+	printf("Running generate_assetoffer...\n");
 	UniValue r;
 
 	GenerateBlocks(5);
@@ -69,35 +69,32 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	string assetguid1a = AssetNew("node1", "node1aliasa", "title", "pubdata");
 	string assetguid2  = AssetNew("node2", "node2alias", "title", "pubdata");
 
-	// generate a good cert offer
+	// generate a good offer
 	string offerguidnoncert = OfferNew("node1", "node1alias", "category", "title", "10", "0.05", "description", "USD");
 	string offerguid = OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1);
 	string offerguid1 = OfferNew("node1", "node1alias", "certificates-music", "title", "1", "0.05", "description", "USD", assetguid1);
 
 
-	// should fail: generate a cert offer using a zero quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew  node1alias certificates title 0 0.05 description USD SYS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
 	OfferNew("node1", "node1alias", "certificates", "title", "-1", "0.05", "description", "USD", assetguid1, "SYS+SYSASSET+BTC");
 
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid2, "SYSASSET+BTC");
 
-	// update cert category to sub category of certificates
+	// update cert category
 	OfferUpdate("node1", "node1alias", offerguid, "certificates-music", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", assetguid1);
 
 
-	// change non cert offer to cert offer
+	// change non asset offer to asset offer
 	OfferUpdate("node1", "node1alias", offerguidnoncert, "certificates", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", assetguid1);
 
 
-	// generate a cert offer if accepting only BTC
+	// generate a asset offer if accepting only BTC
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "BTC");
-	// generate a cert offer if accepting BTC OR SYS
+	// generate a asset offer if accepting BTC OR SYS
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "SYS+BTC");
 
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1a, "SYS+BTC");
 
-	// should fail: generate a cert offer with invalid payment option
+	// should fail: generate a asset offer with invalid payment option
 	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD BTC+SSS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 }
 BOOST_AUTO_TEST_CASE(generate_offerwhitelists)
@@ -357,7 +354,6 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate_editcurrency)
 	string sellerpubkey = aliasPubKeysOffer["selleraliascurrency"];
 	string arbiterpubkey = aliasPubKeysOffer["arbiteraliascurrency1"];
 
-	printf("buyerpubkey %s sellerpubkey %s arbiterpubkey %s\n", buyerpubkey.c_str(), sellerpubkey.c_str(), arbiterpubkey.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "escrownew false buyeraliascurrency arbiteraliascurrency1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 10 true 1 0 25 0.005 0 '' SYS 0 0 ''"));
 	UniValue arr1 = r.get_array();
 	escrowguid = arr1[1].get_str();
@@ -449,9 +445,9 @@ BOOST_AUTO_TEST_CASE (generate_linkedaccept)
 	GenerateBlocks(10);
 	OfferAccept("node1", "node3", "node3aliaslinked", "node1aliaslinked1", lofferguid, "6");
 }
-BOOST_AUTO_TEST_CASE (generate_cert_linkedaccept)
+BOOST_AUTO_TEST_CASE (generate_asset_linkedaccept)
 {
-	printf("Running generate_cert_linkedaccept...\n");
+	printf("Running generate_asset_linkedaccept...\n");
 	UniValue r;
 
 	GenerateBlocks(5);
@@ -462,17 +458,15 @@ BOOST_AUTO_TEST_CASE (generate_cert_linkedaccept)
 	AliasNew("node2", "node2aliascert", "node2aliasdata");
 	AliasNew("node3", "node3aliascert", "node2aliasdata");
 
-	string certguid  = CertNew("node1", "node1aliascert", "title", "pubdata");
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "certinfo " + certguid));
-	BOOST_CHECK(find_value(r.get_obj(), "alias").get_str() == "node1aliascert");
-	// generate a good cert offer
-	string offerguid = OfferNew("node1", "node1aliascert", "certificates", "title", "1", "0.05", "description", "USD", certguid);
+	string assetguid1  = AssetNew("node1", "node1aliascert", "title", "pubdata");
+	// generate a good offer
+	string offerguid = OfferNew("node1", "node1aliascert", "certificates", "title", "1", "0.05", "description", "USD", assetguid1);
 	AliasAddWhitelist("node1", "node1aliascert", "*", "0");
 	string lofferguid = OfferLink("node2", "node2aliascert", offerguid, "20", "newdescription");
 
 	string hex_str = AliasUpdate("node1", "node1aliascert", "changeddata2");
 	BOOST_CHECK(hex_str.empty());
-	hex_str = AliasUpdate("node2", "node2aliascert", "changeddata2");
+	hex_str = AliasUpdate("node2", "node2alias`", "changeddata2");
 	BOOST_CHECK(hex_str.empty());
 	hex_str = AliasUpdate("node3", "node3aliascert", "changeddata3");
 	BOOST_CHECK(hex_str.empty());
