@@ -1802,7 +1802,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newdescription = description == "''" ? olddescription : description;
 	string newcurrency = currency == "''" ? oldcurrency : currency;
 	string newisprivate = isprivateStr == "''" ? oldprivateStr : isprivateStr;
-	string newassetguid = assetguid == "''" ? oldasset : assetguid;
+	string newassetguid = assetguid == "''" ? "''" : assetguid;
 	string newcommission = commissionStr == "''" ? boost::lexical_cast<string>(oldcommission) : commissionStr;
 	string newpaymentoptions = paymentoptions == "''" ? oldpaymentoptions : paymentoptions;
 	string newoffertype = offerType == "''" ? oldoffertype : offerType;
@@ -1812,7 +1812,6 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newauction_deposit = auction_deposit == "''" ? oldauctiondeposit : auction_deposit;
 	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [commission] [paymentOptions] [asset guid] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
 	string offerupdatestr = "offerupdate " + aliasname + " " + offerguid + " " + newcategory + " " + newtitle + " " + newqty + " " + newprice + " " + newdescription + " " + newcurrency + " " + newisprivate + " " + newcommission + " " + newpaymentoptions + " " + newassetguid + " " + newoffertype + " " + newauction_expires + " " + newauction_reserve + " " + newauction_require_witness + " " + newauction_deposit + " " + witness;
-	printf("offerupdatestr %s\n", offerupdatestr.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, offerupdatestr));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
