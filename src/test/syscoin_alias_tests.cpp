@@ -987,8 +987,8 @@ BOOST_AUTO_TEST_CASE (generate_aliasprunewithasset)
 	ExpireAlias("aliasprunewithasset2");
 	StartNode("node3");
 	GenerateBlocks(5, "node3");
-	// node3 shouldn't find the service at all (meaning node3 doesn't sync the data)
-	BOOST_CHECK_THROW(CallRPC("node3", "assetinfo " + assetguid + " true"), runtime_error);
+	// node3 should find the service
+	BOOST_CHECK_NO_THROW(CallRPC("node3", "assetinfo " + assetguid + " true"));
 }
 BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 {

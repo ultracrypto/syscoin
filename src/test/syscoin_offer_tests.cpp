@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE (generate_asset_linkedaccept)
 	AliasNew("node2", "node2aliascert", "node2aliasdata");
 	AliasNew("node3", "node3aliascert", "node2aliasdata");
 
-	string assetguid1  = AssetNew("node1", "node1aliascert", "title", "pubdata");
+	string assetguid1  = AssetNew("node1", "asset1", "node1aliascert", "pubdata");
 	// generate a good offer
 	string offerguid = OfferNew("node1", "node1aliascert", "certificates", "title", "1", "0.05", "description", "USD", assetguid1);
 	AliasAddWhitelist("node1", "node1aliascert", "*", "0");
