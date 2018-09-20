@@ -988,7 +988,7 @@ BOOST_AUTO_TEST_CASE (generate_aliasprunewithasset)
 	StartNode("node3");
 	GenerateBlocks(5, "node3");
 	// node3 shouldn't find the service at all (meaning node3 doesn't sync the data)
-	BOOST_CHECK_THROW(CallRPC("node3", "assetinfo " + assetguid), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node3", "assetinfo " + assetguid + " true"), runtime_error);
 }
 BOOST_AUTO_TEST_CASE (generate_aliasexpired)
 {

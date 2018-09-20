@@ -75,9 +75,6 @@ BOOST_AUTO_TEST_CASE (generate_assetoffer)
 	string offerguid1 = OfferNew("node1", "node1alias", "certificates-music", "title", "1", "0.05", "description", "USD", assetguid1);
 
 
-	// should fail: generate a cert offer using a zero quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew  node1alias certificates title 0 0.05 description USD SYS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
 	OfferNew("node1", "node1alias", "certificates", "title", "-1", "0.05", "description", "USD", assetguid1, "SYS+SYSASSET+BTC");
 
 	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid2, "SYSASSET+BTC");
