@@ -1782,7 +1782,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	bool oldprivate = find_value(r.get_obj(), "private").get_bool();
 	string oldprivateStr = oldprivate ? "true" : "false";
 	bool isprivate = isprivateStr == "true";
-	string oldasset = find_value(r.get_obj(), "paymenoptions_asset").get_str();
+	string oldasset = find_value(r.get_obj(), "paymentoptions_asset").get_str();
 	int oldcommission = find_value(r.get_obj(), "commission").get_int();
 	int commission = atoi(commissionStr.c_str());
 	string oldpaymentoptions = find_value(r.get_obj(), "paymentoptions").get_str();

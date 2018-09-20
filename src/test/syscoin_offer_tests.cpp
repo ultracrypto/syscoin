@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE (generate_assetoffer)
 	AliasNew("node1", "node1aliasa", "node1aliasdata");
 	AliasNew("node2", "node2alias", "node2aliasdata");
 
-	string assetguid1  = AssetNew("node1", "node1alias", "title", "pubdata");
-	string assetguid1a = AssetNew("node1", "node1aliasa", "title", "pubdata");
-	string assetguid2  = AssetNew("node2", "node2alias", "title", "pubdata");
+	string assetguid1  = AssetNew("node1", "title", "node1alias", "pubdata");
+	string assetguid1a = AssetNew("node1", "title", "node1aliasa", "pubdata");
+	string assetguid2  = AssetNew("node2", "title", "node2alias", "pubdata");
 
 	// generate a good offer
 	string offerguidnoncert = OfferNew("node1", "node1alias", "category", "title", "10", "0.05", "description", "USD");
