@@ -2329,11 +2329,12 @@ void EscrowRelease(const string& node, const string& role, const string& guid, c
 	// "escrowcreaterawtransaction <type> <escrow guid> <user role> <[{\"txid\":\"id\",\"vout\":n, \"satoshis\":n},...]>\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrowcreaterawtransaction release " + guid + " " + inputStr + " " + role));
 	const UniValue &arr = r.get_array();
+	printf("arr %s\n", arr.write().c_str());
 	string rawtx = arr[0].get_str();
 	CAmount amountRet = AmountFromValue(arr[1]);
 	// UI should ensure value is >= 0  or else tell user it does not have enough funds in escrow address
 	BOOST_CHECK(amountRet >= 0);
-	printf("rawtx %s\n", rawtx.c_str());
+	
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + rawtx));
 	const UniValue& hex_value = find_value(r.get_obj(), "hex");
 	BOOST_CHECK(hex_value.get_str() != rawtx);
