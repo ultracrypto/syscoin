@@ -273,7 +273,7 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks in-between interest claims");
 		return 0;
 	}
-	const int &nInterestClaimBlockThreshold = fUnitTest ? 1 : ONE_MONTH_IN_BLOCKS;
+	const cpp_dec_float_50 &nInterestClaimBlockThreshold = fUnitTest ? cpp_dec_float_50(1) : cpp_dec_float_50(ONE_MONTH_IN_BLOCKS);
 	if ((nHeight - assetAllocation.nLastInterestClaimHeight) < nInterestClaimBlockThreshold || assetAllocation.nLastInterestClaimHeight == 0) {
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
