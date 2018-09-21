@@ -273,7 +273,7 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks in-between interest claims");
 		return 0;
 	}
-	const cpp_dec_float_50 &nInterestClaimBlockThreshold = fUnitTest ? cpp_dec_float_50(1) : cpp_dec_float_50(ONE_MONTH_IN_BLOCKS);
+	const int &nInterestClaimBlockThreshold = fUnitTest ? 1 : ONE_MONTH_IN_BLOCKS;
 	if ((nHeight - assetAllocation.nLastInterestClaimHeight) < nInterestClaimBlockThreshold || assetAllocation.nLastInterestClaimHeight == 0) {
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
@@ -285,7 +285,7 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 	const cpp_dec_float_50& nBalanceOverTimeDifference = cpp_dec_float_50(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference);
 	const cpp_dec_float_50& fInterestOverTimeDifference = cpp_dec_float_50(assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference);
 	const cpp_dec_float_50& nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
-	const cpp_dec_float_50& powcalc = (boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference)*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
+	const cpp_dec_float_50& powcalc = (cpp_dec_float_50(boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference))*nBalanceOverTimeDifference)) - nBalanceOverTimeDifference;
 	return powcalc.convert_to<CAmount>();
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
