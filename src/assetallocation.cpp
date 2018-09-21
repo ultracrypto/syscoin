@@ -278,14 +278,14 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
 	}
-	const cpp_dec_float_50 &nInterestBlockTerm = fUnitTest? cpp_dec_float_50(ONE_HOUR_IN_BLOCKS): cpp_dec_float_50(ONE_YEAR_IN_BLOCKS);
-	const cpp_dec_float_50 &nBlockDifference = cpp_dec_float_50(nHeight - assetAllocation.nLastInterestClaimHeight);
+	const int &InterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
+	const cpp_dec_float_50 nBlockDifference(nHeight - assetAllocation.nLastInterestClaimHeight);
 
 	// apply compound annual interest to get total interest since last time interest was collected
-	const cpp_dec_float_50 nAccumulatedBalanceSinceLastInterestClaim(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim);
-	const cpp_dec_float_50 fAccumulatedInterestSinceLastInterestClaim(assetAllocation.fAccumulatedInterestSinceLastInterestClaim);
-	const cpp_dec_float_50 nBalanceOverTimeDifference(nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference);
-	const cpp_dec_float_50 fInterestOverTimeDifference(fAccumulatedInterestSinceLastInterestClaim / nBlockDifference);
+	//const cpp_dec_float_50 nAccumulatedBalanceSinceLastInterestClaim(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim);
+	//const cpp_dec_float_50 fAccumulatedInterestSinceLastInterestClaim(assetAllocation.fAccumulatedInterestSinceLastInterestClaim);
+	const cpp_dec_float_50 nBalanceOverTimeDifference(1 / nBlockDifference);
+	const cpp_dec_float_50 fInterestOverTimeDifference(1 / nBlockDifference);
 	const cpp_dec_float_50 nInterestPerBlock(fInterestOverTimeDifference / nInterestBlockTerm);
 	const cpp_dec_float_50& powcalc = (cpp_dec_float_50(boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference))*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
 	return powcalc.convert_to<CAmount>();
