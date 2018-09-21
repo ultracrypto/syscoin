@@ -282,11 +282,11 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 	const cpp_dec_float_50 &nBlockDifference = cpp_dec_float_50(nHeight - assetAllocation.nLastInterestClaimHeight);
 
 	// apply compound annual interest to get total interest since last time interest was collected
-	const cpp_dec_float_50 nAccumulatedBalanceSinceLastInterestClaim = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim;
-	const cpp_dec_float_50 fAccumulatedInterestSinceLastInterestClaim = assetAllocation.fAccumulatedInterestSinceLastInterestClaim;
-	const cpp_dec_float_50& nBalanceOverTimeDifference = nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
-	const cpp_dec_float_50& fInterestOverTimeDifference = fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	const cpp_dec_float_50& nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
+	const cpp_dec_float_50 nAccumulatedBalanceSinceLastInterestClaim(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim);
+	const cpp_dec_float_50 fAccumulatedInterestSinceLastInterestClaim(assetAllocation.fAccumulatedInterestSinceLastInterestClaim);
+	const cpp_dec_float_50 nBalanceOverTimeDifference(nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference);
+	const cpp_dec_float_50 fInterestOverTimeDifference(fAccumulatedInterestSinceLastInterestClaim / nBlockDifference);
+	const cpp_dec_float_50 nInterestPerBlock(fInterestOverTimeDifference / nInterestBlockTerm);
 	const cpp_dec_float_50& powcalc = (cpp_dec_float_50(boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference))*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
 	return powcalc.convert_to<CAmount>();
 }
