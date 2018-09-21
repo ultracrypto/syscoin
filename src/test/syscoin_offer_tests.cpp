@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE (generate_asset_linkedaccept)
 
 	string hex_str = AliasUpdate("node1", "node1aliascert", "changeddata2");
 	BOOST_CHECK(hex_str.empty());
-	hex_str = AliasUpdate("node2", "node2alias`", "changeddata2");
+	hex_str = AliasUpdate("node2", "node2aliascert`", "changeddata2");
 	BOOST_CHECK(hex_str.empty());
 	hex_str = AliasUpdate("node3", "node3aliascert", "changeddata3");
 	BOOST_CHECK(hex_str.empty());
