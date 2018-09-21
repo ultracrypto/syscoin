@@ -1668,7 +1668,8 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 	UniValue arrayCreateParams(UniValue::VARR);
 	UniValue createAddressUniValue(UniValue::VOBJ);
 	if (type == "refund") {
-		nBalanceTmp -= escrow.nNetworkFee;
+		if (escrow.nPaymentOption != PAYMENTOPTION_SYSASSET)
+			nBalanceTmp -= escrow.nNetworkFee;
 		if (escrow.role == EscrowRoles::ARBITER || role == "arbiter")
 		{
 			nBalanceTmp -= escrow.nArbiterFee;
@@ -1677,7 +1678,8 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		createAddressUniValue.push_back(Pair(buyerPaymentAddress.ToString(), ValueFromAmount(nBalanceTmp)));
 	}
 	else if (type == "release") {
-		nBalanceTmp -= escrow.nNetworkFee;
+		if (escrow.nPaymentOption != PAYMENTOPTION_SYSASSET) 
+			nBalanceTmp -= escrow.nNetworkFee;
 		nBalanceTmp -= escrow.nArbiterFee;
 		nBalanceTmp -= escrow.nDeposit;
 		nBalanceTmp -= escrow.nWitnessFee;

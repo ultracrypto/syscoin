@@ -84,10 +84,11 @@ BOOST_AUTO_TEST_CASE(generate_auction_regular)
 	string query = "escrownew true buyerauction arbiterauction " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", query));
 	float totalFees = boost::lexical_cast<float>(find_value(r.get_obj(), "fees").write());
+	float networkFees = boost::lexical_cast<float>(find_value(r.get_obj(), "networkfee").write());
 	string escrowaddress = find_value(r.get_obj(), "address").get_str();
 
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
-	string total_bid_in_payment_option = strprintf("%.*f", 8, totalFees + (pegRates["USD"] * 0.03*atoi(qty)));
+	string total_bid_in_payment_option = strprintf("%.*f", 8, networkFees + totalFees + (pegRates["USD"] * 0.03*atoi(qty)));
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliaspay buyerauction \"{\\\"" + escrowaddress + "\\\":" + total_bid_in_payment_option + "}\""));
 	UniValue varray = r.get_array();
@@ -165,10 +166,11 @@ BOOST_AUTO_TEST_CASE(generate_auction_reserve)
 	query = "escrownew true buyerauction1 arbiterauction1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", query));
 	float totalFees = boost::lexical_cast<float>(find_value(r.get_obj(), "fees").write());
+	float networkFees = boost::lexical_cast<float>(find_value(r.get_obj(), "networkfee").write());
 	string escrowaddress = find_value(r.get_obj(), "address").get_str();
 
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
-	string total_bid_in_payment_option = strprintf("%.*f", 8, totalFees + (pegRates["USD"] * 0.04*atoi(qty)));
+	string total_bid_in_payment_option = strprintf("%.*f", 8, networkFees + totalFees + (pegRates["USD"] * 0.04*atoi(qty)));
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliaspay buyerauction1 \"{\\\"" + escrowaddress + "\\\":" + total_bid_in_payment_option + "}\""));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "signrawtransaction " + varray[0].get_str()));
