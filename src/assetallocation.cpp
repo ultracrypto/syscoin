@@ -279,7 +279,7 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		return 0;
 	}
 	const int &nInterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
-	const cpp_dec_float_50 nBlockDifference(nHeight - assetAllocation.nLastInterestClaimHeight);
+	const int nBlockDifference(nHeight - assetAllocation.nLastInterestClaimHeight);
 
 	// apply compound annual interest to get total interest since last time interest was collected
 	//const cpp_dec_float_50 nAccumulatedBalanceSinceLastInterestClaim(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim);
@@ -287,7 +287,8 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 	const cpp_dec_float_50 nBalanceOverTimeDifference(1 / nBlockDifference);
 	const cpp_dec_float_50 fInterestOverTimeDifference(1 / nBlockDifference);
 	const cpp_dec_float_50 nInterestPerBlock(fInterestOverTimeDifference / nInterestBlockTerm);
-	const cpp_dec_float_50 powRes(boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference));
+	const cpp_dec_float_50 first(cpp_dec_float_50(1.0) + nInterestPerBlock);
+	const cpp_dec_float_50 powRes(boost::multiprecision::pow(first, nBlockDifference));
 	const cpp_dec_float_50& powcalc = (powRes*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
 	return powcalc.convert_to<CAmount>();
 }
