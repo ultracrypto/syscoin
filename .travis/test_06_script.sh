@@ -34,7 +34,7 @@ BEGIN_FOLD distdir
 DOCKER_EXEC make distdir VERSION=$HOST
 END_FOLD
 
-cd "syscoin-$HOST" || (echo "could not enter distdir syscoin-$HOST"; exit 1)
+cd "syscoincore-$HOST" || (echo "could not enter distdir syscoin-$HOST"; exit 1)
 
 BEGIN_FOLD configure
 DOCKER_EXEC ./configure --cache-file=../config.cache $SYSCOIN_CONFIG_ALL $SYSCOIN_CONFIG || ( cat config.log && false)
