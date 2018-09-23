@@ -10,7 +10,7 @@ NO_WALLET ?=
 NO_UPNP ?=
 FALLBACK_DOWNLOAD_PATH ?= https://bitcoincore.org/depends-sources
 
-BUILD = $(shell ./config.guess)
+BUILD = $(shell ./config.guess --version)
 HOST ?= $(BUILD)
 PATCHES_PATH = $(BASEDIR)/patches
 BASEDIR = $(CURDIR)
@@ -22,7 +22,7 @@ BUILD_ID_SALT ?= salt
 
 host:=$(BUILD)
 ifneq ($(HOST),)
-echo "host $(HOST)";
+host:=$(HOST)
 endif
 
 ifneq ($(DEBUG),)
