@@ -23,7 +23,6 @@ OSX_DMG=$(OSX_VOLNAME).dmg
 OSX_BACKGROUND_IMAGE=background.png
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_FANCY_PLIST=$(top_srcdir)/contrib/macdeploy/fancy.plist
-OSX_BASE_LPROJ_DIR=$(top_srcdir)/contrib/macdeploy/Base.lproj/InfoPlist.strings
 OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/syscoin.icns
 OSX_PLIST=$(top_srcdir)/share/qt/Info.plist #not installed
 OSX_QT_TRANSLATIONS = da,de,es,hu,ru,uk,zh_CN,zh_TW
@@ -38,7 +37,7 @@ WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/syscoin.ico \
   $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
   $(top_srcdir)/doc/README_windows.txt
 
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) $(OSX_BASE_LPROJ_DIR) \
+OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) \
   $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_IMAGE) \
   $(top_srcdir)/contrib/macdeploy/DS_Store \
   $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
@@ -87,9 +86,9 @@ $(OSX_APP)/Contents/MacOS/Syscoin-Qt: $(SYSCOIN_QT_BIN)
 	$(MKDIR_P) $(@D)
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
 
-$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings: $(OSX_BASE_LPROJ_DIR)
+$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
 	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
+	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
 
 OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
   $(OSX_APP)/Contents/Resources/syscoin.icns $(OSX_APP)/Contents/Info.plist \
