@@ -95,7 +95,7 @@ trap 'exit 1' 1 2 15
 # use `HOST_CC' if defined, but it is deprecated.
 
 # Portable tmp directory creation inspired by the Autoconf team.
-
+echo "start";
 set_cc_for_build='
 trap "exitcode=\$?; (rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null) && exit \$exitcode" 0 ;
 trap "rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null; exit 1" 1 2 13 15 ;
@@ -1423,12 +1423,12 @@ case "$UNAME_MACHINE:$UNAME_SYSTEM" in
 	# If we got here on MIPS GNU/Linux, output extra information.
 	cat >&2 <<EOF
 
-NOTE: MIPS GNU/Linux systems require a C compiler to fully recognize
-the system type. Please install a C compiler and try again.
+echo "NOTE: MIPS GNU/Linux systems require a C compiler to fully recognize
+the system type. Please install a C compiler and try again.";
 EOF
 	;;
 esac
-
+echo "test";
 cat >&2 <<EOF
 
 This script (version $timestamp), has failed to recognize the
