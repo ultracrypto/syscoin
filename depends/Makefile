@@ -21,9 +21,7 @@ HOST_ID_SALT ?= salt
 BUILD_ID_SALT ?= salt
 
 host:=$(BUILD)
-ifneq ($(HOST),)
-host:=$(HOST)
-endif
+
 
 ifneq ($(DEBUG),)
 release_type=debug
