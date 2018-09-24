@@ -9,7 +9,7 @@
 #include "hash.h"
 #include "serialize.h"
 #include "streams.h"
-
+using namespace std;
 int CAddrInfo::GetTriedBucket(const uint256& nKey) const
 {
     uint64_t hash1 = (CHashWriter(SER_GETHASH, 0) << nKey << GetKey()).GetHash().GetCheapHash();
