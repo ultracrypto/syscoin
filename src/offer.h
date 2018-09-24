@@ -5,7 +5,7 @@
 #ifndef OFFER_H
 #define OFFER_H
 
-#include <math.h>
+#include <cmath>
 #include "rpc/server.h"
 #include "dbwrapper.h"
 #include "chainparams.h"

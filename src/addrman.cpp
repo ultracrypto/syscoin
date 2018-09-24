@@ -5,7 +5,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "addrman.h"
-
+#include <cmath>
 #include "hash.h"
 #include "serialize.h"
 #include "streams.h"
