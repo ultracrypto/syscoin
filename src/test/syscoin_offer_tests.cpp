@@ -31,30 +31,30 @@ BOOST_AUTO_TEST_CASE (generate_offernew)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offerinfo " + offerguid));
 
 	// should fail: generate an offer with unknown alias
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew fooalias category title 100 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew fooalias category title 100 0.05 description USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 
 	// should fail: generate an offer with negative quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category title -2 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category title -2 0.05 description USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 
 	// should fail: generate an offer too-large category
 	string s257bytes = "SdfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsDfdfddz";
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 " + s257bytes + " title 100 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);	
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 " + s257bytes + " title 100 0.05 description USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);	
 
 	// should fail: generate an offer too-large title
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category " + s257bytes + " 100 0.05 description USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);	
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category " + s257bytes + " 100 0.05 description USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);	
 
 	// should fail: generate an offer too-large description
 	string s1025bytes =   "sasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfssdsfsdfsdfsdfsdfsdsdfdfsdfsdfsdfsdz";
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category title 100 0.05 " + s1025bytes + " USD '' SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew selleralias1 category title 100 0.05 " + s1025bytes + " USD SYS '' false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 
 	// should pass: generate an offer with random currency
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offernew selleralias1 category title 100 0.05 description ZZZ '' SYS false 1 BUYNOW 0 0 false 0 ''"));
+	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offernew selleralias1 category title 100 0.05 description ZZZ SYS '' false 1 BUYNOW 0 0 false 0 ''"));
 	// TODO test payment options
 }
 
-BOOST_AUTO_TEST_CASE (generate_certoffer)
+BOOST_AUTO_TEST_CASE (generate_assetoffer)
 {
-	printf("Running generate_certoffer...\n");
+	printf("Running generate_assetoffer...\n");
 	UniValue r;
 
 	GenerateBlocks(5);
@@ -65,56 +65,37 @@ BOOST_AUTO_TEST_CASE (generate_certoffer)
 	AliasNew("node1", "node1aliasa", "node1aliasdata");
 	AliasNew("node2", "node2alias", "node2aliasdata");
 
-	string certguid1  = CertNew("node1", "node1alias", "title", "pubdata");
-	string certguid1a  = CertNew("node1", "node1aliasa", "title", "pubdata");
-	string certguid2  = CertNew("node2", "node2alias", "title", "pubdata");
+	string assetguid1  = AssetNew("node1", "title", "node1alias", "pubdata");
+	string assetguid1a = AssetNew("node1", "title", "node1aliasa", "pubdata");
+	string assetguid2  = AssetNew("node2", "title", "node2alias", "pubdata");
 
-	// generate a good cert offer
+	// generate a good offer
 	string offerguidnoncert = OfferNew("node1", "node1alias", "category", "title", "10", "0.05", "description", "USD");
-	string offerguid = OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", certguid1);
-	string offerguid1 = OfferNew("node1", "node1alias", "certificates-music", "title", "1", "0.05", "description", "USD", certguid1);
-
-	// must use certificates category for certoffer
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias category title 1 0.05 description USD " + certguid1 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: generate a cert offer using a quantity greater than 1
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 2 0.05 description USD " + certguid1 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: generate a cert offer using a zero quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew  node1alias certificates title 0 0.05 description USD " + certguid1 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: generate a cert offer using an unlimited quantity
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title -1 0.05 description USD " + certguid1 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: generate a cert offer using a cert guid you don't own
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD " + certguid2 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: update non cert offer to cert category
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate node1alias " + offerguidnoncert + " certificates title 1 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// should fail: update non cert offer to cert sub category
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate node1alias " + offerguidnoncert + " certificates>music title 1 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// update cert category to sub category of certificates
-	OfferUpdate("node1", "node1alias", offerguid, "certificates-music", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", certguid1);
-
-	// should fail: try to change non cert offer to cert offer without cert category
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate node1alias " + offerguidnoncert + " category title 1 0.15 description USD false " + certguid1 + " 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
-
-	// change non cert offer to cert offer
-	OfferUpdate("node1", "node1alias", offerguidnoncert, "certificates", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", certguid1);
+	string offerguid = OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1);
+	string offerguid1 = OfferNew("node1", "node1alias", "certificates-music", "title", "1", "0.05", "description", "USD", assetguid1);
 
 
-	// generate a cert offer if accepting only BTC
-	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", certguid1, "BTC");
-	// generate a cert offer if accepting BTC OR SYS
-	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", certguid1, "SYS+BTC");
+	OfferNew("node1", "node1alias", "certificates", "title", "-1", "0.05", "description", "USD", assetguid1, "SYS+SYSASSET+BTC");
 
-	// should fail: generate a cert offer using different alias for cert and offer
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD " + certguid1a + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid2, "SYSASSET+BTC");
 
-	// should fail: generate a cert offer with invalid payment option
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD " + certguid1 + " BTC+SSS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
+	// update cert category
+	OfferUpdate("node1", "node1alias", offerguid, "certificates-music", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", assetguid1);
+
+
+	// change non asset offer to asset offer
+	OfferUpdate("node1", "node1alias", offerguidnoncert, "certificates", "titlenew", "1", "0.15", "descriptionnew", "USD", "''", assetguid1);
+
+
+	// generate a asset offer if accepting only BTC
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "BTC");
+	// generate a asset offer if accepting BTC OR SYS
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1, "SYS+BTC");
+
+	OfferNew("node1", "node1alias", "certificates", "title", "1", "0.05", "description", "USD", assetguid1a, "SYS+BTC");
+
+	// should fail: generate a asset offer with invalid payment option
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias certificates title 1 0.05 description USD BTC+SSS " + assetguid1 + " false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
 }
 BOOST_AUTO_TEST_CASE(generate_offerwhitelists)
 {
@@ -283,24 +264,24 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate)
 	OfferUpdate("node1", "selleralias2", offerguid, "category", "titlenew", "90", "0.15", "descriptionnew");
 
 	// should fail: offer cannot be updated by someone other than owner
-	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "offerupdate selleralias2 " + offerguid + " category title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"));
+	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "offerupdate selleralias2 " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "signrawtransaction " + arr[0].get_str()));
 	BOOST_CHECK(!find_value(r.get_obj(), "complete").get_bool());
 
 	// should fail: generate an offer with unknown alias
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate fooalias " + offerguid + " category title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate fooalias " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);
 
 	// should fail: generate an offer too-large category
 	string s257bytes =   "dSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsfDsdsdsdsfsfsdsfsdsfdsfsdsfdsfsdsfsdSfsdfdfsdsfSfsdfdfsdsDfdfddz";
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " " + s257bytes + " title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);	
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " " + s257bytes + " title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);	
 
 	// should fail: generate an offer too-large title
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " category " + s257bytes + " 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);	
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " category " + s257bytes + " 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);	
 
 	// should fail: generate an offer too-large description
 	string s1025ytes =   "dasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfasdfasdfsadfsadassdsfsdfsdfsdfsdfsdsdfssdsfsdfsdfsdfsdfsdsdfdfsdfsdfsdfsdz";
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " category title 90 0.15 " + s1025ytes + " USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias2 " + offerguid + " category title 90 0.15 " + s1025ytes + " USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);
 
 }
 
@@ -364,7 +345,7 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate_editcurrency)
 	BOOST_CHECK(abs(nTotal - AmountFromValue(4 * 0.00001000*100000.0)) <= 0.0001*COIN);
 
 	// try to update currency and accept in same block, ensure payment uses old currency not new
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offerupdate selleraliascurrency " + offerguid + " category title 93 0.2 desc EUR false '' 0 SYS BUYNOW 0 0 false 0 ''"));
+	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offerupdate selleraliascurrency " + offerguid + " category title 93 0.2 desc EUR false 0 SYS '' BUYNOW 0 0 false 0 ''"));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "signrawtransaction " + arr[0].get_str()));
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
@@ -373,7 +354,6 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate_editcurrency)
 	string sellerpubkey = aliasPubKeysOffer["selleraliascurrency"];
 	string arbiterpubkey = aliasPubKeysOffer["arbiteraliascurrency1"];
 
-	printf("buyerpubkey %s sellerpubkey %s arbiterpubkey %s\n", buyerpubkey.c_str(), sellerpubkey.c_str(), arbiterpubkey.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "escrownew false buyeraliascurrency arbiteraliascurrency1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 10 true 1 0 25 0.005 0 '' SYS 0 0 ''"));
 	UniValue arr1 = r.get_array();
 	escrowguid = arr1[1].get_str();
@@ -465,9 +445,9 @@ BOOST_AUTO_TEST_CASE (generate_linkedaccept)
 	GenerateBlocks(10);
 	OfferAccept("node1", "node3", "node3aliaslinked", "node1aliaslinked1", lofferguid, "6");
 }
-BOOST_AUTO_TEST_CASE (generate_cert_linkedaccept)
+BOOST_AUTO_TEST_CASE (generate_asset_linkedaccept)
 {
-	printf("Running generate_cert_linkedaccept...\n");
+	printf("Running generate_asset_linkedaccept...\n");
 	UniValue r;
 
 	GenerateBlocks(5);
@@ -478,11 +458,9 @@ BOOST_AUTO_TEST_CASE (generate_cert_linkedaccept)
 	AliasNew("node2", "node2aliascert", "node2aliasdata");
 	AliasNew("node3", "node3aliascert", "node2aliasdata");
 
-	string certguid  = CertNew("node1", "node1aliascert", "title", "pubdata");
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "certinfo " + certguid));
-	BOOST_CHECK(find_value(r.get_obj(), "alias").get_str() == "node1aliascert");
-	// generate a good cert offer
-	string offerguid = OfferNew("node1", "node1aliascert", "certificates", "title", "1", "0.05", "description", "USD", certguid);
+	string assetguid1  = AssetNew("node1", "asset1", "node1aliascert", "pubdata");
+	// generate a good offer
+	string offerguid = OfferNew("node1", "node1aliascert", "certificates", "title", "1", "0.05", "description", "USD", assetguid1);
 	AliasAddWhitelist("node1", "node1aliascert", "*", "0");
 	string lofferguid = OfferLink("node2", "node2aliascert", offerguid, "20", "newdescription");
 
@@ -525,7 +503,7 @@ BOOST_AUTO_TEST_CASE (generate_offerexpired)
 	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias4 arbiteralias4 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 
 	// should fail: offer update on an expired offer
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias4 " + offerguid + " category title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias4 " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);
 	
 	// should fail: link to an expired offer
 	BOOST_CHECK_THROW(r = CallRPC("node2", "offerlink buyeralias4 " + offerguid + " 5 newdescription ''"), runtime_error);	
@@ -558,53 +536,6 @@ BOOST_AUTO_TEST_CASE (generate_offerexpiredexmode)
 	BOOST_CHECK_THROW(r = CallRPC("node1", "aliasclearwhitelist selleralias10 ''"), runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE (generate_certofferexpired)
-{
-	printf("Running generate_certofferexpired...\n");
-	UniValue r;
-
-	GenerateBlocks(5);
-	GenerateBlocks(5, "node2");
-	GenerateBlocks(5, "node3");
-
-	AliasNew("node1", "node1alias2a", "node1aliasdata");
-	AliasNew("node1", "node1alias2", "node1aliasdata");
-	AliasNew("node2", "node2alias2", "node2aliasdata");
-	AliasNew("node3", "node3alias2", "node3aliasdata");
-
-	string certguid  = CertNew("node1", "node1alias2", "title", "pubdata");
-	string certguid1  = CertNew("node1", "node1alias2a", "title", "pubdata");
-
-	GenerateBlocks(5);
-
-	// generate a good cert offer
-	string offerguid = OfferNew("node1", "node1alias2", "certificates", "title", "1", "0.05", "description", "USD", certguid);
-	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress node2alias2 126"), runtime_error);
-	GenerateBlocks(10);
-	// updates the alias which updates the offer and cert using this alias
-	OfferAccept("node1", "node2", "node2alias2", "node3alias2", offerguid, "1");
-	// should pass: generate a cert offer
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "offernew node1alias2 certificates title 1 0.05 description USD " + certguid + " SYS false 1 BUYNOW 0 0 false 0 ''"));
-	UniValue arr = r.get_array();
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "signrawtransaction " + arr[0].get_str()));
-	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
-
-	offerguid = OfferNew("node1", "node1alias2a", "certificates", "title", "1", "0.05", "description", "USD", certguid1);
-	ExpireAlias("node2alias2");
-
-	string buyerpubkey = aliasPubKeysOffer["node2alias2"];
-	string sellerpubkey = aliasPubKeysOffer["node1alias2"];
-	string arbiterpubkey = aliasPubKeysOffer["node3alias2"];
-
-	// should fail: accept an offer with expired alias
-	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false node2alias2 node3alias2 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
-	// should fail: generate a cert offer using an expired cert
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias2 certificates title 1 0.05 description USD " + certguid1 + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-	/// should fail: generate a cert offer using an expired cert
-	BOOST_CHECK_THROW(r = CallRPC("node1", "offernew node1alias2 certificates title 1 0.05 description USD " + certguid + " SYS false 1 BUYNOW 0 0 false 0 ''"), runtime_error);
-	GenerateBlocks(5);
-	GenerateBlocks(5, "node2");
-}
 BOOST_AUTO_TEST_CASE (generate_offerpruning)
 {
 	UniValue r;
@@ -662,7 +593,7 @@ BOOST_AUTO_TEST_CASE (generate_offerpruning)
 	BOOST_CHECK(hex_str.empty());
 	ExpireAlias("pruneoffer");
 	// now it should be expired
-	BOOST_CHECK_THROW(CallRPC("node1", "offerupdate pruneoffer " + guid1 + " category title 1 0.05 description USD false '' 0 SYS BUYNOW 0 0 false 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "offerupdate pruneoffer " + guid1 + " category title 1 0.05 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);
 	// can still search
 	BOOST_CHECK_NO_THROW(CallRPC("node1", "offerinfo " + guid1));
 	BOOST_CHECK_NO_THROW(CallRPC("node2", "offerinfo " + guid1));

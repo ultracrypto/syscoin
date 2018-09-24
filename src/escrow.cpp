@@ -5,7 +5,8 @@
 #include "escrow.h"
 #include "offer.h"
 #include "alias.h"
-#include "cert.h"
+#include "asset.h"
+#include "assetallocation.h"
 #include "init.h"
 #include "validation.h"
 #include "core_io.h"
@@ -442,14 +443,14 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4007 - " + _("escrow hex guid too long");
 					return error(errorMessage.c_str());
 				}
-				if(!IsValidPaymentOption(theEscrow.nPaymentOption))
+				if(/*tx.nVersion >= SYSCOIN_TX_VERSION3 && */!IsValidPaymentOption(theEscrow.nPaymentOption))
 				{
 					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4008 - " + _("Invalid payment option");
 					return error(errorMessage.c_str());
 				}
 				if (!theEscrow.extTxId.IsNull() && theEscrow.nPaymentOption == PAYMENTOPTION_SYS)
 				{
-					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4009 - " + _("External payment cannot be paid with SYS");
+					errorMessage = "SYSCOIN_ESCROW_CONSENSUS_ERROR: ERRCODE: 4009 - " + _("External payment cannot be paid on SYS network");
 					return error(errorMessage.c_str());
 				}
 				if (theEscrow.extTxId.IsNull() && theEscrow.nPaymentOption != PAYMENTOPTION_SYS)
@@ -981,7 +982,7 @@ bool CheckEscrowInputs(const CTransaction &tx, int op, const vector<vector<unsig
 					return true;
 				}
 			}
-			if (theEscrow.nPaymentOption != PAYMENTOPTION_SYS)
+			if (theEscrow.nPaymentOption != PAYMENTOPTION_SYS && theEscrow.nPaymentOption != PAYMENTOPTION_SYSASSET)
 			{
 				bool noError = ValidateExternalPayment(theEscrow, bSanityCheck, errorMessage);
 				if (!errorMessage.empty())
@@ -1155,6 +1156,46 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 
 	return syscointxfund_helper(bidderalias.vchAlias, vchWitness, addrrecipient, vecSend);
 }
+string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const CAliasIndex& buyeralias, const string& strAddress, const CAmount& nAmountWithFee){
+	// get transaction from extTxId which should be the asset transfer tx
+	const uint256& hash = uint256S(extTxIdStr.c_str());
+	uint256 block;
+	CTransactionRef rawtx;
+	if(!GetTransaction(hash, rawtx, Params().GetConsensus(),block, true))
+		return _("Syscoin asset transfer transaction not found");
+	JSONRPCRequest rawTxRequest;
+	UniValue arrayRawTXParams(UniValue::VARR);
+	arrayRawTXParams.push_back(EncodeHexTx(*rawtx.get()));
+	rawTxRequest.params = arrayRawTXParams;	
+	const UniValue& decodedRawTx = syscoindecoderawtransaction(rawTxRequest);
+	const string& txtype = find_value(decodedRawTx.get_obj(), "txtype").get_str();
+	if(txtype != "assetallocationsend")
+		return  _("Invalid transaction type expected 'assetallocationsend' got: ") + txtype ;
+	const string& strOwner = find_value(decodedRawTx.get_obj(), "owner").get_str();
+	if(strOwner != EncodeBase58(buyeralias.vchAddress) && strOwner != stringFromVch(buyeralias.vchAlias))
+		return _("Transaction was not sent from the buyer");
+	// ensure that the requested nAmountWithFee amount was transferred to escrow address as a recipeint
+	const UniValue& allocations = find_value(decodedRawTx.get_obj(), "allocations").get_array();
+	if(allocations.empty())
+		return _("Transaction did not include any recipients");
+	const UniValue& inputs = find_value(allocations[0].get_obj(), "inputs");
+	if(!inputs.isNull())
+		return  _("Syscoin asset used to purchase this offer was a non-fungible token. This type of asset not supported through the purchase flow at this time.");
+	bool foundPayment = false;
+	for(int i =0;i<allocations.size();i++){
+		const UniValue& receiverObj = allocations[i].get_obj();
+		const string& ownerReceiver = find_value(allocations[0].get_obj(), "owner").get_str();
+		UniValue amountValue = find_value(allocations[0].get_obj(), "amount");
+		const CAmount& recieverAmount = AssetAmountFromValue(amountValue, dbAsset.nPrecision, dbAsset.bUseInputRanges);
+		if(ownerReceiver == strAddress && recieverAmount >= nAmountWithFee){
+			foundPayment = true;
+			break;
+		}
+	}
+	if(!foundPayment)	
+		return _("Full payment expected for asset not found");
+	return "";
+}
 UniValue escrownew(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
     if (request.fHelp || params.size() != 19)
@@ -1169,15 +1210,15 @@ UniValue escrownew(const JSONRPCRequest& request) {
 				"<arbiter_pubkey> Arbiter public key.\n"
                 "<quantity> Quantity of items to buy of offer.\n"
 				"<buynow> Specify whether the escrow involves purchasing offer for the full offer price if set to true, or through a bidding auction if set to false. If buynow is false, an initial deposit may be used to secure a bid if required by the seller.\n"
-				"<price_per_unit_in_payment_option> Total amount of the offer price. Amount is in paymentOption currency. It is per unit of purchase. \n"
-				"<shipping amount> Amount to add to shipping for merchant. Amount is in paymentOption currency. Example: If merchant requests 0.1 BTC for shipping and escrow is paid in BTC, enter 0.1 here. Default is 0. Buyer can also add shipping using escrowaddshipping upon merchant request.\n"
+				"<price_per_unit_in_payment_option> Total amount of the offer price. Amount is in payment_option currency. It is per unit of purchase. \n"
+				"<shipping amount> Amount to add to shipping for merchant. Amount is in payment_option currency. Example: If merchant requests 0.1 BTC for shipping and escrow is paid in BTC, enter 0.1 here. Default is 0. Buyer can also add shipping using escrowaddshipping upon merchant request.\n"
 				"<network fee> Network fee in satoshi per byte for the transaction. Generally the escrow transaction is about 400 bytes. Default is 25 for SYS or ZEC and 250 for BTC payments.\n"
 				"<arbiter fee> Arbiter fee in fractional amount of the amount_in_payment_option value. For example 0.75% is 0.0075 and represents 0.0075*amount_in_payment_option satoshis paid to arbiter in the event arbiter is used to resolve a dispute. Default and minimum is 0.005.\n"
 				"<witness fee> Witness fee in fractional amount of the amount_in_payment_option value. For example 0.3% is 0.003 and represents 0.003*amount_in_payment_option satoshis paid to witness in the event witness signs off on an escrow through any of the following calls escrownew/escrowbid/escrowrelease/escrowrefund. Default is 0.\n"
 				"<extTx> External transaction ID if paid with another blockchain.\n"
-				"<paymentOption> If extTx is defined, specify a valid payment option used to make payment. Default is SYS.\n"
-				"<bid_in_payment_option> Initial bid amount you are willing to pay escrow for this offer. Amount is in paymentOption currency. It is per unit of purchase. If buynow is set to true, this value is disregarded.\n"
-				"<bid_in_offer_currency> Converted value of bid_in_payment_option from paymentOption currency to offer currency. For example: offer is priced in USD and purchased in BTC, this field will be the BTC/USD value. If buynow is set to true, this value is disregarded.\n"
+				"<payment_option> If extTx is defined, specify a valid payment option used to make payment. Default is SYS. If it is SYSASSET then refer to asset guid from the offer for the token assetthat is used to pay.\n"
+				"<bid_in_payment_option> Initial bid amount you are willing to pay escrow for this offer. Amount is in payment_option currency. It is per unit of purchase. If buynow is set to true, this value is disregarded.\n"
+				"<bid_in_offer_currency> Converted value of bid_in_payment_option from payment_option currency to offer currency. For example: offer is priced in USD and purchased in BTC, this field will be the BTC/USD value. If buynow is set to true, this value is disregarded.\n"
                 "<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"	
 				+ HelpRequiringPassphrase());
 	bool bGetAmountAndAddress = params[0].get_bool();
@@ -1355,19 +1396,46 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	// 400 bytes * network fee per byte
 	nNetworkFee *= 400;
 	vector<CRecipient> vecSend;
-	CAmount nFees = nEscrowFee + nNetworkFee + nWitnessFee + nShipping;
+	CAmount nFees = nEscrowFee + nWitnessFee + nShipping;
 	if (!bBuyNow)
 		nFees += nDepositFee;
 	CAmount nAmountWithFee = nTotalOfferPrice+nFees;
 	CRecipient recipientEscrow  = {scriptPubKey, bBuyNow? nAmountWithFee: nFees, false};
-	// if we are paying with SYS and we are using buy it now to buy at offer price or there is a deposit required as a bidder, then add this recp to vecSend to create payment otherwise no payment to escrow *yet*
-	if(extTxIdStr.empty() && (theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow))
+	CAsset dbAsset;
+	if(paymentOptionMask == PAYMENTOPTION_SYSASSET){
+		if (!bGetAmountAndAddress && !GetAsset(theOffer.vchAsset, dbAsset))
+			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not find asset associated as the payment option for the offer you are purchasing"));
+		nNetworkFee *= 2;	
+		// if paying with an asset just pay sys network fees to the escrow address
+		recipientEscrow.nAmount = nNetworkFee;
 		vecSend.push_back(recipientEscrow);
+		// verify asset payment if its supposed to pay out, make sure asset actually did transfer
+		if(!bGetAmountAndAddress && (theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow)){
+			string strMessage = VerifyAssetPayment(dbAsset, extTxIdStr, buyeralias, strAddress, nAmountWithFee);
+			if(strMessage != "")
+				throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4517 - " + _("Could not verify Asset payment: ") + strMessage.c_str());
+		}
+	}
+	// if we are paying with SYS and we are using buy it now to buy at offer price or there is a deposit required as a bidder, then add this recp to vecSend to create payment otherwise no payment to escrow *yet*
+	else if(extTxIdStr.empty() && (theOffer.auctionOffer.fDepositPercentage > 0 || bBuyNow)){
+		recipientEscrow.nAmount += nNetworkFee;
+		vecSend.push_back(recipientEscrow);
+	}
 
 	if (bGetAmountAndAddress) {
+		UniValue amountValue, feeValue;
+		if (paymentOptionMask == PAYMENTOPTION_SYSASSET) {
+			amountValue = ValueFromAssetAmount(nAmountWithFee, dbAsset.nPrecision, dbAsset.bUseInputRanges);
+			feeValue = ValueFromAssetAmount(nFees, dbAsset.nPrecision, dbAsset.bUseInputRanges);
+		}
+		else {
+			amountValue = ValueFromAmount(nAmountWithFee);
+			feeValue = ValueFromAmount(nFees);
+		}
 		UniValue res(UniValue::VOBJ);
-		res.push_back(Pair("totalwithfees", ValueFromAmount(nAmountWithFee)));
-		res.push_back(Pair("fees", ValueFromAmount(nFees)));
+		res.push_back(Pair("totalwithfees", amountValue));
+		res.push_back(Pair("fees", feeValue));
+		res.push_back(Pair("networkfee", ValueFromAmount(nNetworkFee)));
 		res.push_back(Pair("address", strAddress));
 		return res;
 	}
@@ -1580,14 +1648,28 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		nBalance += find_value(inputsObj, "satoshis").get_int64();
 	}
 	CAmount nTotalWithFee = (escrow.nAmountOrBidPerUnit*escrow.nQty) + nEscrowFees;
+	CScriptID innerID(CScript(escrow.vchRedeemScript.begin(), escrow.vchRedeemScript.end()));
+	CSyscoinAddress escrowaddress(innerID, PaymentOptionToAddressType(escrow.nPaymentOption));	
+
+	// if paid with sys asset then check balance is good minus network fee (network fee should be accounted for in the syscoin balance of escrow address)
+	if(escrow.nPaymentOption == PAYMENTOPTION_SYSASSET){
+		nTotalWithFee -= escrow.nNetworkFee;
+
+		CAssetAllocation allocation;
+		if(!GetAssetAllocation(CAssetAllocationTuple(theOffer.vchAsset, vchFromString(escrowaddress.ToString())), allocation))
+			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4522 - " + _("Could not find asset allocation"));
+		nBalance = allocation.nBalance;
+	}
 	CAmount nBalanceTmp = nBalance;
+
 	// subtract total from the amount found in the address, if this is negative the UI should complain that not enough funds were found and that more funds are required
 	nBalance -= nTotalWithFee;
 
 	UniValue arrayCreateParams(UniValue::VARR);
 	UniValue createAddressUniValue(UniValue::VOBJ);
 	if (type == "refund") {
-		nBalanceTmp -= escrow.nNetworkFee;
+		if (escrow.nPaymentOption != PAYMENTOPTION_SYSASSET)
+			nBalanceTmp -= escrow.nNetworkFee;
 		if (escrow.role == EscrowRoles::ARBITER || role == "arbiter")
 		{
 			nBalanceTmp -= escrow.nArbiterFee;
@@ -1596,7 +1678,8 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 		createAddressUniValue.push_back(Pair(buyerPaymentAddress.ToString(), ValueFromAmount(nBalanceTmp)));
 	}
 	else if (type == "release") {
-		nBalanceTmp -= escrow.nNetworkFee;
+		if (escrow.nPaymentOption != PAYMENTOPTION_SYSASSET) 
+			nBalanceTmp -= escrow.nNetworkFee;
 		nBalanceTmp -= escrow.nArbiterFee;
 		nBalanceTmp -= escrow.nDeposit;
 		nBalanceTmp -= escrow.nWitnessFee;
@@ -1634,29 +1717,55 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 	if (escrow.bBuyNow && escrow.nDeposit > 0) {
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4525 - " + _("Cannot include deposit when using Buy It Now"));
 	}
-	arrayCreateParams.push_back(inputs);
-	arrayCreateParams.push_back(createAddressUniValue);
+	string strRawTx = "";
 	UniValue resCreate;
-	try
-	{
+	if(escrow.nPaymentOption == PAYMENTOPTION_SYSASSET){
 		JSONRPCRequest request1;
-		request1.params = arrayCreateParams;
-		resCreate = createrawtransaction(request1);
+		arrayCreateParams.push_back(stringFromVch(theOffer.vchAsset));
+		arrayCreateParams.push_back(escrowaddress.ToString());
+		UniValue recpArray(UniValue::VARR);
+		UniValue recpObj(UniValue::VOBJ);
+		for(const string& name: createAddressUniValue.getKeys()){
+			recpObj.push_back(Pair("ownerto", name));
+			recpObj.push_back(Pair("amount", createAddressUniValue[name]));
+			recpArray.push_back(recpObj);
+		}
+		UniValue emptyStr(UniValue::VSTR);
+		arrayCreateParams.push_back(recpArray);
+		arrayCreateParams.push_back(emptyStr);
+		arrayCreateParams.push_back(emptyStr);
+		arrayCreateParams.push_back(emptyStr);
+		request1.params = arrayCreateParams;	
+		resCreate = assetallocationsend(request1);
+		const UniValue &resArray = resCreate.get_array();
+		strRawTx = resArray[0].get_str();
 	}
-	catch (UniValue& objError)
+	else
 	{
-		throw runtime_error(find_value(objError, "message").get_str());
-	}
-	if (!resCreate.isStr())
-		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4526 - " + _("Could not create escrow transaction: Invalid response from createrawtransaction"));
+		arrayCreateParams.push_back(inputs);
+		arrayCreateParams.push_back(createAddressUniValue);
+		
+		try
+		{
+			JSONRPCRequest request1;
+			request1.params = arrayCreateParams;
+			resCreate = createrawtransaction(request1);
+		}
+		catch (UniValue& objError)
+		{
+			throw runtime_error(find_value(objError, "message").get_str());
+		}
+		if (!resCreate.isStr())
+			throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4526 - " + _("Could not create escrow transaction: Invalid response from createrawtransaction"));
 
-	string createEscrowSpendingTx = resCreate.get_str();
-	string strRawTx = createEscrowSpendingTx;
+		strRawTx = resCreate.get_str();
+	}
+	
 	// if this is called prior to escrowcompleterelease, then it probably has been signed already, so apply the existing inputs signatures to the escrow creation transaction
 	// and pass the new raw transaction to the next person to sign and call the escrowcompleterelease with the final raw tx.
 	if (!escrow.scriptSigs.empty()) {
 		CMutableTransaction rawTxm;
-		DecodeHexTx(rawTxm, createEscrowSpendingTx);
+		DecodeHexTx(rawTxm, strRawTx);
 		for (int i = 0; i < escrow.scriptSigs.size(); i++) {
 			if (rawTxm.vin.size() >= i)
 				rawTxm.vin[i].scriptSig = CScript(escrow.scriptSigs[i].begin(), escrow.scriptSigs[i].end());
@@ -1794,7 +1903,7 @@ UniValue escrowcompleterelease(const JSONRPCRequest& request) {
         throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4530 - " + _("Could not find an escrow with this key"));
 
 	bool extPayment = false;
-	if (escrow.nPaymentOption != PAYMENTOPTION_SYS)
+	if (escrow.nPaymentOption != PAYMENTOPTION_SYS && escrow.nPaymentOption != PAYMENTOPTION_SYSASSET)
 		extPayment = true;
 
 	CAliasIndex sellerAliasLatest;
@@ -1987,7 +2096,7 @@ UniValue escrowcompleterefund(const JSONRPCRequest& request) {
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4534 - " + _("Could not find an escrow with this key"));
 
 	bool extPayment = false;
-	if (escrow.nPaymentOption != PAYMENTOPTION_SYS)
+	if (escrow.nPaymentOption != PAYMENTOPTION_SYS && escrow.nPaymentOption != PAYMENTOPTION_SYSASSET)
 		extPayment = true;
 
 	CAliasIndex buyerAliasLatest;
@@ -2332,6 +2441,7 @@ bool BuildEscrowJson(const CEscrow &escrow, UniValue& oEscrow)
 	if(!escrow.redeemTxId.IsNull())
 		strRedeemTxId = escrow.redeemTxId.GetHex();
     oEscrow.push_back(Pair("paymentoption", GetPaymentOptionsString(escrow.nPaymentOption)));
+	oEscrow.push_back(Pair("paymentoption_asset", stringFromVch(theOffer.vchAsset)));
 	oEscrow.push_back(Pair("redeem_txid", strRedeemTxId));
 	oEscrow.push_back(Pair("redeem_script", HexStr(escrow.vchRedeemScript)));
     oEscrow.push_back(Pair("txid", escrow.txHash.GetHex()));
@@ -2379,6 +2489,7 @@ bool BuildEscrowIndexerJson(const COffer& theOffer, const CEscrow &escrow, UniVa
 	CSyscoinAddress address(innerID, PaymentOptionToAddressType(escrow.nPaymentOption));
 	oEscrow.push_back(Pair("escrowaddress", address.ToString()));
 	oEscrow.push_back(Pair("paymentoption", GetPaymentOptionsString(escrow.nPaymentOption)));
+	oEscrow.push_back(Pair("paymentoption_asset", stringFromVch(theOffer.vchAsset)));
 	oEscrow.push_back(Pair("status", escrowEnumFromOp(escrow.op)));
 	return true;
 }

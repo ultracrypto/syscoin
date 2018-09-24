@@ -40,10 +40,10 @@ BOOST_AUTO_TEST_CASE(generate_auction_regular)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "getblockchaininfo"));
 	uint64_t mediantime = find_value(r.get_obj(), "mediantime").get_int64() + 3600;
 	string expiry = boost::lexical_cast<string>(mediantime);
-	string offerguid = OfferNew("node2", "sellerauction", "category", "title", "100", "0.05", "description", "USD", "''" /*certguid*/, "SYS" /*paymentoptions*/, "BUYNOW+AUCTION", expiry);
+	string offerguid = OfferNew("node2", "sellerauction", "category", "title", "100", "0.05", "description", "USD", "''" /*assetguid*/, "SYS" /*paymentoptions*/,"BUYNOW+AUCTION", expiry);
 	// can't update offer auction settings until auction expires
-	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [cert. guid] [commission] [paymentOptions] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
-	BOOST_CHECK_THROW(r = CallRPC("node2", "offerupdate sellerauction " + offerguid + " category title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 true 0 ''"), runtime_error);
+	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [commission] [paymentOptions] [asset guid] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+	BOOST_CHECK_THROW(r = CallRPC("node2", "offerupdate sellerauction " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 true 0 ''"), runtime_error);
 
 	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress buyerauction 1000"), runtime_error);
 	GenerateBlocks(10);
@@ -84,10 +84,11 @@ BOOST_AUTO_TEST_CASE(generate_auction_regular)
 	string query = "escrownew true buyerauction arbiterauction " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", query));
 	float totalFees = boost::lexical_cast<float>(find_value(r.get_obj(), "fees").write());
+	float networkFees = boost::lexical_cast<float>(find_value(r.get_obj(), "networkfee").write());
 	string escrowaddress = find_value(r.get_obj(), "address").get_str();
 
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
-	string total_bid_in_payment_option = strprintf("%.*f", 8, totalFees + (pegRates["USD"] * 0.03*atoi(qty)));
+	string total_bid_in_payment_option = strprintf("%.*f", 8, networkFees + totalFees + (pegRates["USD"] * 0.03*atoi(qty)));
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliaspay buyerauction \"{\\\"" + escrowaddress + "\\\":" + total_bid_in_payment_option + "}\""));
 	UniValue varray = r.get_array();
@@ -104,7 +105,7 @@ BOOST_AUTO_TEST_CASE(generate_auction_regular)
 	EscrowClaimRelease("node2", guid);
 	// after expiry cant update
 	SetSysMocktime(mediantime + 1);
-	BOOST_CHECK_THROW(r = CallRPC("node2", "offerupdate sellerauction " + offerguid + " category title 90 0.15 description USD false '' 0 SYS BUYNOW 0 0 true 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node2", "offerupdate sellerauction " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 true 0 ''"), runtime_error);
 }
 BOOST_AUTO_TEST_CASE(generate_auction_reserve)
 {
@@ -123,7 +124,7 @@ BOOST_AUTO_TEST_CASE(generate_auction_reserve)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "getblockchaininfo"));
 	int64_t mediantime = find_value(r.get_obj(), "mediantime").get_int64() + 3600;
 	string expiry = boost::lexical_cast<string>(mediantime);
-	string offerguid = OfferNew("node2", "sellerauction1", "category", "title", "100", "0.05", "description", "USD", "''" /*certguid*/, "SYS" /*paymentoptions*/, "BUYNOW+AUCTION", expiry, "0.011");
+	string offerguid = OfferNew("node2", "sellerauction1", "category", "title", "100", "0.05", "description", "USD", "''" /*assetguid*/, "SYS" /*paymentoptions*/, "BUYNOW+AUCTION", expiry, "0.011");
 	BOOST_CHECK_THROW(CallRPC("node1", "sendtoaddress buyerauction1 1000"), runtime_error);
 	GenerateBlocks(10);
 	string exttxid = "''";
@@ -165,10 +166,11 @@ BOOST_AUTO_TEST_CASE(generate_auction_reserve)
 	query = "escrownew true buyerauction1 arbiterauction1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qty + " " + buyNowStr + " " + total_in_payment_option + " " + shippingFee + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", query));
 	float totalFees = boost::lexical_cast<float>(find_value(r.get_obj(), "fees").write());
+	float networkFees = boost::lexical_cast<float>(find_value(r.get_obj(), "networkfee").write());
 	string escrowaddress = find_value(r.get_obj(), "address").get_str();
 
 	// should probably pay in offer currency, convert rate, should probably also first check balance of escrow address and pay the difference incase a deposit was paid or another payment was already done.
-	string total_bid_in_payment_option = strprintf("%.*f", 8, totalFees + (pegRates["USD"] * 0.04*atoi(qty)));
+	string total_bid_in_payment_option = strprintf("%.*f", 8, networkFees + totalFees + (pegRates["USD"] * 0.04*atoi(qty)));
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliaspay buyerauction1 \"{\\\"" + escrowaddress + "\\\":" + total_bid_in_payment_option + "}\""));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "signrawtransaction " + varray[0].get_str()));
