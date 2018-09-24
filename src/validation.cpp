@@ -2750,7 +2750,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
 	if (!IsBlockPayeeValid(*block.vtx[0], pindex->nHeight, blockReward, nFees, nTotalRewardWithMasternodes)) {
 		{
-			LOCK(cs_main);
+		
 			mapRejectedBlocks.insert(std::make_pair(block.GetHash(), GetTime()));
 		}
 		return state.DoS(0, error("ConnectBlock(SYS): couldn't find masternode or superblock payments"),
