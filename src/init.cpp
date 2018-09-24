@@ -703,7 +703,7 @@ static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex
 
 static bool fHaveGenesis = false;
 static boost::mutex cs_GenesisWait;
-static CConditionVariable condvar_GenesisWait;
+static std::condition_variable condvar_GenesisWait;
 
 static void BlockNotifyGenesisWait(bool, const CBlockIndex *pBlockIndex)
 {
