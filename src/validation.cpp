@@ -84,8 +84,8 @@ CCriticalSection cs_main;
 BlockMap mapBlockIndex;
 CChain chainActive;
 CBlockIndex *pindexBestHeader = NULL;
-CWaitableCriticalSection csBestBlock;
-CConditionVariable cvBlockChange;
+Mutex csBestBlock;
+std::condition_variable cvBlockChange;
 int nScriptCheckThreads = 0;
 // SYSCOIN
 int64_t nLastMultithreadMempoolFailure = 0;

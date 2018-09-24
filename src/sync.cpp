@@ -4,7 +4,7 @@
 
 #include <sync.h>
 
-#include <logging.h>
+#include <util.h>
 #include <utilstrencodings.h>
 
 #include <stdio.h>
