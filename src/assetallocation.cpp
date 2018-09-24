@@ -26,7 +26,10 @@
 #include <boost/algorithm/string.hpp>
 #include "thread_pool/thread_pool.hpp"
 #include <future>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
 using namespace std;
+using namespace boost::multiprecision;
 vector<pair<uint256, int64_t> > vecTPSTestReceivedTimes;
 AssetAllocationIndexItemMap AssetAllocationIndex;
 bool IsAssetAllocationOp(int op) {
@@ -275,13 +278,15 @@ CAmount GetAssetAllocationInterest(CAssetAllocation & assetAllocation, const int
 		errorMessage = _("Not enough blocks have passed since the last claim, please wait some more time...");
 		return 0;
 	}
-	const int &nInterestBlockTerm = fUnitTest? ONE_HOUR_IN_BLOCKS: ONE_YEAR_IN_BLOCKS;
-	const int &nBlockDifference = nHeight - assetAllocation.nLastInterestClaimHeight;
+	const cpp_dec_float_50 &nInterestBlockTerm = fUnitTest? cpp_dec_float_50(ONE_HOUR_IN_BLOCKS): cpp_dec_float_50(ONE_YEAR_IN_BLOCKS);
+	const cpp_dec_float_50 &nBlockDifference = cpp_dec_float_50(nHeight - assetAllocation.nLastInterestClaimHeight);
+
 	// apply compound annual interest to get total interest since last time interest was collected
-	const CAmount& nBalanceOverTimeDifference = assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference;
-	const double& fInterestOverTimeDifference = assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference;
-	// get interest only and apply externally to this function, compound to every block to allow people to claim interest at any time per block
-	return ((nBalanceOverTimeDifference*pow((1 + (fInterestOverTimeDifference / nInterestBlockTerm)), nBlockDifference))) - nBalanceOverTimeDifference;
+	const cpp_dec_float_50& nBalanceOverTimeDifference = cpp_dec_float_50(assetAllocation.nAccumulatedBalanceSinceLastInterestClaim / nBlockDifference);
+	const cpp_dec_float_50& fInterestOverTimeDifference = cpp_dec_float_50(assetAllocation.fAccumulatedInterestSinceLastInterestClaim / nBlockDifference);
+	const cpp_dec_float_50& nInterestPerBlock = fInterestOverTimeDifference / nInterestBlockTerm;
+	const cpp_dec_float_50& powcalc = (boost::multiprecision::pow(cpp_dec_float_50(1.0) + nInterestPerBlock, nBlockDifference)*nBalanceOverTimeDifference) - nBalanceOverTimeDifference;
+	return powcalc.convert_to<CAmount>();
 }
 bool ApplyAssetAllocationInterest(CAsset& asset, CAssetAllocation & assetAllocation, const int& nHeight, string& errorMessage) {
 	CAmount nInterest = GetAssetAllocationInterest(assetAllocation, nHeight, errorMessage);
@@ -326,9 +331,10 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		LogPrintf("*Trying to add assetallocation in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256 & txHash = tx.GetHash();
 	if (fDebug && !bSanityCheck)
 		LogPrintf("*** ASSET ALLOCATION %d %d %s %s\n", nHeight,
-			chainActive.Tip()->nHeight, tx.GetHash().ToString().c_str(),
+			chainActive.Tip()->nHeight, txHash.ToString().c_str(),
 			fJustCheck ? "JUSTCHECK" : "BLOCK");
 
 	// unserialize assetallocation from txn, check for valid
@@ -429,7 +435,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		if (!bSanityCheck) {
 			bRevert = !fJustCheck;
 			if (bRevert) {
-				if (!RevertAssetAllocation(assetAllocationTuple, dbAsset, tx.GetHash(), nHeight, revertedAssetAllocations))
+				if (!RevertAssetAllocation(assetAllocationTuple, dbAsset, txHash, nHeight, revertedAssetAllocations))
 				{
 					errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1014 - " + _("Failed to revert asset allocation");
 					return error(errorMessage.c_str());
@@ -493,7 +499,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		if (!bSanityCheck) {
 			bRevert = !fJustCheck;
 			if (bRevert) {
-				if (!RevertAssetAllocation(assetAllocationTuple, dbAsset, tx.GetHash(), nHeight, revertedAssetAllocations))
+				if (!RevertAssetAllocation(assetAllocationTuple, dbAsset, txHash, nHeight, revertedAssetAllocations))
 				{
 					errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1014 - " + _("Failed to revert asset allocation");
 					return error(errorMessage.c_str());
@@ -540,7 +546,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 				const CAssetAllocationTuple receiverAllocationTuple(theAssetAllocation.vchAsset, amountTuple.first);
 				// one of the first things we do per receiver is revert it to last pow state on the pow(!fJustCheck)
 				if (bRevert) {
-					if (!RevertAssetAllocation(receiverAllocationTuple, dbAsset, tx.GetHash(), nHeight, revertedAssetAllocations))
+					if (!RevertAssetAllocation(receiverAllocationTuple, dbAsset, txHash, nHeight, revertedAssetAllocations))
 					{
 						errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1019 - " + _("Failed to revert asset allocation");
 						return error(errorMessage.c_str());
@@ -592,8 +598,10 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						receiverAllocation.nHeight = nHeight;
 						receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 					}
+					CAmount receiverBalanceBefore = receiverAllocation.nBalance;
+					CAmount senderBalanceBefore = theAssetAllocation.nBalance;
 					if (!bBalanceOverrun) {
-						receiverAllocation.txHash = tx.GetHash();
+						receiverAllocation.txHash = txHash;
 						if (dbAsset.fInterestRate > 0) {
 							// accumulate balances as sender/receiver allocations balances are adjusted
 							AccumulateInterestSinceLastClaim(receiverAllocation, nHeight);
@@ -607,7 +615,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 
 					}
 					const string& receiverAddress = stringFromVch(receiverAllocation.vchAliasOrAddress);
-					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, amountTuple.second, dbAsset, INT64_MAX, user1, bBalanceOverrun? "": receiverAddress, fJustCheck))
+					if (!passetallocationdb->WriteAssetAllocation(receiverAllocation, nBalanceAfterSend, amountTuple.second, dbAsset, INT64_MAX, user1, bBalanceOverrun ? "" : receiverAddress, fJustCheck))
 					{
 						errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1023 - " + _("Failed to write to asset allocation DB");
 						return error(errorMessage.c_str());
@@ -627,7 +635,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 				const CAssetAllocationTuple receiverAllocationTuple(theAssetAllocation.vchAsset, inputTuple.first);
 				// one of the first things we do per receiver is revert it to last pow state on the pow(!fJustCheck)
 				if (bRevert) {
-					if (!RevertAssetAllocation(receiverAllocationTuple, dbAsset, tx.GetHash(), nHeight, revertedAssetAllocations))
+					if (!RevertAssetAllocation(receiverAllocationTuple, dbAsset, txHash, nHeight, revertedAssetAllocations))
 					{
 						errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1025 - " + _("Failed to revert asset allocation");
 						return error(errorMessage.c_str());
@@ -690,7 +698,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 					}
 					if (!bBalanceOverrun) {
-						receiverAllocation.txHash = tx.GetHash();
+						receiverAllocation.txHash = txHash;
 						receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 						receiverAllocation.nHeight = nHeight;
 						receiverAllocation.vchMemo = theAssetAllocation.vchMemo;
@@ -725,16 +733,16 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		// set the assetallocation's txn-dependent 
 		if (!bBalanceOverrun) {
 			theAssetAllocation.nHeight = nHeight;
-			theAssetAllocation.txHash = tx.GetHash();
+			theAssetAllocation.txHash = txHash;
 		}
 		int64_t ms = INT64_MAX;
 		if (fJustCheck) {
 			ms = GetTimeMillis();
-			if(fTPSTest)
+			if(fTPSTest && !fTPSTestEnabled)
 				vecTPSTestReceivedTimes.emplace_back(theAssetAllocation.txHash, GetTimeMicros());
 		}
 		const string &user = op == OP_ASSET_COLLECT_INTEREST ? user1 : "";
-		if (!passetallocationdb->WriteAssetAllocation(theAssetAllocation, 0, 0, dbAsset, ms, user, user, fJustCheck))
+		if (!passetallocationdb->WriteAssetAllocation(theAssetAllocation, theAssetAllocation.nBalance, 0, dbAsset, ms, user, user, fJustCheck))
 		{
 			errorMessage = "SYSCOIN_ASSET_ALLOCATION_CONSENSUS_ERROR: ERRCODE: 1031 - " + _("Failed to write to asset allocation DB");
 			return error(errorMessage.c_str());
@@ -744,7 +752,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 			LogPrintf("CONNECTED ASSET ALLOCATION: op=%s assetallocation=%s hash=%s height=%d fJustCheck=%d at time %lld\n",
 				assetAllocationFromOp(op).c_str(),
 				assetAllocationTuple.ToString().c_str(),
-				tx.GetHash().ToString().c_str(),
+				txHash.ToString().c_str(),
 				nHeight,
 				fJustCheck ? 1 : 0, (long long)ms);
 

@@ -269,9 +269,10 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 		LogPrintf("*Trying to add cert in coinbase transaction, skipping...");
 		return true;
 	}
+	const uint256& txHash = tx.GetHash();
 	if (fDebug && !bSanityCheck)
 		LogPrintf("*** CERT %d %d %s %s\n", nHeight,
-			chainActive.Tip()->nHeight, tx.GetHash().ToString().c_str(),
+			chainActive.Tip()->nHeight, txHash.ToString().c_str(),
 			fJustCheck ? "JUSTCHECK" : "BLOCK");
 
 	// unserialize cert from txn, check for valid
@@ -359,7 +360,7 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 		}
 	}
 	if (!fJustCheck && !bSanityCheck) {
-		if (!RevertCert(theCert.vchCert, op, tx.GetHash(), revertedCerts))
+		if (!RevertCert(theCert.vchCert, op, txHash, revertedCerts))
 		{
 			errorMessage = "SYSCOIN_CERTIFICATE_CONSENSUS_ERROR: ERRCODE: 3013 - " + _("Failed to revert cert");
 			return error(errorMessage.c_str());
@@ -455,7 +456,7 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 	}
     // set the cert's txn-dependent values
 	theCert.nHeight = nHeight;
-	theCert.txHash = tx.GetHash();
+	theCert.txHash = txHash;
     // write cert  
 	if (!bSanityCheck) {
 		int64_t ms = INT64_MAX;
@@ -472,7 +473,7 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 			LogPrintf("CONNECTED CERT: op=%s cert=%s hash=%s height=%d fJustCheck=%d\n",
 				certFromOp(op).c_str(),
 				stringFromVch(theCert.vchCert).c_str(),
-				tx.GetHash().ToString().c_str(),
+				txHash.ToString().c_str(),
 				nHeight,
 				fJustCheck ? 1 : -1);
 	}

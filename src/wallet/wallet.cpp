@@ -2616,6 +2616,8 @@ void CWallet::AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed, 
 					// SYSCOIN txs are unspendable by wallet unless using coincontrol(and the tx is selected)
 					if (!coinControl || !coinControl->IsSelected(COutPoint((*it).first, i)))
 					{
+						if (pcoin->tx->vout[i].nValue <= CWallet::GetMinimumFee(3000, nTxConfirmTarget, mempool))
+							continue;
 						CTxDestination sysdestination;
 						if (pcoin->tx->vout.size() >= i && ExtractDestination(pcoin->tx->vout[i].scriptPubKey, sysdestination))
 						{
