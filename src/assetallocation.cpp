@@ -877,7 +877,7 @@ UniValue tpstestadd(const JSONRPCRequest& request) {
 }
 UniValue assetallocationsend(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
-	if (request.fHelp || params.size() != 5)
+	if (request.fHelp || params.size() < 5 || params.size() > 6)
 		throw runtime_error(
 			"assetallocationsend [asset] [owner] ([{\"ownerto\":\"aliasname or address\",\"amount\":amount},...]  or [{\"ownerto\":\"aliasname or address\",\"ranges\":[{\"start\":index,\"end\":index},...]},...]) [memo] [witness]\n"
 			"Send an asset allocation you own to another address. Maximimum recipients is 250.\n"
@@ -1038,7 +1038,7 @@ UniValue assetallocationsend(const JSONRPCRequest& request) {
 	if (strAddressFrom.empty())
 		vecSend.push_back(aliasRecipient);
 
-	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, addrrecipient, vecSend);
+	return syscointxfund_helper(vchAliasOrAddressFrom, vchWitness, addrrecipient, vecSend, params.size() == 6);
 }
 UniValue assetallocationcollectinterest(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
