@@ -84,8 +84,8 @@ CCriticalSection cs_main;
 BlockMap mapBlockIndex;
 CChain chainActive;
 CBlockIndex *pindexBestHeader = NULL;
-CWaitableCriticalSection csBestBlock;
-CConditionVariable cvBlockChange;
+Mutex csBestBlock;
+std::condition_variable cvBlockChange;
 int nScriptCheckThreads = 0;
 // SYSCOIN
 int64_t nLastMultithreadMempoolFailure = 0;
@@ -2750,7 +2750,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
 	if (!IsBlockPayeeValid(*block.vtx[0], pindex->nHeight, blockReward, nFees, nTotalRewardWithMasternodes)) {
 		{
-			LOCK(cs_main);
+		
 			mapRejectedBlocks.insert(std::make_pair(block.GetHash(), GetTime()));
 		}
 		return state.DoS(0, error("ConnectBlock(SYS): couldn't find masternode or superblock payments"),

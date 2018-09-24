@@ -3720,7 +3720,7 @@ rpcpassword=%s
 The username and password MUST NOT be the same.
 If the file does not exist, create it with owner-readable-only file permissions.
 It is also recommended to set alertnotify so you are notified of problems;
-for example: alertnotify=echo %%s | mail -s "Syscoin Alert" admin@foo.com
+for example: alertnotify=echo %%s | mail -s "Syscoin Core Alert" admin@foo.com
 </source>
         <translation>Para usar syscoind, o la opción -server de syscoin-qt, debe establecer rpcpassword en el archivo de configuración:
 %s

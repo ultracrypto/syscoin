@@ -167,13 +167,20 @@ bool AppInit(int argc, char* argv[])
         if (GetBoolArg("-daemon", false))
         {
 #if HAVE_DECL_DAEMON
-            fprintf(stdout, "Syscoin Core server starting\n");
+#if defined(MAC_OSX)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+            fprintf(stdout, "Syscoin server starting\n");
 
             // Daemonize
             if (daemon(1, 0)) { // don't chdir (1), do close FDs (0)
                 fprintf(stderr, "Error: daemon() failed: %s\n", strerror(errno));
                 return false;
             }
+#if defined(MAC_OSX)
+#pragma GCC diagnostic pop
+#endif
 #else
             fprintf(stderr, "Error: -daemon is not supported on this operating system\n");
             return false;

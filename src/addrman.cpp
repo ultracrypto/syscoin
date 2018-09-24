@@ -5,11 +5,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "addrman.h"
-
+#include <cmath>
 #include "hash.h"
 #include "serialize.h"
 #include "streams.h"
-
 int CAddrInfo::GetTriedBucket(const uint256& nKey) const
 {
     uint64_t hash1 = (CHashWriter(SER_GETHASH, 0) << nKey << GetKey()).GetHash().GetCheapHash();
@@ -61,7 +60,7 @@ double CAddrInfo::GetChance(int64_t nNow) const
         fChance *= 0.01;
 
     // deprioritize 66% after each failed attempt, but at most 1/28th to avoid the search taking forever or overly penalizing outages.
-    fChance *= pow(0.66, std::min(nAttempts, 8));
+    fChance *= std::pow(0.66, std::min(nAttempts, 8));
 
     return fChance;
 }
