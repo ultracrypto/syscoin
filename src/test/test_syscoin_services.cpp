@@ -1301,7 +1301,6 @@ string AssetAllocationTransfer(const bool usezdag, const string& node, const str
 	BOOST_CHECK(valueTo.isArray());
 	UniValue receivers = valueTo.get_array();
 	CAmount inputamount = 0;
-	BOOST_CHECK(receivers.size() > 0);
 	for (unsigned int idx = 0; idx < receivers.size(); idx++) {
 		const UniValue& receiver = receivers[idx];
 		BOOST_CHECK(receiver.isObject());
@@ -1659,7 +1658,7 @@ const string OfferLink(const string& node, const string& alias, const string& gu
 
 	return linkedguid;
 }
-const string OfferNew(const string& node, const string& aliasname, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string& assetguid, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness)
+const string OfferNew(const string& node, const string& aliasname, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string& certguid, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness)
 {
 	string otherNode1, otherNode2;
 	UniValue r;
@@ -1668,8 +1667,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	string units = "1";
 	int qty = atoi(qtyStr.c_str());
 
-	//						"offernew <alias> <category> <title> <quantity> <price> <description> <currency> [payment options=SYS] [asset guid] [private=false] [units] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
-	string offercreatestr = "offernew " + aliasname + " " + category + " " + title + " " + qtyStr + " " + price + " " + description + " " + currency + " " + paymentoptions + " " + assetguid + " " + pvt + " " + units + " " + offerType + " " + auction_expires + " " + auction_reserve + " " + auction_require_witness + " " + auction_deposit + " " + witness;
+	//						"offernew <alias> <category> <title> <quantity> <price> <description> <currency> [cert. guid] [payment options=SYS] [private=false] [units] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+	string offercreatestr = "offernew " + aliasname + " " + category + " " + title + " " + qtyStr + " " + price + " " + description + " " + currency + " " + certguid + " " + paymentoptions + " " + pvt + " " + units + " " + offerType + " " + auction_expires + " " + auction_reserve + " " + auction_require_witness + " " + auction_deposit + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, offercreatestr));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
@@ -1684,8 +1683,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 
 
 	BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-	if (assetguid != "''")
-		BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
+	if (certguid != "''")
+		BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
 
 	bool auctionreqwitness = (auction_require_witness == "true") ? true : false;
 	BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
@@ -1713,8 +1712,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode1, "offerinfo " + guid));
 		BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-		if (assetguid != "''")
-			BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
+		if (certguid != "''")
+			BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
 
 		BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
 		BOOST_CHECK(find_value(r.get_obj(), "title").get_str() == title);
@@ -1741,8 +1740,8 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode2, "offerinfo " + guid));
 		BOOST_CHECK(find_value(r.get_obj(), "_id").get_str() == guid);
-		if (assetguid != "''")
-			BOOST_CHECK(find_value(r.get_obj(), "paymentoptions_asset").get_str() == assetguid);
+		if (certguid != "''")
+			BOOST_CHECK(find_value(r.get_obj(), "cert").get_str() == certguid);
 		BOOST_CHECK(find_value(r.get_obj(), "quantity").get_int() == qty);
 		BOOST_CHECK(find_value(r.get_obj(), "title").get_str() == title);
 		BOOST_CHECK(find_value(r.get_obj(), "description").get_str() == description);
@@ -1769,7 +1768,7 @@ const string OfferNew(const string& node, const string& aliasname, const string&
 	return guid;
 }
 
-void OfferUpdate(const string& node, const string& aliasname, const string& offerguid, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string &isprivateStr, const string& assetguid, const string& commissionStr, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness) {
+void OfferUpdate(const string& node, const string& aliasname, const string& offerguid, const string& category, const string& title, const string& qtyStr, const string& price, const string& description, const string& currency, const string &isprivateStr, const string& certguid, const string& commissionStr, const string& paymentoptions, const string& offerType, const string& auction_expires, const string& auction_reserve, const string& auction_require_witness, const string &auction_deposit, const string& witness) {
 	string otherNode1, otherNode2;
 	GetOtherNodes(node, otherNode1, otherNode2);
 	UniValue r;
@@ -1782,7 +1781,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	bool oldprivate = find_value(r.get_obj(), "private").get_bool();
 	string oldprivateStr = oldprivate ? "true" : "false";
 	bool isprivate = isprivateStr == "true";
-	string oldasset = find_value(r.get_obj(), "paymentoptions_asset").get_str();
+	string oldcert = find_value(r.get_obj(), "cert").get_str();
 	int oldcommission = find_value(r.get_obj(), "commission").get_int();
 	int commission = atoi(commissionStr.c_str());
 	string oldpaymentoptions = find_value(r.get_obj(), "paymentoptions").get_str();
@@ -1802,7 +1801,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newdescription = description == "''" ? olddescription : description;
 	string newcurrency = currency == "''" ? oldcurrency : currency;
 	string newisprivate = isprivateStr == "''" ? oldprivateStr : isprivateStr;
-	string newassetguid = assetguid == "''" ? "''" : assetguid;
+	string newcertguid = certguid == "''" ? "''" : certguid;
 	string newcommission = commissionStr == "''" ? boost::lexical_cast<string>(oldcommission) : commissionStr;
 	string newpaymentoptions = paymentoptions == "''" ? oldpaymentoptions : paymentoptions;
 	string newoffertype = offerType == "''" ? oldoffertype : offerType;
@@ -1810,8 +1809,8 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	string newauction_reserve = auction_reserve == "''" ? oldauctionreserve : auction_reserve;
 	string newauction_require_witness = auction_require_witness == "''" ? oldauctionrequirewitness : auction_require_witness;
 	string newauction_deposit = auction_deposit == "''" ? oldauctiondeposit : auction_deposit;
-	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [commission] [paymentOptions] [asset guid] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
-	string offerupdatestr = "offerupdate " + aliasname + " " + offerguid + " " + newcategory + " " + newtitle + " " + newqty + " " + newprice + " " + newdescription + " " + newcurrency + " " + newisprivate + " " + newcommission + " " + newpaymentoptions + " " + newassetguid + " " + newoffertype + " " + newauction_expires + " " + newauction_reserve + " " + newauction_require_witness + " " + newauction_deposit + " " + witness;
+	//						"offerupdate <alias> <guid> [category] [title] [quantity] [price] [description] [currency] [private=false] [cert. guid] [commission] [paymentOptions] [offerType=BUYNOW] [auction_expires] [auction_reserve] [auction_require_witness] [auction_deposit] [witness]\n"
+	string offerupdatestr = "offerupdate " + aliasname + " " + offerguid + " " + newcategory + " " + newtitle + " " + newqty + " " + newprice + " " + newdescription + " " + newcurrency + " " + newisprivate + " " + newcertguid + " " + newcommission + " " + newpaymentoptions + " " + newoffertype + " " + newauction_expires + " " + newauction_reserve + " " + newauction_require_witness + " " + newauction_deposit + " " + witness;
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, offerupdatestr));
 	UniValue arr = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + arr[0].get_str()));
@@ -1826,7 +1825,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 
 
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
+	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 	BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 	float compareprice = 0;
@@ -1858,7 +1857,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode1, "offerinfo " + offerguid));
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
+		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 		float compareprice = 0;
@@ -1890,7 +1889,7 @@ void OfferUpdate(const string& node, const string& aliasname, const string& offe
 	{
 		BOOST_CHECK_NO_THROW(r = CallRPC(otherNode2, "offerinfo " + offerguid));
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "_id").get_str(), offerguid);
-		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "paymentoptions_asset").get_str(), assetguid != "''" ? assetguid : oldasset);
+		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "cert").get_str(), certguid != "''" ? certguid : oldcert);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "quantity").get_int(), qtyStr != "''" ? qty : oldqty);
 		BOOST_CHECK_EQUAL(find_value(r.get_obj(), "currency").get_str(), newcurrency);
 		float compareprice = 0;
@@ -2128,7 +2127,7 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 
 	return guid;
 }
-const string EscrowNewBuyItNow(const string& node, const string& sellernode, const string& buyeralias, const string& offerguid, const string& qtyStr, const string& arbiteralias, const string& paymentoptions, const string& shipping, const string& networkFee, const string& arbiterFee, const string& witnessFee, const string &witness)
+const string EscrowNewBuyItNow(const string& node, const string& sellernode, const string& buyeralias, const string& offerguid, const string& qtyStr, const string& arbiteralias, const string& shipping, const string& networkFee, const string& arbiterFee, const string& witnessFee, const string &witness)
 {
 	string otherNode1, otherNode2;
 	GetOtherNodes(node, otherNode1, otherNode2);
@@ -2139,7 +2138,6 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "offerinfo " + offerguid));
 	int nQtyBefore = find_value(r.get_obj(), "quantity").get_int();
 	string selleralias = find_value(r.get_obj(), "alias").get_str();
-	string assetguid = find_value(r.get_obj(), "paymentoptions_asset").get_str();
 	int icommission = find_value(r.get_obj(), "commission").get_int();
 	string currency = find_value(r.get_obj(), "currency").get_str();
 	BOOST_CHECK(pegRates.count(currency) > 0 && pegRates[currency] > 0);
@@ -2166,6 +2164,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 		nCommissionCompare = nTotalOfferPrice*(markup / 100);
 
 	string exttxid = "''";
+	string paymentoptions = "SYS";
 	string buyNowStr = "true";
 	string strBidInOfferCurrency = "0";
 	string strBidInPaymentOption = "0";
@@ -2177,15 +2176,7 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	const string& buyerpubkey = aliasPubKeysInt[0][buyeralias];
 	const string& sellerpubkey = aliasPubKeysInt[0][selleralias];
 	const string& arbiterpubkey = aliasPubKeysInt[0][arbiteralias];
-	if (paymentoptions.find("SYSASSET") != std::string::npos) {
-		nNetworkFee *= 2;
-		BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew true " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
-		string escrowaddress = find_value(r.get_obj(), "address").get_str();
-		string escrowamount = find_value(r.get_obj(), "totalwithfees").write();
-		boost::replace_all(escrowamount, "\"", "");
-		string inputs = "\"[{\\\"ownerto\\\":\\\"" + escrowaddress + "\\\",\\\"amount\\\":" + escrowamount + "}]\"";
-		exttxid = AssetAllocationTransfer(true, node, assetguid, buyeralias, inputs, "allocationsendmemo");
-	}
+
 	//										"escrownew <getamountandaddress> <alias> <arbiter alias> <offer> <buyer_pubkey> <seller_pubkey> <arbiter_pubkey> <quantity> <buynow> <total_in_payment_option> [shipping amount] [network fee] [arbiter fee] [witness fee] [extTx] [payment option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrownew false " + buyeralias + " " + arbiteralias + " " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " " + qtyStr + " " + buyNowStr + " " + strTotalInPaymentOption + " " + shipping + " " + networkFee + " " + arbiterFee + " " + witnessFee + " " + exttxid + " " + paymentoptions + " " + bid_in_payment_option + " " + bid_in_offer_currency + " " + witness));
 	UniValue arr = r.get_array();
@@ -2330,10 +2321,10 @@ void EscrowRelease(const string& node, const string& role, const string& guid, c
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrowcreaterawtransaction release " + guid + " " + inputStr + " " + role));
 	const UniValue &arr = r.get_array();
 	string rawtx = arr[0].get_str();
-	CAmount amountRet = AmountFromValue(arr[1]);
+
 	// UI should ensure value is >= 0  or else tell user it does not have enough funds in escrow address
-	BOOST_CHECK(amountRet >= 0);
-	
+	BOOST_CHECK(AmountFromValue(arr[1]) >= 0);
+
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + rawtx));
 	const UniValue& hex_value = find_value(r.get_obj(), "hex");
 	BOOST_CHECK(hex_value.get_str() != rawtx);
@@ -2744,7 +2735,6 @@ SyscoinTestingSetup::SyscoinTestingSetup()
 	pegRates["BTC"] = 100000.0;
 	pegRates["ZEC"] = 10000.0;
 	pegRates["SYS"] = 1.0;
-	pegRates["asset1"] = 1.0;
 }
 SyscoinTestingSetup::~SyscoinTestingSetup()
 {

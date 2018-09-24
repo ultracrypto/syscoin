@@ -205,7 +205,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
 	{ "offerupdate", 4, "quantity" },
 	{ "offerupdate", 5, "price" },
 	{ "offerupdate", 8, "private" },
-	{ "offerupdate", 9, "commission" },
+	{ "offerupdate", 10, "commission" },
 	{ "offerupdate", 13, "auction_expires" },
 	{ "offerupdate", 14, "auction_reserve" },
 	{ "offerupdate", 15, "auction_require_witness" },
