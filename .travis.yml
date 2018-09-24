@@ -7,7 +7,7 @@
 #   IPv6 support
 
 sudo: required
-dist: bionic
+dist: trusty
 
 os: linux
 language: minimal
