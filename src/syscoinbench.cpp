@@ -11,7 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sys/time.h>
-#include "secp256k1\src\util.h"
+#include "src\secp256k1\src\util.h"
 static double gettimedouble(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
