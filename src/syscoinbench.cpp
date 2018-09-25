@@ -13,6 +13,8 @@
 #include <sys/time.h>
 #include "../src/secp256k1/src/util.h"
 #include "thread_pool/thread_pool.hpp"
+#include <future>
+#include <functional>
 static double gettimedouble(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -99,7 +101,7 @@ static void benchmark_verify_parallel(void* arg) {
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
 
 	// define a task for the worker to process
-	std::packaged_task<void()> task([]() {
+	std::packaged_task<void()> task([&data]() {
 		secp256k1_pubkey pubkey;
 		secp256k1_ecdsa_signature sig;
 		data->sig[data->siglen - 1] ^= (i & 0xFF);
