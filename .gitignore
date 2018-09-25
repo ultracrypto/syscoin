@@ -8,6 +8,7 @@ reset-files.bash
 *.exe
 src/syscoin
 src/syscoind
+src/syscoinbench
 src/syscoin-cli
 src/syscoin-tx
 src/test/test_syscoin
