@@ -6,9 +6,11 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <math.h>
 #include <secp256k1.h>
-
+#include <iostream>
+#include <iomanip>
+#include <sys/time.h>
 
 static double gettimedouble(void) {
 	struct timeval tv;
