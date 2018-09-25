@@ -18,7 +18,7 @@ static double gettimedouble(void) {
 	gettimeofday(&tv, NULL);
 	return tv.tv_usec * 0.000001 + tv.tv_sec;
 }
-
+tp::ThreadPool *threadpool = NULL;
 void print_number(double x) {
 	double y = x;
 	int c = 0;
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
     secp256k1_pubkey pubkey;
     secp256k1_ecdsa_signature sig;
     benchmark_verify_t data;
-
+	threadpool = new tp::ThreadPool;
     data.ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
     for (i = 0; i < 32; i++) {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 
     run_benchmark("ecdsa_verify", benchmark_verify, NULL, NULL, &data, 10, 20000);
 	run_benchmark("ecdsa_verify_parallel", benchmark_verify_parallel, NULL, NULL, &data, 10, 20000);
-
+	delete threadpool;
     secp256k1_context_destroy(data.ctx);
     return 0;
 }

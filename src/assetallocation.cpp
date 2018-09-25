@@ -24,7 +24,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/algorithm/string.hpp>
-#include "thread_pool/thread_pool.hpp"
 #include <future>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
