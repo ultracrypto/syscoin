@@ -99,7 +99,6 @@ static void benchmark_verify(void* arg) {
     }
 }
 static void benchmark_verify_parallel(void* arg) {
-	threadpool = new tp::ThreadPool;
 	benchmark_verify_t* data = (benchmark_verify_t*)arg;
 	int i = 0;
 	// define a task for the worker to process
@@ -130,7 +129,6 @@ static void benchmark_verify_parallel(void* arg) {
 		}
 		MilliSleep(0);
 	}
-	delete threadpool;
 }
 int main(int argc, char* argv[])
 {
@@ -138,7 +136,7 @@ int main(int argc, char* argv[])
     secp256k1_pubkey pubkey;
     secp256k1_ecdsa_signature sig;
     benchmark_verify_t data;
-
+	threadpool = new tp::ThreadPool;
     data.ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
     for (i = 0; i < 32; i++) {
@@ -156,7 +154,7 @@ int main(int argc, char* argv[])
 
     run_benchmark("ecdsa_verify", benchmark_verify, NULL, NULL, &data, 10, 20000);
 	run_benchmark("ecdsa_verify_parallel", benchmark_verify_parallel, NULL, NULL, &data, 10, 20000);
-	
+	delete threadpool;
     secp256k1_context_destroy(data.ctx);
     return 0;
 }
