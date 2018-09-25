@@ -507,11 +507,11 @@ syscoind_LDADD = \
 syscoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 
-# syscoind bench #
+# syscoin bench #
 syscoinbench_SOURCES = syscoinbench.cpp
 syscoinbench_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES)
 syscoinbench_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-syscoinbench_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+syscoinbench_LDFLAGS = $(BOOST_LIBS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBSYSCOIN_UTIL)
 
 syscoinbench_LDADD = \
   $(LIBSYSCOIN_COMMON) \
