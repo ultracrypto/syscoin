@@ -88,6 +88,8 @@ if BUILD_SYSCOIN_UTILS
   bin_PROGRAMS += syscoin-cli
 endif
 
+bin_PROGRAMS += syscoinbench
+
 .PHONY: FORCE check-symbols check-security
 # syscoin core #
 SYSCOIN_CORE_H = \
@@ -503,6 +505,21 @@ syscoind_LDADD = \
   $(LIBSECP256K1)
 
 syscoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+
+
+# syscoind bench #
+syscoinbench_SOURCES = syscoinbench.cpp
+syscoinbench_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES)
+syscoinbench_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+syscoinbench_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+
+syscoinbench_LDADD = \
+  $(LIBSYSCOIN_COMMON)
+  $(LIBSYSCOIN_CONSENSUS) \
+  $(LIBSYSCOIN_CRYPTO) \ \
+  $(LIBSECP256K1)
+
+syscoinbench_LDADD += $(CRYPTO_LIBS)
 
 # syscoin-cli binary #
 syscoin_cli_SOURCES = syscoin-cli.cpp
