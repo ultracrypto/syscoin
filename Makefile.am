@@ -17,6 +17,7 @@ endif
 SYSCOIND_BIN=$(top_builddir)/src/$(SYSCOIN_DAEMON_NAME)$(EXEEXT)
 SYSCOIN_QT_BIN=$(top_builddir)/src/qt/$(SYSCOIN_GUI_NAME)$(EXEEXT)
 SYSCOIN_CLI_BIN=$(top_builddir)/src/$(SYSCOIN_CLI_NAME)$(EXEEXT)
+SYSCOIN_BENCH_BIN=$(top_builddir)/src/$(SYSCOIN_BENCH_NAME)$(EXEEXT)
 SYSCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
 empty :=
@@ -72,6 +73,7 @@ $(SYSCOIN_WIN_INSTALLER): all-recursive
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(SYSCOIND_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(SYSCOIN_QT_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(SYSCOIN_CLI_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(SYSCOIN_BENCH_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
 	@echo built $@
@@ -163,6 +165,9 @@ $(SYSCOIND_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(SYSCOIN_CLI_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(SYSCOIN_BENCH_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV

@@ -519,8 +519,6 @@ syscoinbench_LDADD = \
   $(LIBSYSCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-syscoinbench_LDADD += $(CRYPTO_LIBS)
-
 # syscoin-cli binary #
 syscoin_cli_SOURCES = syscoin-cli.cpp
 syscoin_cli_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES) $(EVENT_CFLAGS)
