@@ -484,7 +484,7 @@ nodist_libsyscoin_util_a_SOURCES = $(srcdir)/obj/build.h
 syscoind_SOURCES = syscoind.cpp
 syscoind_CPPFLAGS = $(AM_CPPFLAGS) $(SYSCOIN_INCLUDES)
 syscoind_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-syscoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+syscoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS)
 
 if TARGET_WINDOWS
 syscoind_SOURCES += syscoind-res.rc
