@@ -11,7 +11,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sys/time.h>
-#include "src\secp256k1\src\util.h"
+#include "../src/secp256k1/src/util.h"
+#include "thread_pool/thread_pool.hpp"
 static double gettimedouble(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -93,7 +94,24 @@ static void benchmark_verify(void* arg) {
         data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
     }
 }
+static void benchmark_verify_parallel(void* arg) {
+    int i;
+    benchmark_verify_t* data = (benchmark_verify_t*)arg;
 
+    for (i = 0; i < 20000; i++) {
+        secp256k1_pubkey pubkey;
+        secp256k1_ecdsa_signature sig;
+        data->sig[data->siglen - 1] ^= (i & 0xFF);
+        data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
+        data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+        CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
+        CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, data->sig, data->siglen) == 1);
+        CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
+        data->sig[data->siglen - 1] ^= (i & 0xFF);
+        data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
+        data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+    }
+}
 int main(int argc, char* argv[])
 {
     int i;
@@ -117,6 +135,7 @@ int main(int argc, char* argv[])
     CHECK(secp256k1_ec_pubkey_serialize(data.ctx, data.pubkey, &data.pubkeylen, &pubkey, SECP256K1_EC_COMPRESSED) == 1);
 
     run_benchmark("ecdsa_verify", benchmark_verify, NULL, NULL, &data, 10, 20000);
+	run_benchmark("ecdsa_verify_parallel", benchmark_verify_parallel, NULL, NULL, &data, 10, 20000);
 
     secp256k1_context_destroy(data.ctx);
     return 0;
