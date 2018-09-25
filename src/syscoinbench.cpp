@@ -98,19 +98,35 @@ static void benchmark_verify_parallel(void* arg) {
     int i;
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
 
-    for (i = 0; i < 20000; i++) {
-        secp256k1_pubkey pubkey;
-        secp256k1_ecdsa_signature sig;
-        data->sig[data->siglen - 1] ^= (i & 0xFF);
-        data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-        data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
-        CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
-        CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, data->sig, data->siglen) == 1);
-        CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
-        data->sig[data->siglen - 1] ^= (i & 0xFF);
-        data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-        data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
-    }
+	// define a task for the worker to process
+	std::packaged_task<void()> task([]() {
+		secp256k1_pubkey pubkey;
+		secp256k1_ecdsa_signature sig;
+		data->sig[data->siglen - 1] ^= (i & 0xFF);
+		data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
+		data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+		CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
+		CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, data->sig, data->siglen) == 1);
+		CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
+		data->sig[data->siglen - 1] ^= (i & 0xFF);
+		data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
+		data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+	});
+
+	// retry if the threadpool queue is full and return error if we can't post
+	bool isThreadPosted = false;
+	int totalWorkCount = 0;
+	while(1) {
+	{
+		isThreadPosted = threadpool->tryPost(task);
+		if (isThreadPosted)
+		{
+			totalWorkCount += 1;
+			if(totalWorkCount >= 20000)
+				break;
+		}
+		MilliSleep(0);
+	}   
 }
 int main(int argc, char* argv[])
 {
