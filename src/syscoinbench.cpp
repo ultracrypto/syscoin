@@ -99,9 +99,9 @@ static void benchmark_verify(void* arg) {
 static void benchmark_verify_parallel(void* arg) {
     int i;
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
-
+	int i = 0;
 	// define a task for the worker to process
-	std::packaged_task<void()> task([&data]() {
+	std::packaged_task<void()> task([&data, i]() {
 		secp256k1_pubkey pubkey;
 		secp256k1_ecdsa_signature sig;
 		data->sig[data->siglen - 1] ^= (i & 0xFF);
@@ -117,14 +117,14 @@ static void benchmark_verify_parallel(void* arg) {
 
 	// retry if the threadpool queue is full and return error if we can't post
 	bool isThreadPosted = false;
-	int totalWorkCount = 0;
+	
 	while(1) {
 	{
 		isThreadPosted = threadpool->tryPost(task);
 		if (isThreadPosted)
 		{
-			totalWorkCount += 1;
-			if(totalWorkCount >= 20000)
+			i += 1;
+			if(i >= 20000)
 				break;
 		}
 		MilliSleep(0);
