@@ -99,7 +99,7 @@ static void benchmark_verify(void* arg) {
     }
 }
 static void benchmark_verify_parallel(void* arg) {
-    benchmark_verify_t* data = (benchmark_verify_t*)arg;
+	benchmark_verify_t* data = (benchmark_verify_t*)arg;
 	int i = 0;
 	// define a task for the worker to process
 	std::packaged_task<void()> task([&data, i]() {
@@ -118,8 +118,8 @@ static void benchmark_verify_parallel(void* arg) {
 
 	// retry if the threadpool queue is full and return error if we can't post
 	bool isThreadPosted = false;
-	
-	while (1) {	
+
+	while (1) {
 		isThreadPosted = threadpool->tryPost(task);
 		if (isThreadPosted)
 		{
@@ -127,8 +127,9 @@ static void benchmark_verify_parallel(void* arg) {
 			if (i >= 20000)
 				break;
 		}
-		MilliSleep(0);	
+		MilliSleep(0);
 	}
+}
 int main(int argc, char* argv[])
 {
     int i;
