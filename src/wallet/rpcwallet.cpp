@@ -1523,7 +1523,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 				entry.push_back(Pair("systype", strResponseEnglish));
 				entry.push_back(Pair("sysguid", strResponseGUID));
 				entry.push_back(Pair("sysallocations", oAssetAllocationReceiversArray));
-				entry.push_back(Pair("sysalias", ownerName));
+				entry.push_back(Pair("sysowner", ownerName));
 			}
 			ret.push_back(entry);
         }
@@ -1628,7 +1628,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 						}
 					}
 					entry.push_back(Pair("sysallocations", oAssetAllocationReceiversArray));
-					entry.push_back(Pair("sysalias", ownerName));
+					entry.push_back(Pair("sysowner", ownerName));
 				}
 				ret.push_back(entry);
             }
