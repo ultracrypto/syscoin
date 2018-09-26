@@ -1463,7 +1463,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 				int aliasOp;
 				vector<vector<unsigned char> > aliasVvch;
 				UniValue oAssetAllocationReceiversArray(UniValue::VARR);
-				string aliasName = "";
+				string ownerName = "";
 				if (mapSysTx.find(tx.GetHash()) != mapSysTx.end())
 					continue;
 				mapSysTx[tx.GetHash()] = true;
@@ -1478,12 +1478,17 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 							break;
 						}
 					}
-					if (aliasVvch.empty())
-						continue;
-					aliasName = stringFromVch(aliasVvch[0]);
 
 					CAssetAllocation assetallocation(tx);
 					if (!assetallocation.IsNull()) {
+                        const string& aliasOrAddress = stringFromVch(assetallocation.vchAliasOrAddress);
+                        CCoinsViewCache inputs(pcoinsTip);
+                        if(!aliasVvch.empty())
+                            ownerName = stringFromVch(aliasVvch[0]); 
+                       	else if (FindAssetOwnerInTx(inputs, tx, aliasOrAddress))
+						    ownerName = aliasOrAddress; 					    
+                        if(ownerName.empty())
+                            continue;
 						CAsset dbAsset;
 						GetAsset(assetallocation.vchAsset, dbAsset);
 						strResponse = strResponseEnglish + " " + stringFromVch(dbAsset.vchSymbol);
@@ -1518,7 +1523,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 				entry.push_back(Pair("systype", strResponseEnglish));
 				entry.push_back(Pair("sysguid", strResponseGUID));
 				entry.push_back(Pair("sysallocations", oAssetAllocationReceiversArray));
-				entry.push_back(Pair("sysalias", aliasName));
+				entry.push_back(Pair("sysalias", ownerName));
 			}
 			ret.push_back(entry);
         }
@@ -1565,7 +1570,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 					int aliasOp;
 					vector<vector<unsigned char> > aliasVvch;
 					UniValue oAssetAllocationReceiversArray(UniValue::VARR);
-					string aliasName = "";
+					string ownerName = "";
 					if (mapSysTx.find(tx.GetHash()) != mapSysTx.end())
 						continue;
 					mapSysTx[tx.GetHash()] = true;
@@ -1582,12 +1587,17 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 								break;
 							}
 						}
-						if (aliasVvch.empty())
-							continue;
-						aliasName = stringFromVch(aliasVvch[0]);
 
 						CAssetAllocation assetallocation(tx);
 						if (!assetallocation.IsNull()) {
+                            CCoinsViewCache inputs(pcoinsTip);
+                            const string& aliasOrAddress = stringFromVch(assetallocation.vchAliasOrAddress);
+                            if(!aliasVvch.empty())
+                                ownerName = stringFromVch(aliasVvch[0]); 
+                            else if (FindAssetOwnerInTx(inputs, tx, aliasOrAddress))
+                                ownerName = aliasOrAddress; 					    
+                            if(ownerName.empty())
+                                continue; 
 							CAsset dbAsset;
 							GetAsset(assetallocation.vchAsset, dbAsset);
 							if (!assetallocation.listSendingAllocationAmounts.empty()) {
@@ -1618,7 +1628,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
 						}
 					}
 					entry.push_back(Pair("sysallocations", oAssetAllocationReceiversArray));
-					entry.push_back(Pair("sysalias", aliasName));
+					entry.push_back(Pair("sysalias", ownerName));
 				}
 				ret.push_back(entry);
             }
