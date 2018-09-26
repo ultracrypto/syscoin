@@ -107,21 +107,22 @@ static void benchmark_verify_parallel(void* arg, int count) {
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
     // define a task for the worker to process
     std::packaged_task<void()> task([&data, &i]() {
+      int index = i;
       unsigned char sigData[72];
       int siglen = data->siglen;      
       secp256k1_pubkey pubkey;
       secp256k1_ecdsa_signature sig;
     
-      memcpy(sigData, data->sig, sizeof(data->sig));
-      sigData[siglen - 1] ^= (i & 0xFF);
-      sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
-      sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
+      std::copy(data->sig, data->sig + sizeof(data->sig), sigData);
+      sigData[siglen - 1] ^= (index & 0xFF);
+      sigData[siglen - 2] ^= ((index >> 8) & 0xFF);
+      sigData[siglen - 3] ^= ((index >> 16) & 0xFF);
       CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
       CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, sigData, siglen) == 1);
-      CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
-      sigData[siglen - 1] ^= (i & 0xFF);
-      sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
-      sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
+      CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (index == 0));
+      sigData[siglen - 1] ^= (index & 0xFF);
+      sigData[siglen - 2] ^= ((index >> 8) & 0xFF);
+      sigData[siglen - 3] ^= ((index >> 16) & 0xFF);
     });
     
     std::future<void> future = task.get_future();
