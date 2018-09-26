@@ -95,16 +95,17 @@ static void benchmark_verify(void* arg) {
   }
 }
 static void benchmark_verify_parallel(void* arg) {
-  threadpool = new tp::ThreadPool;
-  options.setQueueSize(10000);
+  options.setQueueSize(16384);
+  threadpool = new tp::ThreadPool(options);
+  
   benchmark_verify_t* data = (benchmark_verify_t*)arg;
   int i = 0;
   std::mutex blocker;
 
-  std::vector<std::future<int>> workers;
+  std::vector<std::future<void>> workers;
   while (i <= ITERATIONS) {
     // define a task for the worker to process
-    std::packaged_task<int()> task([&data, &i]() {
+    std::packaged_task<void()> task([&data, &i]() {
       secp256k1_pubkey pubkey;
       secp256k1_ecdsa_signature sig;
       data->sig[data->siglen - 1] ^= (i & 0xFF);
@@ -116,10 +117,9 @@ static void benchmark_verify_parallel(void* arg) {
       data->sig[data->siglen - 1] ^= (i & 0xFF);
       data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
       data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
-      return i;
     });
     
-    std::future<int> future = task.get_future();
+    std::future<void> future = task.get_future();
     workers.push_back(std::move(future));
 
     // retry if the threadpool queue is full and return error if we can't post
