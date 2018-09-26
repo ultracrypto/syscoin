@@ -101,19 +101,19 @@ static void benchmark_verify(void* arg, int count) {
 static void benchmark_verify_parallel(void* arg, int count) {  
   threadpool = new tp::ThreadPool(options);
 
-  int i = 0;
+  int index = 0;
   std::vector<std::future<void>> workers;
-  while (i <= ITERATIONS*count) {
+  while (index <= ITERATIONS*count) {
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
     // define a task for the worker to process
-    std::packaged_task<void()> task([&data, &i]() {
-      int index = i;
+    std::packaged_task<void()> task([data, index]() {
       unsigned char sigData[72];
+      std::copy(data->sig, data->sig + sizeof(data->sig), sigData);
+
       int siglen = data->siglen;      
       secp256k1_pubkey pubkey;
       secp256k1_ecdsa_signature sig;
     
-      std::copy(data->sig, data->sig + sizeof(data->sig), sigData);
       sigData[siglen - 1] ^= (index & 0xFF);
       sigData[siglen - 2] ^= ((index >> 8) & 0xFF);
       sigData[siglen - 3] ^= ((index >> 16) & 0xFF);
@@ -133,8 +133,8 @@ static void benchmark_verify_parallel(void* arg, int count) {
     while (!isThreadPosted) {
       isThreadPosted = threadpool->tryPost(task);
       if (isThreadPosted) {
-        i += 1;
-        if (i >= ITERATIONS) break;
+        index += 1;
+        if (index >= ITERATIONS) break;
       } else {
         MilliSleep(0);
       }
