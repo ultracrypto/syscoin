@@ -40,7 +40,7 @@ void print_number(double x) {
   printf("%.*f", c, x);
 }
 
-void run_benchmark(char *name, void(*benchmark)(void*), void(*setup)(void*), void(*teardown)(void*), void* data) {
+void run_benchmark(char *name, void(*benchmark)(void*, int), void(*setup)(void*), void(*teardown)(void*), void* data) {
   int count = 10;
   for (int i = 1; i <= count; i += 1) {
     // printf("starting #%d %s for %d iterations\n", i, name, ITERATIONS);
@@ -49,7 +49,7 @@ void run_benchmark(char *name, void(*benchmark)(void*), void(*setup)(void*), voi
     }
 
     double begin = gettimedouble();
-    benchmark(data);
+    benchmark(data, i);
     double end = gettimedouble();
     double total = (end - begin) * 1000000.0;
 
@@ -57,7 +57,7 @@ void run_benchmark(char *name, void(*benchmark)(void*), void(*setup)(void*), voi
       teardown(data);
     }
 
-    double avg = total / ITERATIONS;
+    double avg = total / (ITERATIONS*i);
 
     printf("#%d %s: total ", i, name);
     print_number(total);
@@ -77,10 +77,10 @@ typedef struct {
   size_t pubkeylen;
 } benchmark_verify_t;
 
-static void benchmark_verify(void* arg) {
+static void benchmark_verify(void* arg, int count) {
   benchmark_verify_t* data = (benchmark_verify_t*)arg;
 
-  for (int i = 0; i <= ITERATIONS; i++) {
+  for (int i = 0; i <= ITERATIONS*count; i++) {
     secp256k1_pubkey pubkey;
     secp256k1_ecdsa_signature sig;
     data->sig[data->siglen - 1] ^= (i & 0xFF);
@@ -94,8 +94,8 @@ static void benchmark_verify(void* arg) {
     data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
   }
 }
-static void benchmark_verify_parallel(void* arg) {
-  options.setQueueSize(16384);
+static void benchmark_verify_parallel(void* arg, int count) {
+  options.setQueueSize(65536);
   threadpool = new tp::ThreadPool(options);
   
   benchmark_verify_t* data = (benchmark_verify_t*)arg;
@@ -103,7 +103,7 @@ static void benchmark_verify_parallel(void* arg) {
   std::mutex blocker;
 
   std::vector<std::future<void>> workers;
-  while (i <= ITERATIONS) {
+  while (i <= ITERATIONS*count) {
     // define a task for the worker to process
     std::packaged_task<void()> task([&data, &i]() {
       secp256k1_pubkey pubkey;
