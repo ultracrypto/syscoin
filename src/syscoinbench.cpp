@@ -80,19 +80,22 @@ typedef struct {
 
 static void benchmark_verify(void* arg, int count) {
   benchmark_verify_t* data = (benchmark_verify_t*)arg;
-
+  unsigned char sigData[72];
+  int siglen = data->siglen;
   for (int i = 0; i <= ITERATIONS*count; i++) {
     secp256k1_pubkey pubkey;
     secp256k1_ecdsa_signature sig;
-    data->sig[data->siglen - 1] ^= (i & 0xFF);
-    data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-    data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+	
+    memcpy(sigData, data->sig, sizeof(data->sig));
+    sigData[siglen - 1] ^= (i & 0xFF);
+    sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
+    sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
     CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
-    CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, data->sig, data->siglen) == 1);
+    CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, sigData, siglen) == 1);
     CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
-    data->sig[data->siglen - 1] ^= (i & 0xFF);
-    data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-    data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+    sigData[siglen - 1] ^= (i & 0xFF);
+    sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
+    sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
   }
 }
 static void benchmark_verify_parallel(void* arg, int count) {  
@@ -104,17 +107,21 @@ static void benchmark_verify_parallel(void* arg, int count) {
     benchmark_verify_t* data = (benchmark_verify_t*)arg;
     // define a task for the worker to process
     std::packaged_task<void()> task([&data, &i]() {
+      unsigned char sigData[72];
+      int siglen = data->siglen;      
       secp256k1_pubkey pubkey;
       secp256k1_ecdsa_signature sig;
-      data->sig[data->siglen - 1] ^= (i & 0xFF);
-      data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-      data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+    
+      memcpy(sigData, data->sig, sizeof(data->sig));
+      sigData[siglen - 1] ^= (i & 0xFF);
+      sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
+      sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
       CHECK(secp256k1_ec_pubkey_parse(data->ctx, &pubkey, data->pubkey, data->pubkeylen) == 1);
-      CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, data->sig, data->siglen) == 1);
+      CHECK(secp256k1_ecdsa_signature_parse_der(data->ctx, &sig, sigData, siglen) == 1);
       CHECK(secp256k1_ecdsa_verify(data->ctx, &sig, data->msg, &pubkey) == (i == 0));
-      data->sig[data->siglen - 1] ^= (i & 0xFF);
-      data->sig[data->siglen - 2] ^= ((i >> 8) & 0xFF);
-      data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
+      sigData[siglen - 1] ^= (i & 0xFF);
+      sigData[siglen - 2] ^= ((i >> 8) & 0xFF);
+      sigData[siglen - 3] ^= ((i >> 16) & 0xFF);
     });
     
     std::future<void> future = task.get_future();
