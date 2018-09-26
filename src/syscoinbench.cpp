@@ -11,14 +11,14 @@
 #include <iostream>
 #include <iomanip>
 #include <sys/time.h>
-#include "../src/secp256k1/src/util.h"
+#include "secp256k1/src/util.h"
 #include "thread_pool/thread_pool.hpp"
 #include "thread_pool/thread_pool_options.hpp"
 #include <future>
 #include <functional>
 #include "utiltime.h"
 
-const int ITERATIONS = 20000;
+const int ITERATIONS = 10000;
 
 static double gettimedouble(void) {
   struct timeval tv;
@@ -51,18 +51,19 @@ void run_benchmark(char *name, void(*benchmark)(void*, int), void(*setup)(void*)
     double begin = gettimedouble();
     benchmark(data, i);
     double end = gettimedouble();
-    double total = (end - begin) * 1000000.0;
+    double totalUS = (end - begin) * 1000000.0;
+    double totalMS = (end - begin) * 1000.0;
 
     if (teardown != NULL) {
       teardown(data);
     }
 
-    double avg = total / (ITERATIONS*i);
+    double avgUS = totalUS / (ITERATIONS*i);
 
-    printf("#%d %s: total ", i, name);
-    print_number(total);
-    printf("us / avg ");
-    print_number(avg);
+    printf("#%d %s (x%d): total ", i, name, ITERATIONS*i);
+    print_number(totalMS);
+    printf("ms / avg ");
+    print_number(avgUS);
     printf("us\n");
   }
 }
@@ -94,16 +95,13 @@ static void benchmark_verify(void* arg, int count) {
     data->sig[data->siglen - 3] ^= ((i >> 16) & 0xFF);
   }
 }
-static void benchmark_verify_parallel(void* arg, int count) {
-  options.setQueueSize(65536);
+static void benchmark_verify_parallel(void* arg, int count) {  
   threadpool = new tp::ThreadPool(options);
-  
-  benchmark_verify_t* data = (benchmark_verify_t*)arg;
-  int i = 0;
-  std::mutex blocker;
 
+  int i = 0;
   std::vector<std::future<void>> workers;
   while (i <= ITERATIONS*count) {
+    benchmark_verify_t* data = (benchmark_verify_t*)arg;
     // define a task for the worker to process
     std::packaged_task<void()> task([&data, &i]() {
       secp256k1_pubkey pubkey;
@@ -144,6 +142,10 @@ static void benchmark_verify_parallel(void* arg, int count) {
 }
 int main(int argc, char* argv[])
 {
+  options.setQueueSize(65536);
+
+  printf("cores: %d threads: %d queue: %d\n", std::thread::hardware_concurrency(), options.threadCount(), options.queueSize());
+
   int i;
   secp256k1_pubkey pubkey;
   secp256k1_ecdsa_signature sig;
