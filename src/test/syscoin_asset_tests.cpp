@@ -14,7 +14,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iterator>
-#include <boost/bind.hpp>
 #include "ranges.h"
 using namespace std;
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
@@ -111,22 +110,22 @@ BOOST_AUTO_TEST_CASE(generate_range_complex)
 	input1.pop_back();
 	input2.pop_back();
 	printf("Rangemerge Test: input1 + input2 = ExpectedOutput\n");
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	CheckRangeMerge(input1, input2, expected_output);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	printf("CheckRangeMerge Completed %ldms\n", ms2-ms1);
 
 	/* Test 2: Reverse of Test 1 (expected_output - input = 2) */
  	printf("RangeSubstract Test: ExpectedOutput - input1 = input2\n");	
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	CheckRangeSubtract(expected_output, input1, input2);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	printf("CheckRangeSubtract1 Completed %ldms\n", ms2-ms1);
 
  	printf("RangeSubstract Test: ExpectedOutput - input2 = input1\n");	
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	CheckRangeSubtract(expected_output, input2, input1);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	printf("CheckRangeSubtract2 Completed %ldms\n", ms2-ms1);
 }
 BOOST_AUTO_TEST_CASE(generate_range_stress_merge1) 
@@ -151,9 +150,9 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_merge1)
 	// combine the two vectors of ranges
 	vecRange1_i.insert(std::end(vecRange1_i), std::begin(vecRange2_i), std::end(vecRange2_i));
 
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	mergeRanges(vecRange1_i, vecRange_o);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 	printf("\noutput range 1+2: merge time: %ldms\n", ms2-ms1);
 
@@ -195,9 +194,9 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_subtract1)
 	vecRange2_i_copy = vecRange2_i;
 	
 
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	subtractRanges(vecRange1_i, vecRange2_i, vecRange_o);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 	BOOST_CHECK(vecRange_o.size() == vecRange_expected.size());
 	BOOST_CHECK(vecRange_o.back() == vecRange_expected.back());
@@ -205,9 +204,9 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_subtract1)
 	vecRange2_i = vecRange2_i_copy;
 	vector<CRange> vecRange2_o;
 	vecRange2_i.insert(std::end(vecRange2_i), std::begin(vecRange_expected), std::end(vecRange_expected));
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	mergeRanges(vecRange2_i, vecRange2_o);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	printf("\noutput range expected+2: merge time: %ld\n", ms2-ms1);
 
 	BOOST_CHECK_EQUAL(vecRange2_o.size(), vecRange1_i.size());
@@ -234,10 +233,10 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_merge2)
 		addToRangeVector(vecRange2_i, index, index);
 	}
 
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	vecRange1_i.insert(std::end(vecRange1_i), std::begin(vecRange2_i), std::end(vecRange2_i));
 	mergeRanges(vecRange1_i, vecRange_o);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 	//HARDCODED checks
 	BOOST_CHECK_EQUAL(vecRange_o.size(), (total_range/2) - 9);
@@ -269,9 +268,9 @@ BOOST_AUTO_TEST_CASE(generate_range_stress_subtract2)
 		addToRangeVector(vecRange2_i, index+1,index+1);
 	}
 
-	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	subtractRanges(vecRange1_i, vecRange2_i, vecRange_o);
-	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(boost::chrono::system_clock::now().time_since_epoch()).count();
+	ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 	//HARDCODED checks
 	BOOST_CHECK_EQUAL(vecRange_o.size(), 499991);
