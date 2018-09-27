@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "offer.h"
-#include "alias.h"
-#include "escrow.h"
-#include "asset.h"
+#include "services/offer.h"
+#include "services/alias.h"
+#include "services/escrow.h"
+#include "services/asset.h"
 #include "init.h"
 #include "validation.h"
 #include "util.h"
