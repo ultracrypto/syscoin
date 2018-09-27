@@ -136,7 +136,7 @@ static void benchmark_verify_parallel(void* arg, int count) {
         index += 1;
         if (index >= ITERATIONS) break;
       } else {
-        MilliSleep(0);
+		  std::this_thread::sleep_for(std::chrono::milliseconds(0));
       }
     }
   }
