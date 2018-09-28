@@ -7,7 +7,7 @@
 
 #include "rpc/server.h"
 #include "dbwrapper.h"
-#include "feedback.h"
+#include "services/feedback.h"
 #include "sync.h"
 class CWalletTx;
 class CTransaction;

@@ -7,7 +7,7 @@
 #include "util.h"
 #include "amount.h"
 #include "rpc/server.h"
-#include "feedback.h"
+#include "services/feedback.h"
 #include "services/cert.h"
 #include "services/asset.h"
 #include "services/assetallocation.h"

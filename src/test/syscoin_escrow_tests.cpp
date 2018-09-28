@@ -6,7 +6,7 @@
 #include "utiltime.h"
 #include "rpc/server.h"
 #include <boost/test/unit_test.hpp>
-#include "feedback.h"
+#include "services/feedback.h"
 #include "services/alias.h"
 #include "services/cert.h"
 #include "core_io.h"

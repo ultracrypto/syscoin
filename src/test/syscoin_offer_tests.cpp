@@ -7,7 +7,7 @@
 #include "rpc/server.h"
 #include "services/alias.h"
 #include "services/cert.h"
-#include "feedback.h"
+#include "services/feedback.h"
 #include <boost/test/unit_test.hpp>
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
 

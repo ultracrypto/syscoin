@@ -101,7 +101,7 @@ SYSCOIN_CORE_H = \
   services/asset.h \
   services/assetallocation.h \
   services/escrow.h \
-  feedback.h \
+  services/feedback.h \
   auxpow.h \
   thread_pool/fixed_function.hpp \
   thread_pool/mpmc_bounded_queue.hpp \
