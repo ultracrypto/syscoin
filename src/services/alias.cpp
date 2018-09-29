@@ -69,7 +69,7 @@ bool FindSyscoinScriptOp(const CScript& script, int& op) {
 	op = CScript::DecodeOP_N(opcode);
 	return op == OP_SYSCOIN_ALIAS || op == OP_SYSCOIN_ASSET || op == OP_SYSCOIN_ASSET_ALLOCATION || op == OP_SYSCOIN_CERT || op == OP_SYSCOIN_ESCROW || op == OP_SYSCOIN_OFFER;
 }
-bool GetTimeToPrune(const CScript& scriptPubKey, uint64_t &nTime)
+bool GetTimeToPrune(const CScript& scriptPubKey, int64_t &nTime)
 {
 	vector<unsigned char> vchData;
 	vector<unsigned char> vchHash;
@@ -142,7 +142,7 @@ bool GetTimeToPrune(const CScript& scriptPubKey, uint64_t &nTime)
 	}
 	return false;
 }
-bool IsSysServiceExpired(const uint64_t &nTime)
+bool IsSysServiceExpired(const int64_t &nTime)
 {
 	if(!chainActive.Tip())
 		return false;

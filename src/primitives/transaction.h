@@ -12,8 +12,8 @@
 #include "serialize.h"
 #include "uint256.h"
 // SYSCOIN
-extern bool GetTimeToPrune(const CScript& scriptPubKey, uint64_t &nTime);
-extern bool IsSysServiceExpired(const uint64_t &nTime);
+extern bool GetTimeToPrune(const CScript& scriptPubKey, int64_t &nTime);
+extern bool IsSysServiceExpired(const int64_t &nTime);
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
 {
@@ -153,7 +153,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(nValue);
 		// SYSCOIN
-		uint64_t nTime;
+		int64_t nTime;
 		if (scriptPubKey.IsUnspendable() && GetTimeToPrune(scriptPubKey, nTime))
 		{
 			if ((s.GetType() & SER_GETHASH) || IsSysServiceExpired(nTime))
