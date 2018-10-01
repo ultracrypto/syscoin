@@ -695,7 +695,7 @@ void CheckRangeMerge(const string& originalRanges, const string& newRanges, cons
 	}
 
 	BOOST_CHECK_EQUAL(mergedRanges.size(), vecExpectedOutputRanges.size());
-	for (int i = 0; i < mergedRanges.size(); i++) {
+	for (size_t i = 0; i < mergedRanges.size(); i++) {
 		BOOST_CHECK(mergedRanges[i] == vecExpectedOutputRanges[i]);
 	}
 }
@@ -754,7 +754,7 @@ void CheckRangeSubtract(const string& originalRanges, const string& subtractRang
 	}
 
 	BOOST_CHECK_EQUAL(mergedRanges.size(), vecExpectedOutputRanges.size());
-	for (int i = 0; i < mergedRanges.size(); i++) {
+	for (size_t i = 0; i < mergedRanges.size(); i++) {
 		BOOST_CHECK(mergedRanges[i] == vecExpectedOutputRanges[i]);
 	}
 }
@@ -1031,7 +1031,7 @@ void AliasAddWhitelist(const string& node, const string& owneralias, const strin
 	GenerateBlocks(5, node);
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliaswhitelist " + owneralias));
 	const UniValue &arrayValue = r.get_array();
-	for (int i = 0; i<arrayValue.size(); i++)
+	for (size_t i = 0; i<arrayValue.size(); i++)
 	{
 		const string &aliasguid = find_value(arrayValue[i].get_obj(), "alias").get_str();
 		if (aliasguid == aliasname)
@@ -1054,7 +1054,7 @@ void AliasRemoveWhitelist(const string& node, const string& owneralias, const st
 	GenerateBlocks(5, node);
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliaswhitelist " + owneralias));
 	const UniValue &arrayValue = r.get_array();
-	for (int i = 0; i<arrayValue.size(); i++)
+	for (size_t i = 0; i<arrayValue.size(); i++)
 	{
 		const string &aliasguid = find_value(arrayValue[i].get_obj(), "alias").get_str();
 		BOOST_CHECK(aliasguid != aliasname);
@@ -1079,7 +1079,7 @@ int FindAliasDiscount(const string& node, const string& owneralias, const string
 	UniValue r;
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliaswhitelist " + owneralias));
 	const UniValue &arrayValue = r.get_array();
-	for (int i = 0; i<arrayValue.size(); i++)
+	for (size_t i = 0; i<arrayValue.size(); i++)
 	{
 		const string &aliasguid = find_value(arrayValue[i].get_obj(), "alias").get_str();
 		if (aliasguid == aliasname)

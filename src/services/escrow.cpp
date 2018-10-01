@@ -1182,7 +1182,7 @@ string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const
 	if(!inputs.isNull())
 		return  _("Syscoin asset used to purchase this offer was a non-fungible token. This type of asset not supported through the purchase flow at this time.");
 	bool foundPayment = false;
-	for(int i =0;i<allocations.size();i++){
+	for(size_t i =0;i<allocations.size();i++){
 		const string& ownerReceiver = find_value(allocations[0].get_obj(), "owner").get_str();
 		UniValue amountValue = find_value(allocations[0].get_obj(), "amount");
 		const CAmount& recieverAmount = AssetAmountFromValue(amountValue, dbAsset.nPrecision, dbAsset.bUseInputRanges);
@@ -1765,7 +1765,7 @@ UniValue escrowcreaterawtransaction(const JSONRPCRequest& request) {
 	if (!escrow.scriptSigs.empty()) {
 		CMutableTransaction rawTxm;
 		DecodeHexTx(rawTxm, strRawTx);
-		for (int i = 0; i < escrow.scriptSigs.size(); i++) {
+		for (size_t i = 0; i < escrow.scriptSigs.size(); i++) {
 			if (rawTxm.vin.size() >= i)
 				rawTxm.vin[i].scriptSig = CScript(escrow.scriptSigs[i].begin(), escrow.scriptSigs[i].end());
 		}
@@ -1838,7 +1838,7 @@ UniValue escrowrelease(const JSONRPCRequest& request) {
 	CMutableTransaction signedTx;
 	DecodeHexTx(signedTx, rawtx);
 	escrow.ClearEscrow();
-	for (int i = 0; i < signedTx.vin.size(); i++) {
+	for (size_t i = 0; i < signedTx.vin.size(); i++) {
 		if(!signedTx.vin[i].scriptSig.empty())
 			escrow.scriptSigs.push_back((CScriptBase)signedTx.vin[i].scriptSig);
 	}
@@ -2029,7 +2029,7 @@ UniValue escrowrefund(const JSONRPCRequest& request) {
 	CMutableTransaction signedTx;
 	DecodeHexTx(signedTx, rawtx);
 	escrow.ClearEscrow();
-	for (int i = 0; i < signedTx.vin.size(); i++) {
+	for (size_t i = 0; i < signedTx.vin.size(); i++) {
 		if (!signedTx.vin[i].scriptSig.empty())
 			escrow.scriptSigs.push_back((CScriptBase)signedTx.vin[i].scriptSig);
 	}

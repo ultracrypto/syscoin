@@ -2084,7 +2084,7 @@ UniValue aliasupdateestimatedfee(const JSONRPCRequest& request) {
 	CAmount estimatedFee = 0;
 	// find the fee amount based on the total output value (don't account for the last output which is change)
 	if (rawTx.vout.size() > 0) {
-		for (int i = 0; i < rawTx.vout.size() - 1; i++) {
+		for (size_t i = 0; i < rawTx.vout.size() - 1; i++) {
 			estimatedFee += rawTx.vout[i].nValue;
 		}
 	}
