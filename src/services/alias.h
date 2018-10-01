@@ -299,7 +299,6 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 void CreateRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 void CreateAliasRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 void CreateFeeRecipient(CScript& scriptPubKey, const std::vector<unsigned char>& data, CRecipient& recipient);
-void CreateAliasRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 CAmount GetDataFee(const CScript& scriptPubKey, bool bRequired=false);
 bool IsAliasOp(int op);
 bool GetAlias(const std::vector<unsigned char> &vchAlias, CAliasIndex& alias);
