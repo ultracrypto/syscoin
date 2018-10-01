@@ -101,25 +101,25 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
 }
 // This will figure out a valid hash and Nonce if you're
 // creating a different genesis block:
-static void GenerateGenesisBlock(CBlockHeader &genesisBlock, uint256 &phash)
-{
-	arith_uint256 bnTarget;
-	bnTarget.SetCompact(genesisBlock.nBits);
-	uint32_t nOnce = 0;
-	while (true) {
-		genesisBlock.nNonce = nOnce;
-		uint256 hash = genesisBlock.GetHash();
-		if (UintToArith256(hash) <= bnTarget) {
-			phash = hash;
-			break;
-		}
-		nOnce++;
-	}
-	printf("genesis.nTime = %u \n", genesisBlock.nTime);
-	printf("genesis.nNonce = %u \n", genesisBlock.nNonce);
-	printf("Generate hash = %s\n", phash.ToString().c_str());
-	printf("genesis.hashMerkleRoot = %s\n", genesisBlock.hashMerkleRoot.ToString().c_str());
-}
+// static void GenerateGenesisBlock(CBlockHeader &genesisBlock, uint256 &phash)
+// {
+// 	arith_uint256 bnTarget;
+// 	bnTarget.SetCompact(genesisBlock.nBits);
+// 	uint32_t nOnce = 0;
+// 	while (true) {
+// 		genesisBlock.nNonce = nOnce;
+// 		uint256 hash = genesisBlock.GetHash();
+// 		if (UintToArith256(hash) <= bnTarget) {
+// 			phash = hash;
+// 			break;
+// 		}
+// 		nOnce++;
+// 	}
+// 	printf("genesis.nTime = %u \n", genesisBlock.nTime);
+// 	printf("genesis.nNonce = %u \n", genesisBlock.nNonce);
+// 	printf("Generate hash = %s\n", phash.ToString().c_str());
+// 	printf("genesis.hashMerkleRoot = %s\n", genesisBlock.hashMerkleRoot.ToString().c_str());
+// }
 
 static CBlock FindDevNetGenesisBlock(const Consensus::Params& params, const CBlock &prevBlock, const CAmount& reward)
 {

@@ -1183,7 +1183,6 @@ string VerifyAssetPayment(const CAsset& dbAsset, const string& extTxIdStr, const
 		return  _("Syscoin asset used to purchase this offer was a non-fungible token. This type of asset not supported through the purchase flow at this time.");
 	bool foundPayment = false;
 	for(int i =0;i<allocations.size();i++){
-		const UniValue& receiverObj = allocations[i].get_obj();
 		const string& ownerReceiver = find_value(allocations[0].get_obj(), "owner").get_str();
 		UniValue amountValue = find_value(allocations[0].get_obj(), "amount");
 		const CAmount& recieverAmount = AssetAmountFromValue(amountValue, dbAsset.nPrecision, dbAsset.bUseInputRanges);

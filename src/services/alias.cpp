@@ -516,7 +516,6 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 		string strResponseGUID = "";
 		CTransaction txTmp;
 		GetSyscoinTransactionDescription(txTmp, op, strResponseEnglish, ALIAS, strResponseGUID);
-		const string &user1 = stringFromVch(vvchArgs[0]);
 		string user2 = "";
 		string user3 = "";
 		if (!theAlias.vchAddress.empty())
@@ -1013,7 +1012,6 @@ bool FindAliasInTx(const CCoinsViewCache &inputs, const CTransaction& tx, vector
 	return false;
 }
 bool FindAssetOwnerInTx(const CCoinsViewCache &inputs, const CTransaction& tx, const string& ownerAddressToMatch) {
-	int op;
 	CTxDestination dest;
 	for (unsigned int i = 0; i < tx.vin.size(); i++) {
 		const Coin& prevCoins = inputs.AccessCoin(tx.vin[i].prevout);
@@ -1102,7 +1100,6 @@ void CreateRecipient(const CScript& scriptPubKey, CRecipient& recipient)
 }
 void CreateFeeRecipient(CScript& scriptPubKey, const vector<unsigned char>& data, CRecipient& recipient)
 {
-	CAmount nFee = 0;
 	// add hash to data output (must match hash in inputs check with the tx scriptpubkey hash)
     uint256 hash = Hash(data.begin(), data.end());
     vector<unsigned char> vchHashRand = vchFromString(hash.GetHex());
@@ -1856,7 +1853,6 @@ UniValue aliasnewestimatedfee(const JSONRPCRequest& request) {
 	vector<unsigned char> data;
 	vector<unsigned char> vchHashAlias, vchHashAlias1;
 	uint256 hash;
-	bool bActivation = false;
 	newAlias1 = newAlias;
 
 
@@ -2343,7 +2339,6 @@ UniValue aliasbalance(const JSONRPCRequest& request)
 	}
 	{
 		LOCK(mempool.cs);
-		int op;
 		vector<vector<unsigned char> > vvch;
 		const CAmount &minFee = CWallet::GetMinimumFee(3000, nTxConfirmTarget, mempool);
 		for (unsigned int i = 0; i < utxoArray.size(); i++)
@@ -2434,7 +2429,6 @@ unsigned int addressunspent(const string& strAddressFrom, COutPoint& outpoint)
 	else
 		return 0;
 	unsigned int count = 0;
-	CAmount nCurrentAmount = 0;
 	{
 		LOCK(mempool.cs);
 		const CAmount &minFee = CWallet::GetMinimumFee(3000, nTxConfirmTarget, mempool);
@@ -2443,8 +2437,6 @@ unsigned int addressunspent(const string& strAddressFrom, COutPoint& outpoint)
 			const UniValue& utxoObj = utxoArray[i].get_obj();
 			const uint256& txid = uint256S(find_value(utxoObj, "txid").get_str());
 			const int& nOut = find_value(utxoObj, "outputIndex").get_int();
-			const std::vector<unsigned char> &data(ParseHex(find_value(utxoObj, "script").get_str()));
-			const CScript& scriptPubKey = CScript(data.begin(), data.end());
 			const CAmount &nValue = find_value(utxoObj, "satoshis").get_int64();
 			if (nValue > minFee)
 				continue;

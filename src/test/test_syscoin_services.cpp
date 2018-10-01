@@ -2015,7 +2015,6 @@ const string EscrowNewAuction(const string& node, const string& sellernode, cons
 	UniValue r;
 	int qty = atoi(qtyStr.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasbalance " + buyeralias));
-	CAmount balanceBuyerBefore = AmountFromValue(find_value(r.get_obj(), "balance"));
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "offerinfo " + offerguid));
 	int nQtyBefore = find_value(r.get_obj(), "quantity").get_int();
 	string selleralias = find_value(r.get_obj(), "alias").get_str();
@@ -2135,7 +2134,6 @@ const string EscrowNewBuyItNow(const string& node, const string& sellernode, con
 	UniValue r;
 	int qty = atoi(qtyStr.c_str());
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasbalance " + buyeralias));
-	CAmount balanceBuyerBefore = AmountFromValue(find_value(r.get_obj(), "balance"));
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "offerinfo " + offerguid));
 	int nQtyBefore = find_value(r.get_obj(), "quantity").get_int();
 	string selleralias = find_value(r.get_obj(), "alias").get_str();
@@ -2304,8 +2302,6 @@ void EscrowRelease(const string& node, const string& role, const string& guid, c
 	if (markup > 0)
 		nCommissionCompare = nTotalOfferPrice*(markup / 100);
 
-	bool bBuyNow = find_value(r.get_obj(), "buynow").get_bool();
-
 	BOOST_CHECK_EQUAL(nCommission, nCommissionCompare);
 
 	string escrowaddress = find_value(r.get_obj(), "escrowaddress").get_str();
@@ -2366,7 +2362,6 @@ void EscrowRefund(const string& node, const string& role, const string& guid, co
 
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "offerinfo " + offer));
 	string currency = find_value(r.get_obj(), "currency").get_str();
-	int nQtyOfferBefore = find_value(r.get_obj(), "quantity").get_int();
 
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrowinfo " + guid));
 	string redeemScriptStr = find_value(r.get_obj(), "redeem_script").get_str();
@@ -2375,9 +2370,6 @@ void EscrowRefund(const string& node, const string& role, const string& guid, co
 	CAmount nodeTotal = AmountFromValue(find_value(r.get_obj(), "total_without_fee"));
 	nodeTotal = nodeTotal / pegRates[currency];
 	BOOST_CHECK(abs(AmountFromValue(strprintf("%.*f", 8, find_value(r.get_obj(), "offer_price").get_real()*nQty)) - nodeTotal) <= 0.1*COIN);
-
-
-	bool bBuyNow = find_value(r.get_obj(), "buynow").get_bool();
 
 	string escrowaddress = find_value(r.get_obj(), "escrowaddress").get_str();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "getaddressutxos \"{\\\"addresses\\\": [\\\"" + escrowaddress + "\\\"]}\""));
@@ -2449,8 +2441,6 @@ void EscrowClaimRefund(const string& node, const string& guid)
 	int role = find_value(r.get_obj(), "role").get_int();
 	CAmount nTotalWithoutFee = AmountFromValue(find_value(r.get_obj(), "total_without_fee"));
 	CAmount nArbiterFee = AmountFromValue(find_value(r.get_obj(), "arbiterfee"));
-	CAmount nNetworkFee = AmountFromValue(find_value(r.get_obj(), "networkfee"));
-	CAmount nCommission = AmountFromValue(find_value(r.get_obj(), "commission"));
 	CAmount nWitnessFee = AmountFromValue(find_value(r.get_obj(), "witnessfee"));
 	CAmount nShipping = AmountFromValue(find_value(r.get_obj(), "shipping"));
 	CAmount nDeposit = AmountFromValue(find_value(r.get_obj(), "deposit"));
@@ -2580,7 +2570,6 @@ void EscrowClaimRelease(const string& node, const string& guid)
 	int icommission = find_value(r.get_obj(), "commission").get_int();
 	string sellerlink_alias = find_value(r.get_obj(), "offerlink_seller").get_str();
 	string offertype = find_value(r.get_obj(), "offertype").get_str();
-	int nQtyOfferBefore = find_value(r.get_obj(), "quantity").get_int();
 
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "escrowinfo " + guid));
 	string redeemScriptStr = find_value(r.get_obj(), "redeem_script").get_str();
@@ -2593,11 +2582,8 @@ void EscrowClaimRelease(const string& node, const string& guid)
 	int nQty = find_value(r.get_obj(), "quantity").get_int();
 	CAmount nTotalWithoutFee = AmountFromValue(find_value(r.get_obj(), "total_without_fee"));
 	CAmount nArbiterFee = AmountFromValue(find_value(r.get_obj(), "arbiterfee"));
-	CAmount nNetworkFee = AmountFromValue(find_value(r.get_obj(), "networkfee"));
 	CAmount nCommission = AmountFromValue(find_value(r.get_obj(), "commission"));
 	CAmount nWitnessFee = AmountFromValue(find_value(r.get_obj(), "witnessfee"));
-	CAmount nShipping = AmountFromValue(find_value(r.get_obj(), "shipping"));
-	CAmount nDeposit = AmountFromValue(find_value(r.get_obj(), "deposit"));
 
 	string escrowaddress = find_value(r.get_obj(), "escrowaddress").get_str();
 	BOOST_CHECK(!selleralias.empty());
