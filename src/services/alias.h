@@ -299,7 +299,6 @@ bool CheckAliasInputs(const CCoinsViewCache &inputs, const CTransaction &tx, int
 void CreateRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 void CreateAliasRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 void CreateFeeRecipient(CScript& scriptPubKey, const std::vector<unsigned char>& data, CRecipient& recipient);
-void CreateAliasRecipient(const CScript& scriptPubKey, CRecipient& recipient);
 CAmount GetDataFee(const CScript& scriptPubKey, bool bRequired=false);
 bool IsAliasOp(int op);
 bool GetAlias(const std::vector<unsigned char> &vchAlias, CAliasIndex& alias);
@@ -322,8 +321,8 @@ int GetSyscoinDataOutput(const CTransaction& tx);
 bool IsSyscoinDataOutput(const CTxOut& out);
 bool GetSyscoinData(const CTransaction &tx, std::vector<unsigned char> &vchData, std::vector<unsigned char> &vchHash, int& nOut);
 bool GetSyscoinData(const CScript &scriptPubKey, std::vector<unsigned char> &vchData, std::vector<unsigned char> &vchHash);
-bool IsSysServiceExpired(const uint64_t &nTime);
-bool GetTimeToPrune(const CScript& scriptPubKey, uint64_t &nTime);
+bool IsSysServiceExpired(const int64_t &nTime);
+bool GetTimeToPrune(const CScript& scriptPubKey, int64_t &nTime);
 bool IsSyscoinScript(const CScript& scriptPubKey, int &op, std::vector<std::vector<unsigned char> > &vvchArgs);
 bool RemoveSyscoinScript(const CScript& scriptPubKeyIn, CScript& scriptPubKeyOut);
 void SysTxToJSON(const int op, const std::vector<unsigned char> &vchData, const std::vector<unsigned char> &vchHash, UniValue &entry, const char& type);

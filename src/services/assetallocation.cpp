@@ -399,8 +399,6 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		}
 	}
 	const vector<unsigned char> &vchThisAlias = vchAlias.empty() ? theAssetAllocation.vchAliasOrAddress : vchAlias;
-	const string &user3 = "";
-	const string &user2 = "";
 	const string &user1 = stringFromVch(vchThisAlias);
 
 	const CAssetAllocationTuple assetAllocationTuple(theAssetAllocation.vchAsset, vchThisAlias);
@@ -597,8 +595,6 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						receiverAllocation.nHeight = nHeight;
 						receiverAllocation.fInterestRate = dbAsset.fInterestRate;
 					}
-					CAmount receiverBalanceBefore = receiverAllocation.nBalance;
-					CAmount senderBalanceBefore = theAssetAllocation.nBalance;
 					if (!bBalanceOverrun) {
 						receiverAllocation.txHash = txHash;
 						if (dbAsset.fInterestRate > 0) {
@@ -706,7 +702,6 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 						receiverAllocation.listAllocationInputs.insert(std::end(receiverAllocation.listAllocationInputs), std::begin(input.second), std::end(input.second));
 						mergeRanges(receiverAllocation.listAllocationInputs, outputMerge);
 						receiverAllocation.listAllocationInputs = outputMerge;
-						const CAmount prevBalance = receiverAllocation.nBalance;
 						receiverAllocation.nBalance += rangeTotals[i];
 
 						// figure out senders subtracted ranges and balance
@@ -1181,7 +1176,6 @@ int DetectPotentialAssetAllocationSenderConflicts(const CAssetAllocationTuple& a
 		arrivalTimes.begin(), arrivalTimes.end(), compFunctor);
 
 	// go through arrival times and check that balances don't overrun the POW balance
-	CAmount nRealtimeBalanceRequired = 0;
 	pair<uint256, int64_t> lastArrivalTime;
 	lastArrivalTime.second = GetTimeMillis();
 	map<vector<unsigned char>, CAmount> mapBalances;

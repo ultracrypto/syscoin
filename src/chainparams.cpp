@@ -99,27 +99,6 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
     const CScript genesisOutputScript = CScript() << ParseHex("040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
-// This will figure out a valid hash and Nonce if you're
-// creating a different genesis block:
-static void GenerateGenesisBlock(CBlockHeader &genesisBlock, uint256 &phash)
-{
-	arith_uint256 bnTarget;
-	bnTarget.SetCompact(genesisBlock.nBits);
-	uint32_t nOnce = 0;
-	while (true) {
-		genesisBlock.nNonce = nOnce;
-		uint256 hash = genesisBlock.GetHash();
-		if (UintToArith256(hash) <= bnTarget) {
-			phash = hash;
-			break;
-		}
-		nOnce++;
-	}
-	printf("genesis.nTime = %u \n", genesisBlock.nTime);
-	printf("genesis.nNonce = %u \n", genesisBlock.nNonce);
-	printf("Generate hash = %s\n", phash.ToString().c_str());
-	printf("genesis.hashMerkleRoot = %s\n", genesisBlock.hashMerkleRoot.ToString().c_str());
-}
 
 static CBlock FindDevNetGenesisBlock(const Consensus::Params& params, const CBlock &prevBlock, const CAmount& reward)
 {

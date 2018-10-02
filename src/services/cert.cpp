@@ -366,7 +366,6 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 			return error(errorMessage.c_str());
 		}
 	}
-	const string &user1 = stringFromVch(vvchAlias);
 	string user2 = "";
 	string user3 = "";
 	if (op == OP_CERT_TRANSFER) {
