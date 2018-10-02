@@ -263,5 +263,5 @@ public:
 bool GetOffer(const std::vector<unsigned char> &vchOffer, COffer& txPos);
 bool BuildOfferJson(const COffer& theOffer, UniValue& oOffer);
 bool BuildOfferIndexerJson(const COffer& theOffer, UniValue& oOffer);
-uint64_t GetOfferExpiration(const COffer& offer);
+int64_t GetOfferExpiration(const COffer& offer);
 #endif // OFFER_H

@@ -148,5 +148,5 @@ bool GetCert(const std::vector<unsigned char> &vchCert,CCert& txPos);
 bool GetFirstCert(const std::vector<unsigned char> &vchCert, CCert& txPos);
 bool BuildCertJson(const CCert& cert, UniValue& oName);
 bool BuildCertIndexerJson(const CCert& cert,UniValue& oName);
-uint64_t GetCertExpiration(const CCert& cert);
+int64_t GetCertExpiration(const CCert& cert);
 #endif // CERT_H

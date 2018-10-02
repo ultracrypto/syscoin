@@ -205,5 +205,5 @@ void BuildFeedbackJson(const COffer& offer, const CEscrow& escrow, UniValue& oFe
 int64_t GetEscrowArbiterFee(const int64_t &escrowValue, const float &fEscrowFee);
 int64_t GetEscrowWitnessFee(const int64_t &escrowValue, const float &fWitnessFee);
 int64_t GetEscrowDepositFee(const int64_t &escrowValue, const float &fDepositPercentage);
-uint64_t GetEscrowExpiration(const CEscrow& escrow);
+int64_t GetEscrowExpiration(const CEscrow& escrow);
 #endif // ESCROW_H

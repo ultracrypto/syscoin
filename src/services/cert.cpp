@@ -30,7 +30,7 @@ bool IsCertOp(int op) {
         || op == OP_CERT_TRANSFER;
 }
 
-uint64_t GetCertExpiration(const CCert& cert) {
+int64_t GetCertExpiration(const CCert& cert) {
 	uint64_t nTime = chainActive.Tip()->GetMedianTimePast() + 1;
 	CAliasUnprunable aliasUnprunable;
 	if (paliasdb && paliasdb->ReadAliasUnprunable(cert.vchAlias, aliasUnprunable) && !aliasUnprunable.IsNull())

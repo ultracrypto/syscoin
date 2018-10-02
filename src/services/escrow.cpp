@@ -95,7 +95,7 @@ bool ValidateNetworkFee(const CEscrow &escrow) {
 	return getFeePerByte(escrow.nPaymentOption)*400 <= escrow.nNetworkFee;
 }
 
-uint64_t GetEscrowExpiration(const CEscrow& escrow) {
+int64_t GetEscrowExpiration(const CEscrow& escrow) {
 	uint64_t nTime = chainActive.Tip()->nHeight + 1;
 	CAliasUnprunable aliasBuyerPrunable,aliasSellerPrunable,aliasArbiterPrunable;
 	if(paliasdb)

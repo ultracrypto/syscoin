@@ -50,7 +50,7 @@ typedef map<vector<unsigned char>, vector<unsigned char> > mapAliasRegistrations
 mapAliasRegistrationsType mapAliasRegistrations;
 mapAliasRegistrationsDataType mapAliasRegistrationData;
 unsigned int MAX_ALIAS_UPDATES_PER_BLOCK = 10;
-uint64_t GetAliasExpiration(const CAliasIndex& alias) {
+int64_t GetAliasExpiration(const CAliasIndex& alias) {
 	// dont prune by default, set nHeight to future time
 	uint64_t nTime = chainActive.Tip()->GetMedianTimePast() + 1;
 	CAliasUnprunable aliasUnprunable;

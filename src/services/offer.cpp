@@ -127,7 +127,7 @@ uint32_t GetOfferTypeMaskFromString(const std::string &offerTypeString) {
 bool IsOfferTypeInMask(const uint32_t &mask, const uint32_t &offerType) {
 	return mask & offerType ? true : false;
 }
-uint64_t GetOfferExpiration(const COffer& offer) {
+int64_t GetOfferExpiration(const COffer& offer) {
 	// dont prune by default, set nHeight to future time
 	uint64_t nTime = chainActive.Tip()->GetMedianTimePast() + 1;
 	CAliasUnprunable aliasUnprunable;
