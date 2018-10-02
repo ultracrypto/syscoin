@@ -12,8 +12,6 @@
 #include "utilstrencodings.h"
 
 #include <boost/foreach.hpp>
-// SYSCOIN services
-extern bool RemoveSyscoinScript(const CScript& scriptPubKeyIn, CScript& scriptPubKeyOut);
 typedef std::vector<unsigned char> valtype;
 
 bool fAcceptDatacarrier = DEFAULT_ACCEPT_DATACARRIER;
