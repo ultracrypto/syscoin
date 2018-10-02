@@ -174,8 +174,8 @@ int main(int argc, char* argv[])
   data.pubkeylen = 33;
   CHECK(secp256k1_ec_pubkey_serialize(data.ctx, data.pubkey, &data.pubkeylen, &pubkey, SECP256K1_EC_COMPRESSED) == 1);
 
-  run_benchmark("ecdsa_verify", benchmark_verify, NULL, NULL, &data);
-  run_benchmark("ecdsa_verify_parallel", benchmark_verify_parallel, NULL, NULL, &data);
+  run_benchmark((char *) "ecdsa_verify", benchmark_verify, NULL, NULL, &data);
+  run_benchmark((char *) "ecdsa_verify_parallel", benchmark_verify_parallel, NULL, NULL, &data);
   
   secp256k1_context_destroy(data.ctx);
   return 0;
