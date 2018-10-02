@@ -227,11 +227,11 @@ namespace
 class CSyscoinAddressVisitor : public boost::static_visitor<bool>
 {
 private:
-	CSyscoinAddress* addr;
 	// SYSCOIN support old sys
 	CChainParams::AddressType nSysVer;
+	CSyscoinAddress* addr;
 public:
-	CSyscoinAddressVisitor(CSyscoinAddress* addrIn) : addr(addrIn) {}
+	CSyscoinAddressVisitor(CSyscoinAddress* addrIn) : nSysVer(CChainParams::ADDRESS_SYS), addr(addrIn) {}
 	CSyscoinAddressVisitor(CSyscoinAddress* addrIn, CChainParams::AddressType nSysVer) : nSysVer(nSysVer), addr(addrIn) {}
 
 	bool operator()(const CKeyID& id) const { return addr->Set(id, nSysVer); }
