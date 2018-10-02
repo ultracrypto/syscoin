@@ -486,15 +486,16 @@ bool CheckCertInputs(const CTransaction &tx, int op, const vector<vector<unsigne
 
 UniValue certnew(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
-    if (request.fHelp || params.size() != 5)
-        throw runtime_error(
+	if (request.fHelp || params.size() != 5) {
+		throw runtime_error(
 			"certnew [alias] [title] [public value] [category=certificates] [witness]\n"
-						"<alias> An alias you own.\n"
-						"<title> title, 256 characters max.\n"
-                        "<public value> public data, 256 characters max.\n"
-						"<category> category, 256 characters max. Defaults to certificates\n"
-						"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"
-						+ HelpRequiringPassphrase());
+			"<alias> An alias you own.\n"
+			"<title> title, 256 characters max.\n"
+			"<public value> public data, 256 characters max.\n"
+			"<category> category, 256 characters max. Defaults to certificates\n"
+			"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"
+			+ HelpRequiringPassphrase());
+	}
 	vector<unsigned char> vchAlias = vchFromValue(params[0]);
     vector<unsigned char> vchTitle = vchFromString(params[1].get_str());
 	vector<unsigned char> vchPubData = vchFromString(params[2].get_str());
@@ -565,16 +566,17 @@ UniValue certnew(const JSONRPCRequest& request) {
 
 UniValue certupdate(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
-    if (request.fHelp || params.size() != 5)
-        throw runtime_error(
+	if (request.fHelp || params.size() != 5) {
+		throw runtime_error(
 			"certupdate [guid] [title] [public value] [category=certificates] [witness]\n"
-						"Perform an update on an certificate you control.\n"
-						"<guid> Certificate guidkey.\n"
-						"<title> Certificate title, 256 characters max.\n"
-                        "<public value> Public data, 256 characters max.\n"                
-						"<category> Category, 256 characters max. Defaults to certificates\n"
-						"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"
-						+ HelpRequiringPassphrase());
+			"Perform an update on an certificate you control.\n"
+			"<guid> Certificate guidkey.\n"
+			"<title> Certificate title, 256 characters max.\n"
+			"<public value> Public data, 256 characters max.\n"
+			"<category> Category, 256 characters max. Defaults to certificates\n"
+			"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"
+			+ HelpRequiringPassphrase());
+	}
 	vector<unsigned char> vchCert = vchFromValue(params[0]);
 
 	string strData = "";
@@ -592,8 +594,9 @@ UniValue certupdate(const JSONRPCRequest& request) {
     CScript scriptPubKeyOrig;
 	CCert theCert;
 	
-    if (!GetCert( vchCert, theCert))
-        throw runtime_error("SYSCOIN_CERTIFICATE_RPC_ERROR: ERRCODE: 3501 - " + _("Could not find a certificate with this key"));
+	if (!GetCert(vchCert, theCert)) {
+		throw runtime_error("SYSCOIN_CERTIFICATE_RPC_ERROR: ERRCODE: 3501 - " + _("Could not find a certificate with this key"));
+	}
 
 
 	if (!fUnitTest) {
@@ -659,16 +662,17 @@ UniValue certupdate(const JSONRPCRequest& request) {
 
 UniValue certtransfer(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
- if (request.fHelp || params.size() != 5)
-        throw runtime_error(
+	if (request.fHelp || params.size() != 5) {
+		throw runtime_error(
 			"certtransfer [guid] [alias] [public value] [accessflags=2] [witness]\n"
-						"Transfer a certificate you own to another alias.\n"
-						"<guid> certificate guidkey.\n"
-						"<alias> alias to transfer to.\n"
-                        "<public value> public data, 256 characters max.\n"	
-						"<accessflags> Set new access flags for new owner for this certificate, 0 for read-only, 1 for edit, 2 for edit and transfer access. Default is 2.\n"
-						"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"	
-						+ HelpRequiringPassphrase());
+			"Transfer a certificate you own to another alias.\n"
+			"<guid> certificate guidkey.\n"
+			"<alias> alias to transfer to.\n"
+			"<public value> public data, 256 characters max.\n"
+			"<accessflags> Set new access flags for new owner for this certificate, 0 for read-only, 1 for edit, 2 for edit and transfer access. Default is 2.\n"
+			"<witness> Witness alias name that will sign for web-of-trust notarization of this transaction.\n"
+			+ HelpRequiringPassphrase());
+	}
 
     // gather & validate inputs
 	vector<unsigned char> vchCert = vchFromValue(params[0]);
@@ -762,9 +766,10 @@ UniValue certtransfer(const JSONRPCRequest& request) {
 
 UniValue certinfo(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
-    if (request.fHelp || 1 > params.size())
-        throw runtime_error("certinfo <guid>\n"
-                "Show stored values of a single certificate and its .\n");
+	if (request.fHelp || 1 > params.size()) {
+		throw runtime_error("certinfo <guid>\n"
+			"Show stored values of a single certificate and its .\n");
+	}
 
     vector<unsigned char> vchCert = vchFromValue(params[0]);
 	UniValue oCert(UniValue::VOBJ);
