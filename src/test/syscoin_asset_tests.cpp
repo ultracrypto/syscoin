@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	// average the start time - received time by the number of responses received (usually number of responses should match number of transactions sent beginning of test)
 	totalTimeMempool /= tpsresponsereceiversmempool.size();
 
-	printf("tpstarttime %lld avgteststarttime %lld totaltime %.2f, totaltime mempool %.2f num responses %zu\n", tpstarttime, avgteststarttime, totalTime, totalTimeMempool, tpsresponsereceivers.size());
+	printf("tpstarttime %ld avgteststarttime %ld totaltime %.2f, totaltime mempool %.2f num responses %zu\n", tpstarttime, avgteststarttime, totalTime, totalTimeMempool, tpsresponsereceivers.size());
 	for (auto &sender : senders)
 		BOOST_CHECK_NO_THROW(CallExtRPC(sender, "tpstestsetenabled", "false"));
 	for (auto &receiver : receivers)
