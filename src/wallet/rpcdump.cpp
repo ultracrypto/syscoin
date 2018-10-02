@@ -29,7 +29,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 
-void EnsureWalletIsUnlocked();
 bool EnsureWalletIsAvailable(bool avoidException);
 
 std::string static EncodeDumpTime(int64_t nTime) {

@@ -37,10 +37,6 @@ using namespace std;
 #include "services/assetallocation.h"
 #include "services/asset.h"
 #include "coincontrol.h"
-extern bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress);
-extern std::string stringFromVch(const std::vector<unsigned char> &vch);
-extern bool IsSyscoinScript(const CScript& scriptPubKey, int &op, vector<vector<unsigned char> > &vvchArgs);
-extern string GetSyscoinTransactionDescription(const CTransaction& tx, const int op, string& responseEnglish, const char &type, string& responseGUID);
 int64_t nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
 
