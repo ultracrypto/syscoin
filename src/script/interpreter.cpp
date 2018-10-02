@@ -13,8 +13,6 @@
 #include "pubkey.h"
 #include "script/script.h"
 #include "uint256.h"
-// SYSCOIN services
-extern bool RemoveSyscoinScript(const CScript& scriptPubKeyIn, CScript& scriptPubKeyOut);
 typedef std::vector<unsigned char> valtype;
 
 namespace {
