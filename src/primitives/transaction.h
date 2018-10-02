@@ -11,9 +11,7 @@
 #include "script/script.h"
 #include "serialize.h"
 #include "uint256.h"
-// SYSCOIN
-extern bool GetTimeToPrune(const CScript& scriptPubKey, int64_t &nTime);
-extern bool IsSysServiceExpired(const int64_t &nTime);
+#include "alias.h"
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
 {
