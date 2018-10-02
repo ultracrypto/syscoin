@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 {
   options.setQueueSize(65536);
 
-  printf("cores: %d threads: %d queue: %d\n", std::thread::hardware_concurrency(), options.threadCount(), options.queueSize());
+  printf("cores: %d threads: %zu queue: %zu\n", std::thread::hardware_concurrency(), options.threadCount(), options.queueSize());
 
   int i;
   secp256k1_pubkey pubkey;
