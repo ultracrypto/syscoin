@@ -5,7 +5,7 @@
 #ifndef ALIAS_H
 #define ALIAS_H
 
-#include "rpc/server.h"
+
 #include "dbwrapper.h"
 #include "consensus/params.h"
 #include "sync.h"
