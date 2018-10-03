@@ -812,7 +812,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 	AssertLockHeld(cs_main);
     if (pfMissingInputs)
         *pfMissingInputs = false;
-	if (!fTPSTestEnabled) {
+	if (vecTPSRawTransactions.empty()) {
 		if (nTPSTestingStartTime > 0)
 		{
 			const int64_t &currentTime = GetTimeMicros();
@@ -861,7 +861,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 	}
     // Check for conflicts with in-memory transactions
     std::set<uint256> setConflicts;
-	if (!fTPSTestEnabled) {
+	if (vecTPSRawTransactions.empty()) {
 		LOCK(pool.cs); // protect pool.mapNextTx
 		BOOST_FOREACH(const CTxIn &txin, tx.vin)
 		{
