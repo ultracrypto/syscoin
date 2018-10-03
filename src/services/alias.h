@@ -17,6 +17,7 @@ class CTxOut;
 class COutPoint;
 class CSyscoinAddress;
 class CCoinsViewCache;
+class UniValue;
 struct CRecipient;
 
 static const unsigned int MAX_GUID_LENGTH = 20;
