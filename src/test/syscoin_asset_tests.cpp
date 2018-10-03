@@ -380,7 +380,8 @@ BOOST_AUTO_TEST_CASE(generate_asset_throughput)
 	printf("Creating assetsend transactions...\n");
 	for (auto &sender : senders)
 		BOOST_CHECK_NO_THROW(CallExtRPC(sender, "tpstestsetenabled", "true"));
-
+	for (auto &receiver : receivers)
+		BOOST_CHECK_NO_THROW(CallExtRPC(receiver, "tpstestsetenabled", "true"));
 	int count = 0;
 	// setup total senders, and amount that we can add to tpstestadd at once (I noticed that if you push more than 100 or so to tpstestadd at once it will crap out)
 	int totalSenderNodes = senders.size();
