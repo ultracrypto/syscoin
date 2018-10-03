@@ -732,7 +732,7 @@ bool CheckAssetAllocationInputs(const CTransaction &tx, const CCoinsViewCache &i
 		int64_t ms = INT64_MAX;
 		if (fJustCheck) {
 			ms = GetTimeMillis();
-			if(fTPSTest && !fTPSTestEnabled)
+			if(fTPSTestEnabled)
 				vecTPSTestReceivedTimes.emplace_back(theAssetAllocation.txHash, GetTimeMicros());
 		}
 		const string &user = op == OP_ASSET_COLLECT_INTEREST ? user1 : "";
