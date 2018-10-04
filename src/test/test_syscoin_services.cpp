@@ -797,6 +797,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	CKey privEncryptionKey;
 	privEncryptionKey.MakeNewKey(true);
 	CPubKey pubEncryptionKey = privEncryptionKey.GetPubKey();
+	vector<unsigned char> vchPrivEncryptionKey(privEncryptionKey.begin(), privEncryptionKey.end());
 	vector<unsigned char> vchPubEncryptionKey(pubEncryptionKey.begin(), pubEncryptionKey.end());
 	
 
