@@ -19,7 +19,6 @@
 using namespace boost::chrono;
 using namespace std;
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
-std::map<string, string> aliasPubKeysAsset;
 void printRangeVector (vector<CRange> &vecRange, string tag) {
 	printf("Printing vector range %s: ", tag.c_str());
 	for(int index = 0; index < vecRange.size(); index++) {
@@ -284,7 +283,6 @@ BOOST_AUTO_TEST_CASE(generate_big_assetdata)
 	RandomInit();
 	ECC_Start();
 	StartNodes();
-	SetAliasPubKeys(&aliasPubKeysAsset);
 	GenerateSpendableCoins();
 	printf("Running generate_big_assetdata...\n");
 	GenerateBlocks(5);
@@ -641,7 +639,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_maxsenders)
 		if (i < 249)
 			senderstring += ",";
 		// registration	
-		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' ''"));
+		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' '' '' ''"));
 		UniValue varray = r.get_array();
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscointxfund " + varray[0].get_str() + " " + "\"{\\\"addresses\\\":[\\\"" + strAddress + "\\\"]}\""));
 		varray = r.get_array();
@@ -649,7 +647,7 @@ BOOST_AUTO_TEST_CASE(generate_asset_maxsenders)
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "generate 1"));
 		// activation	
-		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' ''"));
+		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "aliasnew " + aliasname + " '' 3 " + mediantimestr + " '' '' '' ''"));
 		UniValue varray1 = r.get_array();
 		BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscointxfund " + varray1[0].get_str() + " " + "\"{\\\"addresses\\\":[\\\"" + strAddress + "\\\"]}\""));
 		varray1 = r.get_array();

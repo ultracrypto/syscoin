@@ -36,10 +36,6 @@ static bool node1Online = false;
 static bool node2Online = false;
 static bool node3Online = false;
 std::map<string, string> mapNodes;
-std::map<string, string> *aliasPubKeysInt;
-void SetAliasPubKeys(std::map<string, string> *keys) {
-	aliasPubKeysInt = keys;
-}
 // create a map between node alias names and URLs to be used in testing for example CallRPC("mynode", "getinfo") would call getinfo on the node alias mynode which would be pushed as a URL here.
 // it is assumed RPC ports are open and u:p is the authentication
 void InitNodeURLMap() {
@@ -825,7 +821,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 		strAddress = newaddress;
 	UniValue r;
 	// registration
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " '' '' " + witness));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscointxfund " + varray[0].get_str()));
 	varray = r.get_array();
@@ -833,7 +829,7 @@ string AliasNew(const string& node, const string& aliasname, const string& pubda
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 	GenerateBlocks(5, node);
 	// activation
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasnew " + aliasname + " " + pubdata + " " + acceptTransfers + " " + expireTime + " " + strAddress + " '' '' " + witness));
 	UniValue varray1 = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "syscointxfund " + varray1[0].get_str()));
 	varray1 = r.get_array();
@@ -893,7 +889,7 @@ string AliasTransfer(const string& node, const string& aliasname, const string& 
 
 	string address = aliasAddress.ToString();
 	string newpubdata = pubdata == "''" ? oldvalue : pubdata;
-	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + address + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + witness));
+	BOOST_CHECK_NO_THROW(r = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + address + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " '' '' " + witness));
 	UniValue varray = r.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + varray[0].get_str()));
 	string hex_str;
@@ -968,7 +964,7 @@ string AliasUpdate(const string& node, const string& aliasname, const string& pu
 	string newpubdata = pubdata == "''" ? oldvalue : pubdata;
 	string newAddressStr = addressStr == "''" ? oldAddressStr : addressStr;
 	// "aliasupdate <aliasname> [public value]  [address] [accept_transfers=true] [expire_timestamp] [witness]\n"
-	BOOST_CHECK_NO_THROW(r1 = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + newAddressStr + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " " + witness));
+	BOOST_CHECK_NO_THROW(r1 = CallRPC(node, "aliasupdate " + aliasname + " " + newpubdata + " " + newAddressStr + " " + boost::lexical_cast<string>(nAcceptTransferFlags) + " " + expires + " '' '' " + witness));
 	UniValue varray = r1.get_array();
 	BOOST_CHECK_NO_THROW(r = CallRPC(node, "signrawtransaction " + varray[0].get_str()));
 	string hex_str;
