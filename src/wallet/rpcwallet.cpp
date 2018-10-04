@@ -440,7 +440,8 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
     CSyscoinAddress address(request.params[0].get_str());
 	// SYSCOIN
 	string strAddress;
-	if (GetAddressFromAlias(request.params[0].get_str(), strAddress))
+	vector<unsigned char> vchPubKey;
+	if (GetAddressFromAlias(request.params[0].get_str(), strAddress, vchPubKey))
 	{
 		address = CSyscoinAddress(strAddress);
 	}

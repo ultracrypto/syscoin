@@ -311,8 +311,8 @@ bool DecodeAliasScript(const CScript& script, int& op,
 		std::vector<std::vector<unsigned char> > &vvch);
 bool FindAliasInTx(const CCoinsViewCache &inputs, const CTransaction& tx, std::vector<std::vector<unsigned char> >& vvch);
 unsigned int addressunspent(const std::string& strAddressFrom, COutPoint& outpoint);
-bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress);
-bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias);
+bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress, std::vector<unsigned char> &vchPubKey);
+bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias, std::vector<unsigned char> &vchPubKey);
 int getFeePerByte(const uint64_t &paymentOptionMask);
 float getEscrowFee();
 std::string aliasFromOp(int op);

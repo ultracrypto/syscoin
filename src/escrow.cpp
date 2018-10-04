@@ -1157,16 +1157,13 @@ UniValue escrowaddshipping(const JSONRPCRequest& request) {
 }
 UniValue escrownew(const JSONRPCRequest& request) {
 	const UniValue &params = request.params;
-    if (request.fHelp || params.size() != 19)
+    if (request.fHelp || params.size() != 16)
         throw runtime_error(
-			"escrownew [getamountandaddress] [alias] [arbiter alias] [offer] [buyer_pubkey] [seller_pubkey] [arbiter_pubkey] [quantity] [buynow] [price_per_unit_in_payment_option] [shipping_amount] [network_fee] [arbiter_fee] [witness_fee] [extTx] [payment_option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
+			"escrownew [getamountandaddress] [alias] [arbiter alias] [offer] [quantity] [buynow] [price_per_unit_in_payment_option] [shipping_amount] [network_fee] [arbiter_fee] [witness_fee] [extTx] [payment_option] [bid_in_payment_option] [bid_in_offer_currency] [witness]\n"
 				"<getamountandaddress> True or false. Get deposit and total escrow amount aswell as escrow address for funding. If buynow is false pass bid amount in bid_in_payment_option to get total needed to complete escrow. If buynow is true amount is calculated based on offer price and quantity.\n"
 				"<alias> An alias you own.\n"
 				"<arbiter alias> Alias of Arbiter.\n"
                 "<offer> GUID of offer that this escrow is managing.\n"
-				"<buyer_pubkey> Buyer public key.\n"
-				"<seller_pubkey> Seller public key.\n"
-				"<arbiter_pubkey> Arbiter public key.\n"
                 "<quantity> Quantity of items to buy of offer.\n"
 				"<buynow> Specify whether the escrow involves purchasing offer for the full offer price if set to true, or through a bidding auction if set to false. If buynow is false, an initial deposit may be used to secure a bid if required by the seller.\n"
 				"<price_per_unit_in_payment_option> Total amount of the offer price. Amount is in paymentOption currency. It is per unit of purchase. \n"
@@ -1184,14 +1181,11 @@ UniValue escrownew(const JSONRPCRequest& request) {
 	vector<unsigned char> vchAlias = vchFromValue(params[1]);
 	string strArbiter = params[2].get_str();
 	vector<unsigned char> vchOffer = vchFromValue(params[3]);
-	string buyerpubkey = params[4].get_str();
-	string sellerpubkey = params[5].get_str();
-	string arbiterpubkey = params[6].get_str();
 	unsigned int nQty = 1;
 
-	nQty = params[7].get_int();
-	bool bBuyNow = params[8].get_bool();
-	CAmount nPricePerUnit = AmountFromValue(params[9].get_real());
+	nQty = params[4].get_int();
+	bool bBuyNow = params[5].get_bool();
+	CAmount nPricePerUnit = AmountFromValue(params[6].get_real());
 	
 	boost::algorithm::to_lower(strArbiter);
 	// check for alias existence in DB
@@ -1200,24 +1194,24 @@ UniValue escrownew(const JSONRPCRequest& request) {
 		throw runtime_error("SYSCOIN_ESCROW_RPC_ERROR: ERRCODE: 4505 - " + _("Failed to read arbiter alias from DB"));
 
 	CAmount nShipping = 0;
-	nShipping = AmountFromValue(params[10].get_real());
+	nShipping = AmountFromValue(params[7].get_real());
 	
 
 	int nNetworkFee = 0;
 	float fEscrowFee = getEscrowFee();
 
 	float fWitnessFee = 0;
-	nNetworkFee = params[11].get_int();
+	nNetworkFee = params[8].get_int();
 	
-	fEscrowFee = params[12].get_real();
-	fWitnessFee = params[13].get_real();
+	fEscrowFee = params[9].get_real();
+	fWitnessFee = params[10].get_real();
 
 	string extTxIdStr = "";
-	extTxIdStr = params[14].get_str();
+	extTxIdStr = params[11].get_str();
 
 	// payment options - get payment options string if specified otherwise default to SYS
 	string paymentOption = "SYS";
-	paymentOption = params[15].get_str();
+	paymentOption = params[12].get_str();
 	boost::algorithm::to_upper(paymentOption);
 	
 	// payment options - validate payment options string
@@ -1232,13 +1226,13 @@ UniValue escrownew(const JSONRPCRequest& request) {
 		nNetworkFee = getFeePerByte(paymentOptionMask);
 
 	CAmount nBidPerUnit = 0;
-	nBidPerUnit = AmountFromValue(params[16].get_real());
+	nBidPerUnit = AmountFromValue(params[13].get_real());
 	
 	float fBidPerUnit = 0;
-	fBidPerUnit = params[17].get_real();
+	fBidPerUnit = params[14].get_real();
 
 	vector<unsigned char> vchWitness;
-	vchWitness = vchFromValue(params[18]);
+	vchWitness = vchFromValue(params[15]);
 
 	CAliasIndex buyeralias;
 	ToLowerCase(vchAlias);
@@ -1312,9 +1306,9 @@ UniValue escrownew(const JSONRPCRequest& request) {
 
 	// standard 2 of 3 multisig
 	arrayParams.push_back(2);
-	arrayOfKeys.push_back(arbiterpubkey);
-	arrayOfKeys.push_back(sellerpubkey);
-	arrayOfKeys.push_back(buyerpubkey);
+	arrayOfKeys.push_back(stringFromVch(arbiteralias.vchAlias));
+	arrayOfKeys.push_back(stringFromVch(selleralias.vchAlias));	
+	arrayOfKeys.push_back(stringFromVch(buyeralias.vchAlias));
 	arrayParams.push_back(arrayOfKeys);
 	UniValue resCreate;
 	CScript redeemScript;

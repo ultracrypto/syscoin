@@ -30,8 +30,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include <univalue.h>
-extern bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias);
-extern bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress);
+extern bool GetAliasFromAddress(const std::string& strAddress, std::string& strAlias, std::vector<unsigned char> &vchPubKey);
+extern bool GetAddressFromAlias(const std::string& strAlias, std::string& strAddress, std::vector<unsigned char> &vchPubKey);
 using namespace std;
 /**
  * @note Do not add or change anything in the information returned by this
@@ -368,7 +368,8 @@ UniValue validateaddress(const JSONRPCRequest& request)
 
 		// SYSCOIN alias from address
 		string strAlias;
-		GetAliasFromAddress(address.ToString(), strAlias);
+		std::vector<unsigned char> vchPubKey;
+		GetAliasFromAddress(address.ToString(), strAlias, vchPubKey);
 		ret.push_back(Pair("alias", strAlias));
 
         CScript scriptPubKey = GetScriptForDestination(dest);
@@ -429,7 +430,23 @@ CScript _createmultisig_redeemScript(const UniValue& params)
 #ifdef ENABLE_WALLET
 		// Case 1: Syscoin address and we have full public key:
 		CSyscoinAddress address(ks);
-		if (pwalletMain && address.IsValid())
+		// SYSCOIN
+		vector<unsigned char> vchPubKey;
+		string strAddress;
+		string strAlias;
+		if (GetAddressFromAlias(ks, strAddress, vchPubKey))
+		{
+			address = CSyscoinAddress(strAddress);
+			pubkeys[i] = vchPubKey;
+			if (!pubkeys[i].IsFullyValid())
+				throw runtime_error(" Invalid public key: " + ks);
+		}
+		else if (GetAliasFromAddress(ks, strAlias, vchPubKey) && address.IsValid()) {
+			pubkeys[i] = vchPubKey;
+			if (!pubkeys[i].IsFullyValid())
+				throw runtime_error(" Invalid public key: " + ks);
+		}
+		else if (pwalletMain && address.IsValid())
 		{
 			CKeyID keyID;
 			if (!address.GetKeyID(keyID))
