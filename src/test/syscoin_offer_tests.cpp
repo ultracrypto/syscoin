@@ -12,13 +12,10 @@
 BOOST_GLOBAL_FIXTURE( SyscoinTestingSetup );
 
 BOOST_FIXTURE_TEST_SUITE (syscoin_offer_tests, BasicSyscoinTestingSetup)
-
-std::map<string, string> aliasPubKeysOffer;
 BOOST_AUTO_TEST_CASE (generate_offernew)
 {
 	printf("Running generate_offernew...\n");
 	UniValue r;
-	SetAliasPubKeys(&aliasPubKeysOffer);
 	GenerateBlocks(5);
 	GenerateBlocks(5, "node2");
 	GenerateBlocks(5, "node3");
@@ -119,7 +116,7 @@ BOOST_AUTO_TEST_CASE(generate_offerwhitelists)
 	// remove from whitelist
 	AliasRemoveWhitelist("node1", "sellerwhitelistalias", "selleraddwhitelistalias", "5");
 	string whiteListArray = "\"[{\\\"alias\\\":\\\"selleraddwhitelistalias\\\",\\\"discount_percentage\\\":100}]\"";
-	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdatewhitelist sellerwhitelistalias " + whiteListArray + " ''"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdatewhitelist sellerwhitelistalias " + whiteListArray + " '' "), runtime_error);
 	whiteListArray = "\"[{\\\"alias\\\":\\\"selleraddwhitelistalias\\\",\\\"discount_percentage\\\":-1}]\"";
 	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdatewhitelist sellerwhitelistalias " + whiteListArray + " ''"), runtime_error);
 
@@ -350,11 +347,8 @@ BOOST_AUTO_TEST_CASE (generate_offerupdate_editcurrency)
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "signrawtransaction " + arr[0].get_str()));
 	BOOST_CHECK_NO_THROW(r = CallRPC("node1", "syscoinsendrawtransaction " + find_value(r.get_obj(), "hex").get_str()));
 
-	string buyerpubkey = aliasPubKeysOffer["buyeraliascurrency"];
-	string sellerpubkey = aliasPubKeysOffer["selleraliascurrency"];
-	string arbiterpubkey = aliasPubKeysOffer["arbiteraliascurrency1"];
 
-	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "escrownew false buyeraliascurrency arbiteraliascurrency1 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 10 true 1 0 25 0.005 0 '' SYS 0 0 ''"));
+	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "escrownew false buyeraliascurrency arbiteraliascurrency1 " + offerguid + " 10 true 1 0 25 0.005 0 '' SYS 0 0 ''"));
 	UniValue arr1 = r.get_array();
 	escrowguid = arr1[1].get_str();
 	BOOST_CHECK_NO_THROW(r = CallRPC("node2", "signrawtransaction " + arr1[0].get_str()));
@@ -406,17 +400,14 @@ BOOST_AUTO_TEST_CASE (generate_offeraccept)
 	// perform a valid accept
 	string acceptguid = OfferAccept("node1", "node2", "buyeralias3", "arbiteralias3", offerguid, "1");
 
-	string buyerpubkey = aliasPubKeysOffer["buyeralias3"];
-	string sellerpubkey = aliasPubKeysOffer["selleralias3"];
-	string arbiterpubkey = aliasPubKeysOffer["arbiteralias3"];
 	// perform an accept on negative quantity
-	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey +  " -1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " -1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 
 	// perform an accept on zero quantity
-	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 0 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " 0 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 
 	// perform an accept on more items than available
-	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 101 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias3 arbiteralias3 " + offerguid + " 101 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 
 
 }
@@ -495,12 +486,9 @@ BOOST_AUTO_TEST_CASE (generate_offerexpired)
 	// this will expire the offer
 	ExpireAlias("buyeralias4");
 
-	string buyerpubkey = aliasPubKeysOffer["buyeralias4"];
-	string sellerpubkey = aliasPubKeysOffer["selleralias4"];
-	string arbiterpubkey = aliasPubKeysOffer["arbiteralias4"];
 
 	// should fail: perform an accept on expired offer
-	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias4 arbiteralias4 " + offerguid + " " + buyerpubkey + " " + sellerpubkey + " " + arbiterpubkey + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(r = CallRPC("node2", "escrownew false buyeralias4 arbiteralias4 " + offerguid + " 1 true 0 0 25 0.005 0 '' SYS 0 0 ''"), runtime_error);
 
 	// should fail: offer update on an expired offer
 	BOOST_CHECK_THROW(r = CallRPC("node1", "offerupdate selleralias4 " + offerguid + " category title 90 0.15 description USD false 0 SYS '' BUYNOW 0 0 false 0 ''"), runtime_error);
@@ -566,7 +554,7 @@ BOOST_AUTO_TEST_CASE (generate_offerpruning)
 	// stop node3
 	StopNode("node3");
 	// should fail: already expired alias
-	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdate pruneoffer newdata TTVgyEvCfgZFiVL32kD7jMRaBKtGCHqwbD 0 ''"), runtime_error);
+	BOOST_CHECK_THROW(CallRPC("node1", "aliasupdate pruneoffer newdata TTVgyEvCfgZFiVL32kD7jMRaBKtGCHqwbD 0 '' '' ''"), runtime_error);
 	GenerateBlocks(5, "node1");
 	
 	// stop and start node1
