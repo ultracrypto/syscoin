@@ -624,9 +624,7 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	// create 2 of 2
 	UniValue resCreate;
 	string redeemScript, addressStr;
-	string multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
-	string multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
-	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\"]\""));
+	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"jagnodemultisig1\\\",\\\"jagnodemultisig2\\\"]\""));
 	UniValue redeemScript_value = find_value(resCreate, "redeemScript");
 	UniValue address_value = find_value(resCreate, "address");
 	BOOST_CHECK(redeemScript_value.isStr());
@@ -673,9 +671,7 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	BOOST_CHECK(hex_str != "");
 
 	// create 1 of 2
-	multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
-	multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
-	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 1 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\"]\""));
+	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 1 \"[\\\"jagnodemultisig1\\\",\\\"jagnodemultisig2\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
 	BOOST_CHECK(redeemScript_value.isStr());
@@ -706,10 +702,7 @@ BOOST_AUTO_TEST_CASE (generate_multisigalias)
 	balanceAfter = AmountFromValue(find_value(r.get_obj(), "balance"));
 	BOOST_CHECK(abs(balanceBefore - balanceAfter) < COIN);
 	// create 2 of 3
-	multisig1pubkey = aliasPubKeysAlias["jagnodemultisig1"];
-	multisig2pubkey = aliasPubKeysAlias["jagnodemultisig2"];
-	string multisig3pubkey = aliasPubKeysAlias["jagnodemultisig3"];
-	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"" + multisig1pubkey + "\\\",\\\"" + multisig2pubkey + "\\\", \\\"" + multisig3pubkey + "\\\"]\""));
+	BOOST_CHECK_NO_THROW(resCreate = CallRPC("node1", "createmultisig 2 \"[\\\"jagnodemultisig1\\\",\\\"jagnodemultisig2\\\", \\\"jagnodemultisig3\\\"]\""));
 	redeemScript_value = find_value(resCreate, "redeemScript");
 	address_value = find_value(resCreate, "address");
 	BOOST_CHECK(redeemScript_value.isStr());
