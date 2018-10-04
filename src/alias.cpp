@@ -2447,6 +2447,8 @@ bool BuildAliasJson(const CAliasIndex& alias, UniValue& oName)
 	bool expired = false;
 	int64_t expired_time = 0;
 	oName.push_back(Pair("_id", stringFromVch(alias.vchAlias)));
+	oName.push_back(Pair("encryption_privatekey", HexStr(alias.vchEncryptionPrivateKey)));
+	oName.push_back(Pair("encryption_publickey", HexStr(alias.vchEncryptionPublicKey)));
 	oName.push_back(Pair("publicvalue", stringFromVch(alias.vchPublicValue)));	
 	oName.push_back(Pair("txid", alias.txHash.GetHex()));
 	int64_t nTime = 0;
