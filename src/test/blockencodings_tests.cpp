@@ -6,6 +6,7 @@
 #include <consensus/merkle.h>
 #include <chainparams.h>
 #include <pow.h>
+#include <primitives/pureheader.h>
 #include <random.h>
 
 #include <test/test_syscoin.h>
@@ -20,6 +21,11 @@ struct RegtestingSetup : public TestingSetup {
 
 BOOST_FIXTURE_TEST_SUITE(blockencodings_tests, RegtestingSetup)
 
+static void SetBlockVersion(CPureBlockHeader& header, int32_t baseVersion) {
+  const int32_t nChainId = Params().GetConsensus().nAuxpowChainId;
+  header.SetBaseVersion(baseVersion, nChainId);
+}
+
 static CBlock BuildBlockTestCase() {
     CBlock block;
     CMutableTransaction tx;
@@ -30,7 +36,7 @@ static CBlock BuildBlockTestCase() {
 
     block.vtx.resize(3);
     block.vtx[0] = MakeTransactionRef(tx);
-    block.nVersion = 42;
+    SetBlockVersion(block, 42);
     block.hashPrevBlock = InsecureRand256();
     block.nBits = 0x207fffff;
 
@@ -289,7 +295,7 @@ BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
     CBlock block;
     block.vtx.resize(1);
     block.vtx[0] = MakeTransactionRef(std::move(coinbase));
-    block.nVersion = 42;
+    SetBlockVersion(block, 42);
     block.hashPrevBlock = InsecureRand256();
     block.nBits = 0x207fffff;
 
@@ -343,50 +349,49 @@ BOOST_AUTO_TEST_CASE(TransactionsRequestSerializationTest) {
     BOOST_CHECK_EQUAL(req1.indexes[2], req2.indexes[2]);
     BOOST_CHECK_EQUAL(req1.indexes[3], req2.indexes[3]);
 }
-
 BOOST_AUTO_TEST_CASE(TransactionsRequestDeserializationMaxTest) {
-    // Check that the highest legal index is decoded correctly
-    BlockTransactionsRequest req0;
-    req0.blockhash = InsecureRand256();
-    req0.indexes.resize(1);
-    req0.indexes[0] = 0xffff;
-    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
-    stream << req0;
+	// Check that the highest legal index is decoded correctly
+	BlockTransactionsRequest req0;
+	req0.blockhash = InsecureRand256();
+	req0.indexes.resize(1);
+	req0.indexes[0] = 0xffff;
+	CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
+	stream << req0;
 
-    BlockTransactionsRequest req1;
-    stream >> req1;
-    BOOST_CHECK_EQUAL(req0.indexes.size(), req1.indexes.size());
-    BOOST_CHECK_EQUAL(req0.indexes[0], req1.indexes[0]);
+	BlockTransactionsRequest req1;
+	stream >> req1;
+	BOOST_CHECK_EQUAL(req0.indexes.size(), req1.indexes.size());
+	BOOST_CHECK_EQUAL(req0.indexes[0], req1.indexes[0]);
 }
 
 BOOST_AUTO_TEST_CASE(TransactionsRequestDeserializationOverflowTest) {
-    // Any set of index deltas that starts with N values that sum to (0x10000 - N)
-    // causes the edge-case overflow that was originally not checked for. Such
-    // a request cannot be created by serializing a real BlockTransactionsRequest
-    // due to the overflow, so here we'll serialize from raw deltas.
-    BlockTransactionsRequest req0;
-    req0.blockhash = InsecureRand256();
-    req0.indexes.resize(3);
-    req0.indexes[0] = 0x7000;
-    req0.indexes[1] = 0x10000 - 0x7000 - 2;
-    req0.indexes[2] = 0;
-    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
-    stream << req0.blockhash;
-    WriteCompactSize(stream, req0.indexes.size());
-    WriteCompactSize(stream, req0.indexes[0]);
-    WriteCompactSize(stream, req0.indexes[1]);
-    WriteCompactSize(stream, req0.indexes[2]);
+	// Any set of index deltas that starts with N values that sum to (0x10000 - N)
+	// causes the edge-case overflow that was originally not checked for. Such
+	// a request cannot be created by serializing a real BlockTransactionsRequest
+	// due to the overflow, so here we'll serialize from raw deltas.
+	BlockTransactionsRequest req0;
+	req0.blockhash = InsecureRand256();
+	req0.indexes.resize(3);
+	req0.indexes[0] = 0x7000;
+	req0.indexes[1] = 0x10000 - 0x7000 - 2;
+	req0.indexes[2] = 0;
+	CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
+	stream << req0.blockhash;
+	WriteCompactSize(stream, req0.indexes.size());
+	WriteCompactSize(stream, req0.indexes[0]);
+	WriteCompactSize(stream, req0.indexes[1]);
+	WriteCompactSize(stream, req0.indexes[2]);
 
-    BlockTransactionsRequest req1;
-    try {
-        stream >> req1;
-        // before patch: deserialize above succeeds and this check fails, demonstrating the overflow
-        BOOST_CHECK(req1.indexes[1] < req1.indexes[2]);
-        // this shouldn't be reachable before or after patch
-        BOOST_CHECK(0);
-    } catch(std::ios_base::failure &) {
-        // deserialize should fail
-    }
+	BlockTransactionsRequest req1;
+	try {
+		stream >> req1;
+		// before patch: deserialize above succeeds and this check fails, demonstrating the overflow
+		BOOST_CHECK(req1.indexes[1] < req1.indexes[2]);
+		// this shouldn't be reachable before or after patch
+		BOOST_CHECK(0);
+	}
+	catch (std::ios_base::failure &) {
+		// deserialize should fail
+	}
 }
-
 BOOST_AUTO_TEST_SUITE_END()
