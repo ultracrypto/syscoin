@@ -115,9 +115,9 @@ AC_ARG_ENABLE(exhaustive_tests,
     [use_exhaustive_tests=yes])
 
 AC_ARG_ENABLE(endomorphism,
-    AS_HELP_STRING([--enable-endomorphism],[enable endomorphism (default is yes)]),
+    AS_HELP_STRING([--enable-endomorphism],[enable endomorphism (default is no)]),
     [use_endomorphism=$enableval],
-    [use_endomorphism=yes])
+    [use_endomorphism=no])
 
 AC_ARG_ENABLE(ecmult_static_precomputation,
     AS_HELP_STRING([--enable-ecmult-static-precomputation],[enable precomputed ecmult table for signing (default is yes)]),
