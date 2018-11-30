@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.syscoin;
+package org.bitcoin;
 
 /**
  * This class holds the context reference used in native methods 
