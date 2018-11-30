@@ -7,6 +7,7 @@
 
 #include <hash.h>
 #include <utilstrencodings.h>
+#include <versionbits.h>
 
 uint256 CPureBlockHeader::GetHash() const
 {
