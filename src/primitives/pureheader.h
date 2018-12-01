@@ -106,7 +106,10 @@ public:
      * Extract the chain ID.
      * @return The chain ID encoded in the version.
      */
-	int32_t GetChainId() const;
+    inline int32_t GetChainId() const
+    {
+        return nVersion / VERSION_CHAIN_START;
+    }
 
     /**
      * Set the chain ID.  This is used for the test suite.

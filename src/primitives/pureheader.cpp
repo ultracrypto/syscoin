@@ -20,7 +20,3 @@ void CPureBlockHeader::SetBaseVersion(int32_t nBaseVersion, int32_t nChainId)
     assert(!IsAuxpow());
     nVersion = nBaseVersion | (nChainId * VERSION_CHAIN_START);
 }
-int32_t CPureBlockHeader::GetChainId() const
-{
-	return (nVersion & ~VERSIONBITS_TOP_MASK) / VERSION_CHAIN_START;
-}
