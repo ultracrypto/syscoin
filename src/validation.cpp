@@ -2041,7 +2041,7 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 const CScript& scriptPubKey = coin.out.scriptPubKey;
                 const CAmount amount = coin.out.nValue;
 				if (pvChecksConcurrent) {
-					CScriptCheckConcurrent checkConcurrent(coin.out, tx, i, flags, cacheStore);
+					CScriptCheckConcurrent checkConcurrent(scriptPubKey, amount, tx, i, flags, cacheStore);
 					pvChecksConcurrent->push_back(CScriptCheckConcurrent());
 					checkConcurrent.swap(pvChecksConcurrent->back());
 				}
