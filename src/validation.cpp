@@ -1924,7 +1924,7 @@ bool CScriptCheck::operator()() const {
 
 bool CScriptCheckConcurrent::operator()() const {
 	const CScript &scriptSig = txTo.vin[nIn].scriptSig;
-	if (!VerifyScript(scriptSig, scriptPubKey, nFlags, CachingTransactionSignatureChecker(txTo, nIn, cacheStore))) {
+	if (!VerifyScript(scriptSig, scriptPubKey, nFlags, CachingTransactionSignatureChecker(&txTo, nIn, cacheStore))) {
 		return false;
 	}
 	return true;
