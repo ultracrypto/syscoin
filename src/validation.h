@@ -492,7 +492,7 @@ class CScriptCheckConcurrent
 {
 private:
 	CScript scriptPubKey;
-	const CTransaction txTo;
+	CTransaction txTo;
 	unsigned int nIn;
 	unsigned int nFlags;
 	bool cacheStore;
