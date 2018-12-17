@@ -491,27 +491,26 @@ public:
 class CScriptCheckConcurrent
 {
 private:
-	CTxOut m_tx_out;
-	CTransaction txTo;
+	CScript scriptPubKey;
+	const CTransaction txTo;
 	unsigned int nIn;
 	unsigned int nFlags;
 	bool cacheStore;
-	PrecomputedTransactionData txdata;
 
 public:
 	CScriptCheckConcurrent() : nIn(0), nFlags(0), cacheStore(false) {}
-	CScriptCheckConcurrent(const CTxOut& outIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, const PrecomputedTransactionData &txdataIn) :
-		m_tx_out(outIn), txTo(txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), txdata(txdataIn) { }
+	CScriptCheckConcurrent(const CScript& scriptPubKeyIn, const CAmount amountIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn) :
+		scriptPubKey(scriptPubKeyIn),
+		txTo(txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn) { }
 
 	bool operator()() const;
 
 	void swap(CScriptCheckConcurrent &check) {
+		scriptPubKey.swap(check.scriptPubKey);
 		std::swap(txTo, check.txTo);
-		std::swap(m_tx_out, check.m_tx_out);
 		std::swap(nIn, check.nIn);
 		std::swap(nFlags, check.nFlags);
 		std::swap(cacheStore, check.cacheStore);
-		std::swap(txdata, check.txdata);
 	}
 };
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &hashes);
