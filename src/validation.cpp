@@ -1219,7 +1219,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 		bool isCached = false;
 		// Check against previous transactions
 		// This is done last to help prevent CPU exhaustion denial-of-service attacks.
-		if (!CheckInputs(tx, state, view, true, STANDARD_SCRIPT_VERIFY_FLAGS, true, true, bMultiThreaded? NULL: &vChecks, bMultiThreaded? &hashCacheEntry: NULL, &isCached)) {
+		if (!CheckInputs(tx, state, view, true, STANDARD_SCRIPT_VERIFY_FLAGS, true, true, bMultiThreaded? NULL: &vChecks, bMultiThreaded? &vChecksConcurrent: NULL, &hashCacheEntry, &isCached)) {
 			return false;
 		}
 		// if cache was hit we return, we already have processed this tx
@@ -1923,7 +1923,7 @@ bool CScriptCheck::operator()() const {
 }
 
 bool CScriptCheckConcurrent::operator()() const {
-	const CScript &scriptSig = txTo->vin[nIn].scriptSig;
+	const CScript &scriptSig = txTo.vin[nIn].scriptSig;
 	if (!VerifyScript(scriptSig, scriptPubKey, nFlags, CachingTransactionSignatureChecker(txTo, nIn, cacheStore))) {
 		return false;
 	}
