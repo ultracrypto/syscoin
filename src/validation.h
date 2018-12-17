@@ -44,6 +44,7 @@ class CCoinsViewDB;
 class CInv;
 class CConnman;
 class CScriptCheck;
+class CScriptCheckConcurrent;
 class CTxMemPool;
 class CValidationInterface;
 class CValidationState;
@@ -389,7 +390,7 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& ma
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, bool cacheFullScriptStore, std::vector<CScriptCheck> *pvChecks = NULL, uint256* hashCacheEntry=NULL, bool *isCached = NULL);
+                 unsigned int flags, bool cacheStore, bool cacheFullScriptStore, std::vector<CScriptCheck> *pvChecks = NULL, std::vector<CScriptCheckConcurrent> *pvChecksConcurrent = NULL,  uint256* hashCacheEntry=NULL, bool *isCached = NULL);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
@@ -482,7 +483,37 @@ public:
 
     ScriptError GetScriptError() const { return error; }
 };
+// SYSCOIN
+/**
+* Closure representing one script multithreaded verification (we want to copy all data instead of store pointers as it may go out of scope in threadpool and cause undefined behaviour in CScriptCheck)
+* Note that this stores references to the spending transaction
+*/
+class CScriptCheckConcurrent
+{
+private:
+	CTxOut m_tx_out;
+	CTransaction txTo;
+	unsigned int nIn;
+	unsigned int nFlags;
+	bool cacheStore;
+	PrecomputedTransactionData txdata;
 
+public:
+	CScriptCheckConcurrent() : nIn(0), nFlags(0), cacheStore(false) {}
+	CScriptCheckConcurrent(const CTxOut& outIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, const PrecomputedTransactionData &txdataIn) :
+		m_tx_out(outIn), txTo(txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), txdata(txdataIn) { }
+
+	bool operator()() const;
+
+	void swap(CScriptCheckConcurrent &check) {
+		std::swap(txTo, check.txTo);
+		std::swap(m_tx_out, check.m_tx_out);
+		std::swap(nIn, check.nIn);
+		std::swap(nFlags, check.nFlags);
+		std::swap(cacheStore, check.cacheStore);
+		std::swap(txdata, check.txdata);
+	}
+};
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &hashes);
 bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
 bool GetAddressIndex(uint160 addressHash, int type,

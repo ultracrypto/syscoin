@@ -1214,11 +1214,12 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 		// If we aren't going to actually accept it but just were verifying it, we are fine already
 		if (fDryRun) return true;
 		std::vector<CScriptCheck> vChecks;
+		std::vector<CScriptCheckConcurrent> vChecksConcurrent;
 		uint256 hashCacheEntry;
 		bool isCached = false;
 		// Check against previous transactions
 		// This is done last to help prevent CPU exhaustion denial-of-service attacks.
-		if (!CheckInputs(tx, state, view, true, STANDARD_SCRIPT_VERIFY_FLAGS, true, true, &vChecks, &hashCacheEntry, &isCached)) {
+		if (!CheckInputs(tx, state, view, true, STANDARD_SCRIPT_VERIFY_FLAGS, true, true, bMultiThreaded? NULL: &vChecks, bMultiThreaded? &hashCacheEntry: NULL, &isCached)) {
 			return false;
 		}
 		// if cache was hit we return, we already have processed this tx
@@ -1293,7 +1294,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 			static int64_t maxExecutionMicros = 0;
 
 			// define a task for the worker to process
-			std::packaged_task<void()> task([&pool, ptx, hash, coins_to_uncache, hashCacheEntry, vChecks]() {
+			std::packaged_task<void()> task([&pool, ptx, hash, coins_to_uncache, hashCacheEntry, vChecksConcurrent]() {
 				// metrics
 				int64_t time;
 				if (fLogThreadpool) {
@@ -1310,7 +1311,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 				CCoinsViewCache coinsViewCache(pcoinsTip);
 				const CTransaction& txIn = *ptx;
 				bool isCheckPassing = true;  // optimistic in case vChecks is empty
-				for (auto &check : vChecks)
+				for (auto &check : vChecksConcurrent)
 				{
 					if (fLogThreadpool) 
 						thisCheckCount += 1;
@@ -1921,6 +1922,13 @@ bool CScriptCheck::operator()() const {
     return true;
 }
 
+bool CScriptCheckConcurrent::operator()() const {
+	const CScript &scriptSig = txTo->vin[nIn].scriptSig;
+	if (!VerifyScript(scriptSig, scriptPubKey, nFlags, CachingTransactionSignatureChecker(txTo, nIn, cacheStore))) {
+		return false;
+	}
+	return true;
+}
 int GetSpendHeight(const CCoinsViewCache& inputs)
 {
     LOCK(cs_main);
@@ -1982,7 +1990,7 @@ void InitScriptExecutionCache() {
 	LogPrintf("Using %zu MiB out of %zu/2 requested for script execution cache, able to store %zu elements\n",
 		(nElems * sizeof(uint256)) >> 20, (nMaxCacheSize * 2) >> 20, nElems);
 }
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, bool cacheFullScriptStore, std::vector<CScriptCheck> *pvChecks, uint256* hashCacheEntryOut, bool *isCached)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, bool cacheFullScriptStore, std::vector<CScriptCheck> *pvChecks, std::vector<CScriptCheckConcurrent> *pvChecksConcurrent, uint256* hashCacheEntryOut, bool *isCached)
 {
     if (!tx.IsCoinBase())
     {
@@ -2032,17 +2040,24 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 // spent being checked as a part of CScriptCheck.
                 const CScript& scriptPubKey = coin.out.scriptPubKey;
                 const CAmount amount = coin.out.nValue;
-
-                // Verify signature
-                CScriptCheck check(scriptPubKey, amount, tx, i, flags, cacheStore);
-                if (pvChecks) {
-                    pvChecks->push_back(CScriptCheck());
-                    check.swap(pvChecks->back());
-                } else if (!check()) {
-					return state.DoS(100, false, REJECT_INVALID, strprintf("mandatory-script-verify-flag-failed (%s)", ScriptErrorString(check.GetScriptError())));
-                }
+				if (pvChecksConcurrent) {
+					CScriptCheckConcurrent checkConcurrent(coin.out, tx, i, flags, cacheStore);
+					pvChecksConcurrent->push_back(CScriptCheckConcurrent());
+					checkConcurrent.swap(pvChecksConcurrent->back());
+				}
+				else {
+					// Verify signature
+					CScriptCheck check(scriptPubKey, amount, tx, i, flags, cacheStore);
+					if (pvChecks) {
+						pvChecks->push_back(CScriptCheck());
+						check.swap(pvChecks->back());
+					}
+					else if (!check()) {
+						return state.DoS(100, false, REJECT_INVALID, strprintf("mandatory-script-verify-flag-failed (%s)", ScriptErrorString(check.GetScriptError())));
+					}
+				}
             }
-			if (cacheFullScriptStore && !pvChecks) {
+			if (cacheFullScriptStore && !pvChecks && !pvChecksConcurrent) {
 				// We executed all of the provided scripts, and were told to
 				// cache the result. Do so now.
 				scriptExecutionCache.insert(hashCacheEntry);
