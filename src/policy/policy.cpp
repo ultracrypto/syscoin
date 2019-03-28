@@ -13,6 +13,7 @@
 #include <tinyformat.h>
 #include <util.h>
 #include <utilstrencodings.h>
+// SYSCOIN need constant SYSCOIN_TX_VERSION_ASSET
 #include <services/asset.h>
 
 CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
@@ -79,7 +80,7 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
 bool IsStandardTx(const CTransaction& tx, std::string& reason)
 {
     // SYSCOIN check for syscoin or bitcoin tx
-    if ((tx.nVersion > CTransaction::MAX_STANDARD_VERSION || tx.nVersion < 1) && !IsSyscoinTx(tx.nVersion)) {
+    if ((tx.nVersion > CTransaction::MAX_STANDARD_VERSION || tx.nVersion < 1) && tx.nVersion != SYSCOIN_TX_VERSION_ASSET && tx.nVersion != SYSCOIN_TX_VERSION_MINT_SYSCOIN && tx.nVersion != SYSCOIN_TX_VERSION_MINT_ASSET) {
         reason = "version";
         return false;
     }
@@ -125,7 +126,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
         {
             // SYSCOIN if not syscoin tx and opreturn size is bigger than maxcarrier bytes, return false
             // we need this because if it is a sys tx then we allow 200x maxcarrier bytes.
-            if (!IsSyscoinTx(tx.nVersion) && txout.scriptPubKey.size() > nMaxDatacarrierBytes)
+            if (tx.nVersion != SYSCOIN_TX_VERSION_ASSET && tx.nVersion != SYSCOIN_TX_VERSION_MINT_SYSCOIN && tx.nVersion != SYSCOIN_TX_VERSION_MINT_ASSET && txout.scriptPubKey.size() > nMaxDatacarrierBytes)
             {
                 reason = "scriptpubkey";
                 return false;

@@ -60,11 +60,7 @@ bool BaseIndex::Init()
     }
 
     LOCK(cs_main);
-    if (locator.IsNull()) {
-        m_best_block_index = nullptr;
-    } else {
-        m_best_block_index = FindForkInGlobalIndex(chainActive, locator);
-    }
+    m_best_block_index = FindForkInGlobalIndex(chainActive, locator);
     m_synced = m_best_block_index.load() == chainActive.Tip();
     return true;
 }
