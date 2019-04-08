@@ -35,6 +35,27 @@ import os
 #   GCC 4.4.2: GLIBCXX_3.4.13, CXXABI_1.3.3
 #   (glibc)    GLIBC_2_11
 #
+
+# SYSCOIN
+# Debian 9.8 (Stretch) has:
+#
+# - g++ version 4:6.3.0 (https://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=g%2B%2B)
+# - libc version 2.24 (https://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=libc6)
+# - libstdc++ version 6.3.0 (https://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=libstdc%2B%2B6)
+#
+# Ubuntu 18.04.2 (Bionic Beaver) has:
+#
+# - g++ version 4:7.3.0 (http://packages.ubuntu.com/search?keywords=g%2B%2B&searchon=names&suite=bionic&section=all)
+# - libc version 2.27.0 (http://packages.ubuntu.com/search?keywords=libc6&searchon=names&suite=bionic&section=all)
+# - libstdc++ version 6.4.0 (http://packages.ubuntu.com/search?suite=bionic&section=all&arch=any&keywords=libstdc%2B%2B&searchon=names)
+#
+# Taking the minimum of these as our target.
+#
+# According to GNU ABI document (http://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html) this corresponds to:
+#   GCC 6.3.0: GCC_4.4.0
+#   GCC 6.3.0: GLIBCXX_3.4.22, CXXABI_1.3.10
+#   (glibc)    GLIBC_2_27
+#
 MAX_VERSIONS = {
 'GCC':     (4,4,0),
 'CXXABI':  (1,3,3),
